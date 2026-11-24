@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TA–PX 跨品种价差 · 持仓实时重算（2026-10-21 11:08）</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #f5f7fa; color: #1a202c; line-height: 1.75;
+    padding: 32px 20px 64px;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  .hd { border-left: 5px solid #1f4e8c; padding-left: 16px; margin-bottom: 8px; }
+  .hd h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.3px; color: #0f2544; }
+  .hd .sub { font-size: 13px; color: #64748b; margin-top: 6px; }
+  .badge {
+    display: inline-block; background: #fff3cd; color: #7a5200; border: 1px solid #e8c97a;
+    font-size: 12px; padding: 2px 10px; border-radius: 3px; margin-left: 8px; vertical-align: middle;
+  }
+  .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 22px 24px; margin-bottom: 18px; }
+  .tldr { background: linear-gradient(135deg, #1f4e8c 0%, #2d6aa8 100%); color: #fff; border: none; }
+  .tldr .lead { font-size: 15px; opacity: .92; margin-bottom: 18px; }
+  .tldr .big { font-size: 40px; font-weight: 700; letter-spacing: -1px; line-height: 1.1; }
+  .tldr .big span { font-size: 17px; font-weight: 400; opacity: .85; margin-left: 8px; }
+  .kpi { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 20px; }
+  .kpi div { background: rgba(255,255,255,.13); border-radius: 6px; padding: 12px 14px; }
+  .kpi .k { font-size: 11.5px; opacity: .78; margin-bottom: 5px; letter-spacing: .3px; }
+  .kpi .v { font-size: 18px; font-weight: 600; }
+  h2 { font-size: 17px; color: #0f2544; margin-bottom: 14px; padding-bottom: 9px; border-bottom: 2px solid #eef2f7; }
+  h2 .n { color: #1f4e8c; font-weight: 700; margin-right: 8px; }
+  h3 { font-size: 14.5px; color: #1f4e8c; margin: 18px 0 9px; }
+  p { font-size: 14px; margin-bottom: 11px; color: #334155; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.2px; margin: 10px 0 14px; }
+  th { background: #f1f5f9; color: #475569; font-weight: 600; text-align: left; padding: 9px 11px; border-bottom: 2px solid #e2e8f0; font-size: 12.5px; }
+  td { padding: 9px 11px; border-bottom: 1px solid #eef2f7; }
+  tr:last-child td { border-bottom: none; }
+  .num { font-variant-numeric: tabular-nums; font-family: "SF Mono", Menlo, monospace; }
+  .pos { color: #c53030; font-weight: 600; }
+  .neg { color: #2f855a; font-weight: 600; }
+  .hl { background: #fffbea; }
+  .formula {
+    background: #f8fafc; border-left: 3px solid #1f4e8c; padding: 12px 16px; margin: 11px 0;
+    font-family: "SF Mono", Menlo, monospace; font-size: 13px; color: #1e293b; border-radius: 0 4px 4px 0;
+  }
+  .warn { background: #fff5f5; border-left: 4px solid #c53030; padding: 14px 18px; border-radius: 0 5px 5px 0; margin: 14px 0; font-size: 13.5px; color: #742a2a; }
+  .info { background: #f0f7ff; border-left: 4px solid #1f4e8c; padding: 14px 18px; border-radius: 0 5px 5px 0; margin: 14px 0; font-size: 13.5px; color: #1a365d; }
+  .ok { background: #f0fff4; border-left: 4px solid #2f855a; padding: 14px 18px; border-radius: 0 5px 5px 0; margin: 14px 0; font-size: 13.5px; color: #1c4532; }
+  .chart { width: 100%; height: 340px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .mini { background: #f8fafc; border-radius: 6px; padding: 14px 16px; }
+  .mini .lb { font-size: 11.5px; color: #64748b; margin-bottom: 4px; }
+  .mini .vv { font-size: 21px; font-weight: 700; color: #0f2544; font-variant-numeric: tabular-nums; }
+  .mini .note { font-size: 11.5px; color: #94a3b8; margin-top: 3px; }
+  ul { margin: 8px 0 12px 20px; }
+  li { font-size: 14px; color: #334155; margin-bottom: 7px; }
+  li b { color: #0f2544; }
+  .ft { text-align: center; font-size: 11.5px; color: #94a3b8; margin-top: 26px; line-height: 1.9; }
+  @media (max-width: 760px) {
+    .kpi { grid-template-columns: repeat(2, 1fr); }
+    .grid2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hd">
+    <h1>TA–PX 跨品种价差 · 持仓实时重算 <span class="badge">第三次修订</span></h1>
+    <div class="sub">数据时点 2026-10-21 11:08（新浪财经实时盘口） · 多 12 手 TA2701 @6466 / 空 8 手 PX2701 @9203</div>
+  </div>
+
+  <div class="card tldr">
+    <div class="lead">按当前盘口重算，这笔头寸几乎没有盈亏——不是"深度浮亏待解套"，而是"建在均衡位上，它就没动"。</div>
+    <div class="big">−80 元<span>／账面浮动（分腿法）</span></div>
+    <div class="kpi">
+      <div><div class="k">成本加工费</div><div class="v">438.03</div></div>
+      <div><div class="k">当前加工费</div><div class="v">436.34</div></div>
+      <div><div class="k">价差变动</div><div class="v">−1.69 元/吨</div></div>
+      <div><div class="k">收益率</div><div class="v">−0.12%</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="n">01</span>两种算法互验：结果一致</h2>
+    <p>跨品种价差头寸有两种算法，互相校验可以排除配比偏差带来的误差。</p>
+
+    <h3>方法一：分腿逐笔（最精确，不受配比偏差影响）</h3>
+    <table>
+      <thead><tr><th>腿</th><th>方向／手数</th><th>吨数</th><th>成本 → 现价</th><th class="num">盈亏</th></tr></thead>
+      <tbody>
+        <tr><td>TA2701</td><td>多头 12 手</td><td>60 吨</td><td>6,466 → 6,444</td><td class="num neg">−1,320</td></tr>
+        <tr><td>PX2701</td><td>空头 8 手</td><td>40 吨</td><td>9,203 → 9,172</td><td class="num pos">+1,240</td></tr>
+        <tr class="hl"><td colspan="4"><b>合计浮动盈亏</b></td><td class="num neg"><b>−80</b></td></tr>
+      </tbody>
+    </table>
+
+    <h3>方法二：价差法（标准加工费口径）</h3>
+    <div class="formula">
+成本加工费 = 6,466 − 0.655 × 9,203 = <b>438.03</b><br>
+当前加工费 = 6,444 − 0.655 × 9,172 = <b>436.34</b><br>
+价差变化 = 436.34 − 438.03 = −1.69 元/吨<br>
+对应盈亏 = −1.69 × 60 吨 = <b>−102 元</b>
+    </div>
+
+    <div class="info">
+      <b>两法差 22 元，原因已查明：</b>完美中性需要 12 × 0.655 = <b>7.86 手</b> PX，你用了 <b>8 手</b>，多空 0.7 吨 PX。这 0.7 吨在 PX 下跌 31 元的过程中贡献 +21.7 元，正好等于差额。配比偏差 1.8%，可忽略。
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="n">02</span>必须纠错：前两版为何报出 −6,765 与 −1,256</h2>
+    <p>前两次测算都用了非 2701 的 PX 价格，误差全部来自<b>合约错配</b>。PX 是一条陡峭的 Back 曲线：</p>
+    <table>
+      <thead><tr><th>合约</th><th class="num">PX2611</th><th class="num">PX2612（主力）</th><th class="num">PX2701（你的腿）</th><th class="num">PX2702</th></tr></thead>
+      <tbody>
+        <tr><td>10-21 价格</td><td class="num">9,494</td><td class="num">9,356</td><td class="num"><b>9,172</b></td><td class="num">9,006</td></tr>
+        <tr><td>与 2701 的差</td><td class="num pos">+322</td><td class="num pos">+184</td><td class="num">—</td><td class="num neg">−166</td></tr>
+      </tbody>
+    </table>
+    <p>第一版拿 PX2611 代言，第二版拿 PX2612 代言，相当于把一条贵 184～322 元的腿硬塞进公式，加工费就被系统性压低了 120～210 元。</p>
+    <div class="warn">
+      <b>三处已修正的错误：</b><br>
+      ① 第一版"加工费 325、浮亏 6,765"——用 PX2611/2612 代入，虚增亏损约 6,700 元；<br>
+      ② 第二版"加工费 417、浮亏 1,256"——PX 价格取的是 9,180（更接近但仍是盘中近似值），且当时 TA 取 6,430 偏低；<br>
+      ③ 第二版"开盘 312、单日亏 7,536"——该数用 TA 6,400 配 PX 9,294，两个数根本不属于同一时点，是拼接出来的假象。
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="n">03</span>全天加工费轨迹：一直在成本线附近，从未深亏</h2>
+    <p>把各时点还原后可以看到，加工费全天在 <b>432～446</b> 这个 14 元的窄带里摆动，最大浮亏不足 400 元。</p>
+    <div id="chartPath" class="chart"></div>
+    <p style="font-size:12px;color:#94a3b8;margin-top:8px;">
+      注：11:08 为实测盘口。10-20 日盘收盘与夜盘收盘的 PX2701 无直接报价，按当日 PX2612−PX2701 价差 184 元恒定推算，存在小幅误差，仅用于判断量级。
+    </p>
+    <table>
+      <thead><tr><th>时点</th><th class="num">TA2701</th><th class="num">PX2701</th><th class="num">加工费</th><th class="num">相对成本</th><th class="num">浮动盈亏</th><th>口径</th></tr></thead>
+      <tbody>
+        <tr><td>10-20 日盘收</td><td class="num">6,488</td><td class="num">9,246</td><td class="num">431.9</td><td class="num">−6.1</td><td class="num neg">−370</td><td>推算</td></tr>
+        <tr><td>10-20 夜盘收</td><td class="num">6,274</td><td class="num">8,898</td><td class="num">445.8</td><td class="num">+7.8</td><td class="num pos">+466</td><td>推算</td></tr>
+        <tr class="hl"><td><b>10-21 11:08</b></td><td class="num"><b>6,444</b></td><td class="num"><b>9,172</b></td><td class="num"><b>436.3</b></td><td class="num"><b>−1.7</b></td><td class="num neg"><b>−102</b></td><td><b>实测</b></td></tr>
+      </tbody>
+    </table>
+    <div class="ok">
+      <b>由此推出一个更重要的结论：</b>这笔交易建立以来，价差几乎没有变化（438 → 436）。夜盘能化普跌时它甚至小赚，日盘反弹时又回到原点。<b>问题不是浮亏，而是它根本没有产生价差变动</b>——因为你建仓的 438，恰好就是这条产业曲线的均衡位置。
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="n">04</span>回本临界：只差一点点，但空间也只有一点点</h2>
+    <div class="grid2">
+      <div class="mini">
+        <div class="lb">TA 不动，PX 需跌到</div>
+        <div class="vv">9,170</div>
+        <div class="note">现 9,172，还需 −2 元（−0.02%）</div>
+      </div>
+      <div class="mini">
+        <div class="lb">PX 不动，TA 需涨到</div>
+        <div class="vv">6,445.3</div>
+        <div class="note">现 6,444，还需 +1.3 元（+0.02%）</div>
+      </div>
+    </div>
+    <p style="margin-top:14px;">账面回本只差一步。但真正平仓还有一个必须考虑的摩擦成本：</p>
+    <table>
+      <thead><tr><th>项目</th><th class="num">金额</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>账面浮动盈亏</td><td class="num neg">−80</td><td>按最新价</td></tr>
+        <tr><td>买卖价差（滑点）</td><td class="num neg">−200</td><td>卖 TA 按买价 6,442、买 PX 按卖价 9,174</td></tr>
+        <tr><td>双边手续费</td><td class="num neg">−145</td><td>TA 3 元/手、PX 成交额万分之一</td></tr>
+        <tr class="hl"><td><b>实际落地亏损</b></td><td class="num neg"><b>约 −425</b></td><td>占保证金 −0.5%～−0.6%</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:12.5px;color:#64748b;">也就是说：账面打平 ≠ 平仓打平，真实成本约 400 元，主要来自 20 手合约的买卖价差。</p>
+  </div>
+
+  <div class="card">
+    <h2><span class="n">05</span>往上往下各能赚多少：这才是关键问题</h2>
+    <div id="chartPL" class="chart"></div>
+    <table>
+      <thead><tr><th>加工费</th><th class="num">较成本</th><th class="num">你的盈亏</th><th class="num">对应保证金收益率</th><th>需要发生什么</th></tr></thead>
+      <tbody>
+        <tr><td>380</td><td class="num">−58</td><td class="num neg">−3,482</td><td class="num neg">−4.6%</td><td>PX 重回 9,318 或 TA 跌至 6,298</td></tr>
+        <tr><td>400</td><td class="num">−38</td><td class="num neg">−2,282</td><td class="num neg">−3.0%</td><td>PTA 累库继续、加工费被压</td></tr>
+        <tr class="hl"><td><b>436.3（现在）</b></td><td class="num">−1.7</td><td class="num neg"><b>−102</b></td><td class="num">−0.12%</td><td>—</td></tr>
+        <tr><td>450</td><td class="num">+12</td><td class="num pos">+718</td><td class="num pos">+0.95%</td><td>PX 跌至 9,148 或 TA 涨至 6,463</td></tr>
+        <tr><td>470</td><td class="num">+32</td><td class="num pos">+1,918</td><td class="num pos">+2.5%</td><td>PX 跌至 9,118 或 TA 涨至 6,477</td></tr>
+        <tr><td>500</td><td class="num">+62</td><td class="num pos">+3,718</td><td class="num pos">+4.9%</td><td>PX 跌至 9,072 或 TA 涨至 6,496</td></tr>
+        <tr><td>550</td><td class="num">+112</td><td class="num pos">+6,718</td><td class="num pos">+8.9%</td><td>需 PTA 大幅减产或 PX 崩塌</td></tr>
+      </tbody>
+    </table>
+    <div class="info">
+      <b>这张表说明了根本问题：</b>你的成本 438 落在行业现金成本带（400–500）的中部，也几乎等于 2026 年 PTA 年均加工费 450。从这个位置出发，<b>上行最大合理目标 470 只赚 1,918 元，下行到 400 要亏 2,282 元</b>——赔率仍是 1 : 1.2，中性偏负。这不是浮亏问题，是建仓位置决定了赔率上限。
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="n">06</span>保证金与真实收益率</h2>
+    <table>
+      <thead><tr><th>项目</th><th class="num">名义价值</th><th class="num">交易所保证金</th><th class="num">含期货公司加收（约 12%）</th></tr></thead>
+      <tbody>
+        <tr><td>TA2701 多头 12 手</td><td class="num">386,640</td><td class="num">23,198（6%）</td><td class="num">46,397</td></tr>
+        <tr><td>PX2701 空头 8 手</td><td class="num">366,880</td><td class="num">44,026（12%）</td><td class="num">44,026</td></tr>
+        <tr class="hl"><td><b>合计</b></td><td class="num"><b>753,520</b></td><td class="num"><b>67,224</b></td><td class="num"><b>90,422</b></td></tr>
+      </tbody>
+    </table>
+    <p>按 −80 元的浮动盈亏计算，收益率约 <b>−0.12%</b>（交易所口径）到 <b>−0.09%</b>（含加收）。占用 7～9 万保证金，几乎没有产生任何损益——<b>这笔钱目前是"闲置"状态</b>。</p>
+    <p style="font-size:12.5px;color:#64748b;">注：TA 交易所最低保证金 6%、PX 12%，实际按各期货公司标准加收 3～5 个百分点，请以你的结算单为准。</p>
+  </div>
+
+  <div class="card">
+    <h2><span class="n">07</span>结论与操作</h2>
+    <p><b>账面上，你已经没有亏损需要处理了。</b>需要处理的是三件事：</p>
+    <ul>
+      <li><b>① 承认建仓位置偏高。</b>438 就是均衡价，这笔交易从一开始就缺乏空间——不是市场没给机会，是这个位置本身没有机会。</li>
+      <li><b>② 当前是零成本退出窗口。</b>账面 −80 元、落地约 −425 元，是以最小代价纠正一笔赔率不佳头寸的最佳时点。错过这里，下一个同等价位可能要等很久。</li>
+      <li><b>③ 若想继续持有，必须换一个理由。</b>原来的理由（加工费向 450–500 修复）已经兑现——现在就是 436，已在目标区。继续拿，赌的是"PTA 大规模减产"这个新变量，那就得按新交易来设参数。</li>
+    </ul>
+    <table>
+      <thead><tr><th>选项</th><th>操作</th><th>结果</th><th>适用</th></tr></thead>
+      <tbody>
+        <tr><td><b>A. 全部了结</b></td><td>平 12 手 TA + 8 手 PX</td><td class="num neg">约 −425</td><td>认可"建仓位置不佳"，释放 7～9 万保证金</td></tr>
+        <tr><td><b>B. 减半</b></td><td>平 6 手 TA + 4 手 PX</td><td class="num">约 −215</td><td>想保留一半博 450–470，代价可控</td></tr>
+        <tr><td><b>C. 全留 + 设纪律</b></td><td>不动，挂条件单</td><td>—</td><td>见下方参数</td></tr>
+      </tbody>
+    </table>
+    <h3>选 C 的执行参数</h3>
+    <ul>
+      <li><b>止盈：</b>加工费 450（TA 6,463 / PX 9,148）平 6+4；470（TA 6,477 / PX 9,118）清尾仓</li>
+      <li><b>止损：</b>加工费跌破 <b>410</b>（TA 6,342 / PX 9,222）全平，约 −1,680 元</li>
+      <li><b>时间止损：</b>持有满 4 周仍在 420–445 区间，无条件离场——横盘就是持续占用保证金</li>
+    </ul>
+    <div class="warn">
+      <b>仓位合并提醒：</b>你的 <b>PL2611 空 8,718</b> 与这笔 PX 空头，在"原油下行"这个变量上是<b>同一个赌注</b>（两者都是油化工，PX 的原油弹性高于 TA）。两笔应合并计算风险敞口，不能各按独立止损算。
+    </div>
+  </div>
+
+  <div class="ft">
+    数据来源：新浪财经实时盘口（2026-10-21 11:08:20 / 11:08:26）、郑商所合约参数、隆众 PTA 加工费口径<br>
+    合约乘数 TA／PX 均为 5 吨/手；单耗 0.655；本报告为量化测算，不构成投资建议，市场有风险，投资需谨慎
+  </div>
+
+</div>
+
+<script>
+var c1 = echarts.init(document.getElementById('chartPath'));
+c1.setOption({
+  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+  grid: { left: 62, right: 30, top: 44, bottom: 44 },
+  xAxis: { type: 'category', data: ['10-20 日盘收', '10-20 夜盘收', '10-21 11:08（实测）'] },
+  yAxis: { type: 'value', name: '加工费（元/吨）', min: 400, max: 470, splitLine: { lineStyle: { color: '#eef2f7' } } },
+  series: [{
+    name: '加工费',
+    type: 'bar',
+    barWidth: '38%',
+    data: [
+      { value: 431.9, itemStyle: { color: '#2f855a' } },
+      { value: 445.8, itemStyle: { color: '#c53030' } },
+      { value: 436.3, itemStyle: { color: '#94a3b8' } }
+    ],
+    label: { show: true, position: 'top', formatter: '{c}', fontSize: 12, fontWeight: 600 },
+    markLine: {
+      symbol: 'none',
+      data: [{ yAxis: 438.03, label: { formatter: '成本线 438.03', position: 'insideEndTop', fontSize: 11 }, lineStyle: { color: '#1f4e8c', type: 'dashed', width: 2 } }]
+    }
+  }]
+});
+
+var c2 = echarts.init(document.getElementById('chartPL'));
+c2.setOption({
+  tooltip: { trigger: 'axis' },
+  grid: { left: 68, right: 30, top: 40, bottom: 44 },
+  xAxis: { type: 'category', boundaryGap: false, data: ['350', '380', '400', '420', '436.3', '450', '470', '500', '550'] },
+  yAxis: { type: 'value', name: '盈亏（元）', splitLine: { lineStyle: { color: '#eef2f7' } } },
+  series: [{
+    name: '持仓盈亏',
+    type: 'line',
+    smooth: false,
+    symbolSize: 8,
+    data: [-5282, -3482, -2282, -1082, -102, 718, 1918, 3718, 6718],
+    itemStyle: { color: '#1f4e8c' },
+    lineStyle: { width: 3 },
+    areaStyle: { color: 'rgba(31,78,140,0.08)' },
+    markLine: {
+      symbol: 'none',
+      data: [
+        { yAxis: 0, label: { formatter: '盈亏平衡', fontSize: 11 }, lineStyle: { color: '#94a3b8', type: 'dotted', width: 1.5 } },
+        { xAxis: '436.3', label: { formatter: '当前', fontSize: 11 }, lineStyle: { color: '#c53030', type: 'dashed', width: 1.5 } }
+      ]
+    }
+  }]
+});
+
+window.addEventListener('resize', function () { c1.resize(); c2.resize(); });
+</script>
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>今晚夜盘套利关注清单 · 2026-10-12</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0 0 60px;
+    background: #f4f6f8;
+    color: #1f2733;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 22px; }
+  header {
+    background: linear-gradient(135deg, #14243d 0%, #1d3a63 60%, #24507f 100%);
+    color: #fff; padding: 34px 0 30px; margin-bottom: 26px;
+  }
+  header .wrap { padding-top: 0; }
+  header h1 { font-size: 25px; margin: 0 0 8px; letter-spacing: .5px; }
+  header .sub { font-size: 13.5px; opacity: .82; }
+  header .tagline { margin-top: 14px; font-size: 13.5px; background: rgba(255,255,255,.10); display: inline-block; padding: 6px 13px; border-radius: 20px; }
+  h2 {
+    font-size: 18px; margin: 34px 0 14px; padding-left: 11px;
+    border-left: 4px solid #24507f; color: #14243d;
+  }
+  h3 { font-size: 15.5px; margin: 22px 0 10px; color: #1d3a63; }
+  p { margin: 9px 0; font-size: 14.5px; }
+  .cards { display: flex; gap: 14px; flex-wrap: wrap; margin: 18px 0 6px; }
+  .card {
+    flex: 1 1 260px; background: #fff; border-radius: 12px; padding: 16px 18px;
+    box-shadow: 0 2px 10px rgba(20,36,61,.07); border-top: 3px solid #24507f;
+  }
+  .card.warn { border-top-color: #d9822b; }
+  .card.good { border-top-color: #0a8f4d; }
+  .card .k { font-size: 12px; color: #6b7787; letter-spacing: .5px; margin-bottom: 6px; }
+  .card .v { font-size: 21px; font-weight: 700; color: #14243d; }
+  .card .v.small { font-size: 15px; font-weight: 600; line-height: 1.5; }
+  .card .d { font-size: 12.5px; color: #5a6675; margin-top: 7px; }
+  .panel {
+    background: #fff; border-radius: 12px; padding: 18px 20px 14px; margin: 18px 0;
+    box-shadow: 0 2px 10px rgba(20,36,61,.06);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin: 6px 0 4px; }
+  th, td { padding: 9px 10px; text-align: left; border-bottom: 1px solid #eaeef2; vertical-align: top; }
+  th { background: #f0f4f8; color: #33445c; font-weight: 600; font-size: 12.8px; letter-spacing: .3px; }
+  tr:last-child td { border-bottom: none; }
+  td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .up { color: #d9342b; font-weight: 600; }
+  .down { color: #0a8f4d; font-weight: 600; }
+  .badge { display: inline-block; font-size: 11.5px; padding: 2px 8px; border-radius: 10px; background: #eef3f9; color: #24507f; margin-right: 4px; }
+  .badge.hot { background: #fdeeea; color: #c0392b; }
+  .badge.calm { background: #eef6f0; color: #0a8f4d; }
+  .chart { width: 100%; height: 340px; }
+  .note {
+    background: #fff8ef; border-left: 4px solid #d9822b; border-radius: 0 10px 10px 0;
+    padding: 13px 17px; margin: 16px 0; font-size: 13.5px; color: #6a4a1c;
+  }
+  ul.clean { margin: 8px 0; padding-left: 20px; font-size: 14.5px; }
+  ul.clean li { margin: 6px 0; }
+  .flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 14px 0; font-size: 13px; }
+  .flow .box { background: #eef3f9; border: 1px solid #d3dfeb; border-radius: 8px; padding: 8px 12px; color: #24507f; font-weight: 600; }
+  .flow .arr { color: #9aa8b8; font-weight: 700; }
+  footer { margin-top: 34px; padding: 18px 22px 0; border-top: 1px solid #e3e8ee; font-size: 12px; color: #8b96a5; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>今晚夜盘套利关注清单</h1>
+    <div class="sub">2026年10月12日（周一）· 数据截至当日 15:00 日盘收盘 + 盘后外盘</div>
+    <div class="tagline">主线：地缘缓和 → 成本端下移 → 化工近月反套 + 产业链利润修复</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="cards">
+    <div class="card">
+      <div class="k">今晚最大变量</div>
+      <div class="v small">原油走弱<br>Brent 104.3 → ~102.8</div>
+      <div class="d">俄乌「能源停火」+ 俄增供柴油 30/50/100 万吨 + 美方接受伊朗重开海峡部分条件。地缘溢价回吐，能化成本端下移。</div>
+    </div>
+    <div class="card warn">
+      <div class="k">已走掉的肥肉</div>
+      <div class="v">甲醇 11-01 一日收敛 150</div>
+      <div class="d">457（10/9）→ 307（10/12）。反套最肥的一段今早已走完，剩余空间约 40–60 元/吨。</div>
+    </div>
+    <div class="card good">
+      <div class="k">相对更值得盯</div>
+      <div class="v small">苯乙烯 11-01 = +870<br>纯苯-苯乙烯加工费 683</div>
+      <div class="d">月差最深、且加工费已压缩 345 元。近月紧、远月松的结构最清晰。</div>
+    </div>
+  </div>
+
+  <h2>一、今晚的驱动链条</h2>
+  <div class="flow">
+    <span class="box">俄乌能源停火 / 俄增供柴油</span><span class="arr">→</span>
+    <span class="box">原油溢价回吐</span><span class="arr">→</span>
+    <span class="box">化工成本端下移</span><span class="arr">→</span>
+    <span class="box">高估值近月弹性 &gt; 远月</span><span class="arr">→</span>
+    <span class="box">月差收敛 / 利润修复</span>
+  </div>
+  <p>今日能化普跌：甲醇 <span class="down">−7.41%</span> 领跌（MTO 负反馈落地，天津渤化、联泓格润 MTO 停车），纯苯 <span class="down">−2.51%</span>、PX <span class="down">−2.52%</span>、苯乙烯 <span class="down">−2.84%</span>、沥青 <span class="down">−3.91%</span>；但聚烯烃逆势收红——塑料 <span class="up">+1.06%</span>、PP <span class="up">+1.06%</span>、丙烯 <span class="up">+0.89%</span>。<strong>「油品/芳烃弱、聚烯烃强」的分化，就是今晚套利的核心线索。</strong></p>
+  <div id="chg" class="chart"></div>
+
+  <h2>二、方向一：能化近月反套（做缩月差）</h2>
+  <p>逻辑：地缘缓和 + 成本下移时，前期靠「低库存 + 地缘溢价」撑起来的高估值近月，回吐幅度会大于远月，月差倾向于收敛。</p>
+  <div class="panel">
+    <table>
+      <thead>
+        <tr><th>品种 / 价差</th><th>近月(元/吨)</th><th>远月(元/吨)</th><th>当前价差</th><th>前值(10/9)</th><th>结构</th><th>今晚关注点</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>甲醇 MA2611−MA2701</strong><br><span class="badge hot">挤仓风险</span></td>
+          <td class="num">3,536 <span class="down">(−7.41%)</span></td>
+          <td class="num">3,229 <span class="down">(−2.77%)</span></td>
+          <td class="num up">+307</td>
+          <td class="num">+457</td>
+          <td>Back（已大幅收敛）</td>
+          <td>反套空间剩 40–60；<strong>不追新仓</strong>，等价差反弹到 430+ 再看。仓单/持仓比约 1.2%，警惕挤仓。</td>
+        </tr>
+        <tr>
+          <td><strong>乙二醇 EG2611−EG2701</strong></td>
+          <td class="num">5,214 <span class="down">(−0.76%)</span></td>
+          <td class="num">4,864 <span class="up">(+0.31%)</span></td>
+          <td class="num up">+350</td>
+          <td class="num">+390</td>
+          <td>Back（低库存强支撑）</td>
+          <td>收敛慢，剩余 30–50；港口库存仅 13 万吨，近月抗跌，反套需成本端继续走弱配合。</td>
+        </tr>
+        <tr>
+          <td><strong>苯乙烯 EB2611−EB2701</strong></td>
+          <td class="num">10,314 <span class="down">(−2.84%)</span></td>
+          <td class="num">9,444 <span class="down">(−1.75%)</span></td>
+          <td class="num up">+870</td>
+          <td class="num">—</td>
+          <td>Back（最深）</td>
+          <td>月差全域最深，近月紧（江苏库存 4.73 万吨）远月松（新装置投产）。<strong>本轮首要观察对象</strong>，但今日已大跌，注意波动放大。</td>
+        </tr>
+        <tr>
+          <td><strong>聚丙烯 PP2611−PP2701</strong></td>
+          <td class="num">10,211 <span class="up">(+1.78%)</span></td>
+          <td class="num">9,382 <span class="up">(+1.06%)</span></td>
+          <td class="num up">+829</td>
+          <td class="num">—</td>
+          <td>Back（逆势走强）</td>
+          <td>聚烯烃是今晚唯一偏强板块，月差方向与油品系<strong>相反</strong>，别用同一逻辑套。</td>
+        </tr>
+      </tbody>
+    </table>
+    <div id="spread" class="chart" style="margin-top:16px;"></div>
+  </div>
+
+  <h2>三、方向二：产业链利润修复</h2>
+
+  <h3>1) MTO 利润：多 PP / 塑料，空甲醇</h3>
+  <ul class="clean">
+    <li>MTO 亏损已扩至 <strong>−1,800 ～ −2,000 元/吨</strong>（部分口径 −3,599），处历史极值，负反馈正式兑现。</li>
+    <li>今日甲醇 <span class="down">−7.41%</span> vs PP <span class="up">+1.06%</span>、塑料 <span class="up">+1.06%</span>——利润修复<strong>正在进行</strong>：买烯烃、空甲醇。</li>
+    <li>注意：甲醇暴跌后，该策略最陡的一段可能已兑现，追高性价比下降；若甲醇超跌反弹，方向反转。</li>
+  </ul>
+
+  <h3>2) PDH 利润：多丙烯 / PP，空 LPG（丙烷）</h3>
+  <ul class="clean">
+    <li>丙烷创十年新高、11 月 CP 上调至 681 美元/吨，PDH 深度亏损；振华石化 75 万吨 PDH 持续停车。</li>
+    <li>今日 LPG <span class="down">−0.79%</span> vs 丙烯 <span class="up">+0.89%</span>，若原油/丙烷今晚续跌，修复逻辑延续。</li>
+  </ul>
+
+  <h3>3) 聚酯链加工费：多 PTA / 空 PX（或空 EG）</h3>
+  <ul class="clean">
+    <li>今日 PX <span class="down">−2.52%</span> 跌幅大于 PTA <span class="down">−1.73%</span>，PTA 加工费在被动修复。</li>
+    <li>PTA 基差仍高（现货报 01+920），但终端织造开机不足六成，需求负反馈是最大反压。</li>
+  </ul>
+
+  <div class="note">
+    <strong>纯苯-苯乙烯价差（做扩加工费的候选）：</strong>华东纯苯-苯乙烯现货价差今日走缩至 <strong>683 元/吨（−345）</strong>，处偏低水位。若判断苯乙烯需求负反馈是情绪性超跌，可关注「多苯乙烯 / 空纯苯」修复加工费；反向若原油续跌，纯苯成本下移会先带动加工费被动走扩，需盯纯苯库存（5.3 万吨，处中低位）。
+  </div>
+
+  <h2>四、甲醇期限结构（当前 Back 全貌）</h2>
+  <p>甲醇整条曲线仍为 Back，但近端极其陡峭、远端已翻正（2705 起转正）。这种「近端陡、远端平」的形态，意味着<strong>时间本身就是反套的盟友</strong>——越临近交割，近端溢价衰减越快。</p>
+  <div class="panel">
+    <div id="term" class="chart"></div>
+  </div>
+
+  <h2>五、今晚盯盘要点与风险</h2>
+  <ul class="clean">
+    <li><strong>先看外盘：</strong>Brent 能否守 100 美元、WTI 守 88。跌破则化工成本端继续塌，近月反套、利润修复两条线都顺；若地缘再升级（沙特机场连续遇袭、霍尔木兹仍未通航），则全盘反向。</li>
+    <li><strong>甲醇是风向标：</strong>今日资金净流出 79.78 亿元居全市场之首、MA2611 大幅减仓，若夜盘继续减仓 + 2701 增仓的移仓格局延续，月差还有收缩空间。</li>
+    <li><strong>挤仓尾部风险：</strong>甲醇 11 月仓单/持仓比仅约 1.2%，任何供给端边际收缩都会被急剧放大——反套务必轻仓、留足保证金（涨跌停已扩至 12%、保证金 14%）。</li>
+    <li><strong>分化别做反：</strong>油品/芳烃系（甲醇、纯苯、PX、苯乙烯、沥青）与聚烯烃系（PP、塑料、丙烯）今晚大概率继续背离，跨板块套利要按各自的驱动来做。</li>
+    <li><strong>时间约束：</strong>MA2611 自然人 10 月底前须离场（仅约 3 周），PL2611 自然人 10/30 前离场——近月头寸窗口在快速收窄。</li>
+  </ul>
+
+  <footer>
+    数据来源：交易所行情、新浪财经/金投网期货报价、金十期货、机构晨报（申万、华鑫、瑞达、光大、混沌天成、南华）等公开资料，均为 2026-10-12 日盘收盘及盘后外盘口径。<br>
+    本内容基于公开数据和量化分析整理，仅供参考，<strong>不构成投资建议</strong>。市场有风险，投资需谨慎。任何投资决策应结合个人风险承受能力、资金状况与投资目标独立判断，必要时咨询持牌专业机构。过往表现不预示未来收益。
+  </footer>
+</div>
+
+<script>
+echarts.init(document.getElementById('chg')).setOption({
+  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+  grid: { left: 96, right: 40, top: 26, bottom: 30 },
+  xAxis: { type: 'value', name: '涨跌幅(%)', axisLine: { lineStyle: { color: '#c3ccd6' } }, splitLine: { lineStyle: { color: '#eef2f6' } } },
+  yAxis: {
+    type: 'category',
+    data: ['燃料油', '丙烯', '聚丙烯', '塑料', '乙二醇', '尿素', 'PTA', '短纤', '纯苯', 'PX', '纯碱', '苯乙烯', '沥青', '甲醇'],
+    axisLine: { lineStyle: { color: '#c3ccd6' } }, axisLabel: { fontSize: 12 }
+  },
+  series: [{
+    type: 'bar',
+    barWidth: '58%',
+    data: [
+      { value: 1.06, itemStyle: { color: '#d9342b' } },
+      { value: 0.89, itemStyle: { color: '#d9342b' } },
+      { value: 1.06, itemStyle: { color: '#d9342b' } },
+      { value: 1.06, itemStyle: { color: '#d9342b' } },
+      { value: -0.76, itemStyle: { color: '#0a8f4d' } },
+      { value: -1.72, itemStyle: { color: '#0a8f4d' } },
+      { value: -1.73, itemStyle: { color: '#0a8f4d' } },
+      { value: -1.80, itemStyle: { color: '#0a8f4d' } },
+      { value: -2.51, itemStyle: { color: '#0a8f4d' } },
+      { value: -2.52, itemStyle: { color: '#0a8f4d' } },
+      { value: -2.57, itemStyle: { color: '#0a8f4d' } },
+      { value: -2.84, itemStyle: { color: '#0a8f4d' } },
+      { value: -3.91, itemStyle: { color: '#0a8f4d' } },
+      { value: -7.41, itemStyle: { color: '#0a8f4d' } }
+    ],
+    label: { show: true, position: 'right', fontSize: 11, formatter: '{c}%' }
+  }]
+});
+
+echarts.init(document.getElementById('spread')).setOption({
+  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+  legend: { data: ['10/9 收盘', '10/12 收盘'], top: 0, textStyle: { fontSize: 12 } },
+  grid: { left: 50, right: 30, top: 42, bottom: 30 },
+  xAxis: { type: 'category', data: ['甲醇 11-01', '乙二醇 11-01'], axisLine: { lineStyle: { color: '#c3ccd6' } }, axisLabel: { fontSize: 12 } },
+  yAxis: { type: 'value', name: '近月升水(元/吨)', axisLine: { lineStyle: { color: '#c3ccd6' } }, splitLine: { lineStyle: { color: '#eef2f6' } } },
+  series: [
+    { name: '10/9 收盘', type: 'bar', barWidth: '26%', data: [457, 390], itemStyle: { color: '#9db4d0' }, label: { show: true, position: 'top', fontSize: 11 } },
+    { name: '10/12 收盘', type: 'bar', barWidth: '26%', data: [307, 350], itemStyle: { color: '#24507f' }, label: { show: true, position: 'top', fontSize: 11 } }
+  ]
+});
+
+echarts.init(document.getElementById('term')).setOption({
+  tooltip: { trigger: 'axis' },
+  grid: { left: 62, right: 30, top: 24, bottom: 34 },
+  xAxis: {
+    type: 'category',
+    data: ['2611', '2612', '2701', '2702', '2703', '2704', '2705', '2706', '2707'],
+    axisLine: { lineStyle: { color: '#c3ccd6' } }, axisLabel: { fontSize: 12 }
+  },
+  yAxis: { type: 'value', name: '元/吨', min: 2800, axisLine: { lineStyle: { color: '#c3ccd6' } }, splitLine: { lineStyle: { color: '#eef2f6' } } },
+  series: [{
+    type: 'line',
+    smooth: true,
+    symbolSize: 7,
+    lineStyle: { width: 3, color: '#24507f' },
+    itemStyle: { color: '#24507f' },
+    areaStyle: { color: 'rgba(36,80,127,0.08)' },
+    data: [3536, 3352, 3229, 3131, 3056, 2994, 2934, 2880, 2839],
+    label: { show: true, position: 'top', fontSize: 11, color: '#33445c' }
+  }]
+});
+</script>
+</body>
+</html>

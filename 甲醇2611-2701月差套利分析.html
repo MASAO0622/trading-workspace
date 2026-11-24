@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>甲醇 MA2611–MA2701 跨期套利分析</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f7f8fa; color: #1f2329; margin: 0; padding: 24px; }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  h1 { font-size: 26px; margin: 0 0 4px; }
+  .sub { color: #6b7280; font-size: 13px; margin-bottom: 20px; }
+  .card { background: #fff; border-radius: 12px; padding: 20px 24px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  .tldr { border-left: 4px solid #c2410c; }
+  .tldr h2 { margin-top: 0; font-size: 18px; color: #c2410c; }
+  .kpis { display: flex; gap: 16px; flex-wrap: wrap; margin: 12px 0 4px; }
+  .kpi { flex: 1; min-width: 150px; background: #faf5ef; border-radius: 10px; padding: 12px 16px; }
+  .kpi .v { font-size: 22px; font-weight: 700; }
+  .kpi .l { font-size: 12px; color: #6b7280; margin-top: 2px; }
+  h2 { font-size: 17px; margin: 0 0 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { border-bottom: 1px solid #eef0f3; padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: #f4f5f7; font-weight: 600; }
+  .up { color: #c0392b; font-weight: 600; }
+  .down { color: #1e8449; font-weight: 600; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+  .tag-red { background: #fdecea; color: #c0392b; }
+  .tag-green { background: #e8f6ef; color: #1e8449; }
+  .tag-gray { background: #eef0f3; color: #4b5563; }
+  .note { font-size: 12px; color: #8a919c; line-height: 1.7; }
+  .disclaimer { font-size: 12px; color: #8a919c; border-top: 1px dashed #d5d9e0; padding-top: 12px; line-height: 1.8; }
+  .chart { width: 100%; height: 360px; }
+  .src { font-size: 11px; color: #9aa1ab; margin-top: 6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>甲醇 MA2611–MA2701 跨期套利：合理空间分析</h1>
+<div class="sub">分析时点：2026-10-12（北京时间）｜行情数据截至 2026-10-09 收盘 / 10-10 盘中快照｜数据来源：新浪财经、曲合网、生意社、同花顺/金十（引用宝城期货、光大期货、CCFGroup 观点），均为非一手来源、需核实原文</div>
+
+<div class="card tldr">
+  <h2>TL;DR 核心结论</h2>
+  <p>当前 2611–2701 价差约 <b>457 元/吨（10/9 收盘口径）</b>，10/10 盘中一度达 <b>555 元/吨</b>，处于该品种历史罕见的深度 Back 结构。合理空间的判断不是单一的"中枢"，而是三条情景区间：</p>
+  <ul>
+    <li><b>基准情景（僵持震荡）</b>：价差围绕 <b>400–500 元/吨</b> 宽幅震荡，随移仓换月缓慢收敛；</li>
+    <li><b>地缘延续情景（封锁至 11 月交割）</b>：2611 向现货收敛（现货升水 900–1000+ 元/吨），价差上探 <b>550–650 元/吨</b>；</li>
+    <li><b>缓和情景（美伊突破/海峡复航）</b>：地缘溢价快速回吐，价差收敛至 <b>300–350 元/吨</b> 附近（节前水平之下）。</li>
+  </ul>
+  <p><b>当前位置追阔（正套）赔率已明显变差</b>：资金已在移仓（10/9 MA2611 减仓 8.88 万手、MA2701 增仓 7.04 万手）、MTO 亏损达历史极值、交易所扩板至 12%。反套（空 2611 多 2701）方向赔率更好，但属于"接飞刀"，需等价差极端化 + 移仓信号确认后分批介入。</p>
+</div>
+
+<div class="card">
+  <h2>一、关键数据速览</h2>
+  <div class="kpis">
+    <div class="kpi"><div class="v">3,835 / 3,378</div><div class="l">MA2611 / MA2701 收盘价（元/吨，2026-10-09）</div></div>
+    <div class="kpi"><div class="v">457–555</div><div class="l">11–01 价差区间（10/9 收盘 ~ 10/10 盘中，元/吨）</div></div>
+    <div class="kpi"><div class="v">30.51 万吨</div><div class="l">港口总库存（10/8，创历史新低，同比 -80%）</div></div>
+    <div class="kpi"><div class="v">925–1,016</div><div class="l">太仓现货对近月基差（元/吨，10/8 & 9/30，隆众）</div></div>
+    <div class="kpi"><div class="v">-3,599</div><div class="l">MTO 利润（元/吨，10/2 当周，历史极值）</div></div>
+  </div>
+  <table>
+    <tr><th>指标</th><th>数值</th><th>时点 / 来源</th></tr>
+    <tr><td>MA2611 收盘 / 涨跌幅</td><td class="up">3,835 元/吨 / +7.48%</td><td>2026-10-09，生意社（盘中 3,959 创本轮新高）</td></tr>
+    <tr><td>MA2701 最新价 / 涨跌幅</td><td class="up">3,378 元/吨 / +1.72%</td><td>2026-10-09 23:00 含夜盘，新浪财经；10/9 单日增仓 7.04 万手至 76.12 万手</td></tr>
+    <tr><td>注册仓单 / MA2611 持仓比</td><td class="up">约 1.2%</td><td>仓单 5,498 张（10/8，郑商所）vs 持仓 45.42 万手（10/9）= 454 万吨，挤仓风险高</td></tr>
+    <tr><td>太仓现货价</td><td>4,635 → 4,880 元/吨</td><td>10/8 隆众 → 10/9 光大期货（较节前跳涨 245 元）</td></tr>
+    <tr><td>全国甲醇开工率</td><td>92.15%</td><td>2026-10-09，同花顺（国产增量"天花板"已顶到）</td></tr>
+    <tr><td>交易所风控</td><td>涨跌停板 12%、保证金 14%</td><td>2026-10-09 起郑商所扩板</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2>二、期限结构：极端 Back，近端定价"断供"，远端定价"复产"</h2>
+  <div id="chart1" class="chart"></div>
+  <p class="note">10/8 全线涨停后，10/9–10/10 近端继续领涨、远端明显滞涨：2611 两日 +8.5%，而 2701 仅 +5.6%、2705 仅 +2.5%，曲线在 2611–2701 段显著变陡。市场在为"一季度（伊朗冬季限气 + 宝丰四期 280 万吨 10 月底投产）之前供应逻辑有效"定价——近月锚定现货逼仓，远月锚定供应回归。</p>
+  <div class="src">数据：新浪财经 / 曲合网各月份合约报价快照（10/8 收盘与 10/10 盘中，非同一时点口径，仅供形态对比）</div>
+</div>
+
+<div class="card">
+  <h2>三、11–01 价差走势：节后加速走阔，已到极端区</h2>
+  <div id="chart2" class="chart"></div>
+  <p class="note">注：① 各点为收盘价差口径（MA2611收盘 − MA2701收盘）；10/10 为盘中快照，两腿非严格同时点；② 宝城期货 10/8 专题口径（结算价差）为 497 元/吨；③ 公开渠道可追溯的逐日价差序列有限，完整日度曲线建议在交易软件中调取 MA2611−MA2701 价差 K 线核实。</p>
+  <div class="src">数据：生意社（9/30、10/9 收盘）、曲合网（10/8、10/10 快照）、同花顺援引宝城期货（10/8 口径 497）</div>
+</div>
+
+<div class="card">
+  <h2>四、"合理空间"的三层锚定逻辑</h2>
+  <table>
+    <tr><th style="width:18%">锚</th><th style="width:42%">逻辑</th><th>对价差的含义</th></tr>
+    <tr>
+      <td><b>① 持有成本（理论下限，仅作参照）</b></td>
+      <td>甲醇仓储 + 资金 + 交割成本两个月合计通常仅约百元以内，理论上 Contango 带很窄。当前价差是理论的数倍，说明这不是成本定价，而是<b>短缺定价（反向市场）</b>——近月price的是"当下拿不到货"，不存在成本支撑的均值回归位。</td>
+      <td>不能用持有成本判断"太高"；Back 加深的唯一约束是<b>供应何时回归</b>。</td>
+    </tr>
+    <tr>
+      <td><b>② 近月交割锚（上限）</b></td>
+      <td>2611 最后交割日约在 11 月下旬（交割月第 12 个交易日）。届时伊朗已进入冬季限气、若霍尔木兹仍受限，进口难放量，近月大概率向现货收敛。仓单/持仓比仅约 1.2%（比 9 月底的 6.8% 更极端），<b>仓单挤兑风险支撑近月强收敛</b>。</td>
+      <td>极端情形下 2611 冲 4,000–4,300（对应现货 4,600+），2701 同期 3,300–3,600，<b>价差上限约 550–650，极端挤仓可更高</b>，但追阔赔率差。</td>
+    </tr>
+    <tr>
+      <td><b>③ 供应回归锚（收敛触发器）</b></td>
+      <td>三股供应力量在赛跑：国产开工 92.15% 高位 + 宝丰四期 280 万吨 10 月底投产（月增约 13 万吨）；海峡浮仓约 51.5 万吨潜在释放；美伊谈判若突破，进口 11–12 月恢复。任一兑现，近月跌得比远月快。</td>
+      <td>收敛情景下价差回落至 <b>300–350</b>（回到节前 400 之下）；基准僵持下围绕 <b>400–500</b> 震荡。</td>
+    </tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2>五、价差已现的三个"见顶信号"（做阔端的风险清单）</h2>
+  <table>
+    <tr><th>信号</th><th>数据依据</th><th>时点/来源</th></tr>
+    <tr><td><b>资金移仓启动</b></td><td>10/9 MA2611 减仓 8.88 万手（45.42 万手），MA2701 单日增仓 7.04 万手至 76.12 万手——"卖近买远"正反馈已点火</td><td>2026-10-09，同花顺</td></tr>
+    <tr><td><b>需求负反馈到历史极值</b></td><td>MTO 利润 -3,599 元/吨（单周再恶化 1,131 元），外采 MTO 开工 60.91% 低位；下游对 4,800+ 现货的承接力接近极限</td><td>10/2 当周，五矿/隆众</td></tr>
+    <tr><td><b>国产"天花板"顶到</b></td><td>全国开工 92.15%，山东/内蒙煤制利润 1,087 / 892 元/吨历史高位，供应弹性只增不减；晋煤华昱 10/10 起检修 30 天是仅存的边际扰动</td><td>10/8–10/9，同花顺/生意社</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2>六、条件 → 操作 → 风险</h2>
+  <table>
+    <tr><th style="width:26%">条件</th><th style="width:37%">操作框架</th><th>风险提示</th></tr>
+    <tr>
+      <td>价差 <b>&gt; 500–550</b> 且移仓信号延续（2611 持续减仓、2701 持续增仓、港口基差走弱）</td>
+      <td><b>反套（空 MA2611 多 MA2701）</b>分批介入，目标看 350–400（基准情景），地缘缓和则看 300–350</td>
+      <td>⚠️ 仓单/持仓比仅 1.2%，若多头坚持进入 11 月，近月挤仓会令反套短期大幅浮亏；必须轻仓、分批、严格止损（如价差突破 560–580 离场）</td>
+    </tr>
+    <tr>
+      <td>地缘再升级（海峡封锁实质化、伊朗装置大面积停车）</td>
+      <td>价差可能直接跳向 550–650 上限区，<b>不追阔</b>，持有正套者逢 550+ 逐步止盈</td>
+      <td>⚠️ 极端行情下 12% 涨跌停板 + 14% 保证金，月差单日波动可达 50–100 元/吨，仓位须按最坏情形预留保证金</td>
+    </tr>
+    <tr>
+      <td>美伊谈判突破 / 海峡复航 / 宝丰四期如期投产</td>
+      <td>价差快速收敛，反套持有者分批止盈；正套及时止损</td>
+      <td>⚠️ 溢价回吐阶段近月可能连续跌停、远月跌幅有限但方向同跌，注意 legs 单边敞口</td>
+    </tr>
+  </table>
+  <p class="note">执行细节：MA2611 最后交易日为 2026 年 11 月交割月第 10 个交易日（约 11 月中旬），月差头寸的实际持仓窗口仅剩约 3–4 周；个人投资者无法进入交割月，25 手整数倍之外的持仓需在 10 月底前了结，时间约束本身就是收敛压力。</p>
+</div>
+
+<div class="card">
+  <h2>七、结论</h2>
+  <ul>
+    <li>当前 <b>457–555 元/吨</b> 的 11–01 价差已进入历史极端区，<b>向上"合理空间"有限（约 550–650 封顶于交割收敛逻辑），向下空间（300–400）大于向上</b>，赔率结构开始偏向反套。</li>
+    <li>但<b>赔率好不等于可以立刻进场</b>——挤仓风险（仓单/持仓 1.2%）意味着反套短期可能被极端行情打爆，介入须满足"价差极端化 + 移仓确认 + 基差走弱"三条件，轻仓分批。</li>
+    <li>最大变量是<b>霍尔木兹海峡与美伊谈判</b>：它同时决定近月绝对价的生死与月差的方向，任何头寸都应将其作为首要止损/止盈触发器。</li>
+  </ul>
+  <p class="disclaimer"><b>免责声明</b>：以上内容基于公开数据和量化分析，仅供参考，不构成投资建议。市场有风险，投资需谨慎。任何投资决策应结合个人风险承受能力、资金状况和投资目标独立判断，必要时咨询持牌专业机构。过往表现不预示未来收益。</p>
+</div>
+
+</div>
+
+<script>
+var termDates = ['MA2610', 'MA2611', 'MA2612', 'MA2701', 'MA2702', 'MA2703', 'MA2705'];
+var term0808 = [4102, 3625, 3375, 3200, 3061, 2966, 2841];
+var term1010 = [4282, 3933, 3606, 3378, 3207, 3093, 2912];
+echarts.init(document.getElementById('chart1')).setOption({
+  tooltip: { trigger: 'axis' },
+  legend: { data: ['2026-10-08 收盘', '2026-10-10 盘中'] },
+  grid: { left: 60, right: 30, bottom: 40, top: 50 },
+  xAxis: { type: 'category', data: termDates, name: '合约' },
+  yAxis: { type: 'value', name: '价格(元/吨)', min: 2600 },
+  series: [
+    { name: '2026-10-08 收盘', type: 'line', data: term0808, smooth: true, lineStyle: { width: 2 }, itemStyle: { color: '#8a919c' } },
+    { name: '2026-10-10 盘中', type: 'line', data: term1010, smooth: true, lineStyle: { width: 3 }, itemStyle: { color: '#c2410c' }, label: { show: true, fontSize: 11 } }
+  ]
+});
+
+var spreadDates = ['09-29', '09-30', '10-08', '10-09', '10-10盘中'];
+var spreadVals = [400, 412, 425, 457, 555];
+echarts.init(document.getElementById('chart2')).setOption({
+  tooltip: { trigger: 'axis', formatter: '{b}<br/>2611-2701价差: {c} 元/吨' },
+  grid: { left: 60, right: 40, bottom: 40, top: 50 },
+  xAxis: { type: 'category', data: spreadDates },
+  yAxis: { type: 'value', name: '价差(元/吨)', min: 300 },
+  series: [
+    {
+      name: '2611-2701价差',
+      type: 'line',
+      data: spreadVals,
+      lineStyle: { width: 3, color: '#c2410c' },
+      itemStyle: { color: '#c2410c' },
+      label: { show: true, fontSize: 12, fontWeight: 600 },
+      markArea: {
+        silent: true,
+        itemStyle: { color: 'rgba(194,65,12,0.06)' },
+        label: { position: 'insideTop', color: '#c2410c', fontSize: 11 },
+        data: [[{ name: '合理区间(基准情景): 400-500', xAxis: '09-30' }, { xAxis: '10-09' }]]
+      }
+    }
+  ]
+});
+</script>
+</body>
+</html>

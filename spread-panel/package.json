@@ -1,0 +1,10 @@
+{
+  "name": "spread-panel",
+  "version": "1.0.0",
+  "private": true,
+  "description": "跨品种价差实时面板",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>甲醇 MA2611–MA2701 反套空间测算（10-12 更新）</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f7f8fa; color: #1f2329; margin: 0; padding: 24px; }
+  .wrap { max-width: 1040px; margin: 0 auto; }
+  h1 { font-size: 24px; margin: 0 0 4px; }
+  .sub { color: #6b7280; font-size: 13px; margin-bottom: 20px; line-height: 1.7; }
+  .card { background: #fff; border-radius: 12px; padding: 20px 24px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  .tldr { border-left: 4px solid #c2410c; }
+  .tldr h2 { margin-top: 0; font-size: 18px; color: #c2410c; }
+  .kpis { display: flex; gap: 14px; flex-wrap: wrap; margin: 12px 0 4px; }
+  .kpi { flex: 1; min-width: 140px; background: #faf5ef; border-radius: 10px; padding: 12px 14px; }
+  .kpi .v { font-size: 21px; font-weight: 700; }
+  .kpi .l { font-size: 12px; color: #6b7280; margin-top: 2px; line-height: 1.5; }
+  h2 { font-size: 17px; margin: 0 0 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { border-bottom: 1px solid #eef0f3; padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: #f4f5f7; font-weight: 600; }
+  .up { color: #c0392b; font-weight: 600; }
+  .down { color: #1e8449; font-weight: 600; }
+  .note { font-size: 12px; color: #8a919c; line-height: 1.8; }
+  .disclaimer { font-size: 12px; color: #8a919c; border-top: 1px dashed #d5d9e0; padding-top: 12px; line-height: 1.8; }
+  .chart { width: 100%; height: 380px; }
+  .src { font-size: 11px; color: #9aa1ab; margin-top: 6px; }
+  ul { margin: 8px 0; padding-left: 20px; line-height: 1.9; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>甲醇 MA2611–MA2701 反套空间测算</h1>
+<div class="sub">更新时点：2026-10-12 上午（盘中，约 09:56 读数）｜相较 10-09 报告，近月已大幅跳水、价差从 457 压缩至约 384｜数据来源：金投网/同花顺盘中行情、生意社、隆众（经东方财富/新华财经引用）、银河期货、安粮期货，非一手来源需核实原文</div>
+
+<div class="card tldr">
+  <h2>结论：最肥的一段已经走完，从 384 再往下只剩 80–135 元/吨</h2>
+  <div class="kpis">
+    <div class="kpi"><div class="v">384</div><div class="l">当前 11–01 价差（元/吨，10-12 09:56）</div></div>
+    <div class="kpi"><div class="v">-73</div><div class="l">较 10/9 收盘（457）已收敛，元/吨</div></div>
+    <div class="kpi"><div class="v">80–135</div><div class="l">反套剩余可预期空间（到 300–250），元/吨</div></div>
+    <div class="kpi"><div class="v">≈1 : 1</div><div class="l">剩余空间 vs 反向浮亏风险的赔率</div></div>
+  </div>
+  <p><b>一句话</b>：10/12 早盘一小时，MA2611 跌 5.39%、MA2701 只跌 2.77%，价差从 457 直接砸到 384——<b>反套最容易赚的 70–110 元/吨在开盘一小时内已被兑现</b>。此刻新建反套，向下空间约 80–135 元/吨（目标 300–250），而地缘再升级或挤仓重启带来的反向浮亏同样是 70–170 元/吨，赔率已回到 1:1 附近，<b>不再是 500 元之上那种高赔率位置</b>。</p>
+  <p><b>操作含义</b>：已有反套仓位 → 分批止盈（350 / 300 两档）；尚未建仓 → <b>不追</b>，等价差因情绪反弹到 430 以上、或挤仓冲高到 520–550 后再分批介入。</p>
+</div>
+
+<div class="card">
+  <h2>一、今天发生了什么（10-12 早盘）</h2>
+  <table>
+    <tr><th>合约</th><th>最新价（元/吨）</th><th>涨跌幅</th><th>关键信息</th></tr>
+    <tr><td>MA2611（主力）</td><td class="down">3,613</td><td class="down">-5.39%</td><td>开 3,825、高 3,945、<b>低 3,584</b>；涨停 4,125 / 跌停 3,513；昨结 3,819。自夜盘 3,933 直线跳水，盘中最大跌幅超 6%</td></tr>
+    <tr><td>MA2701</td><td class="down">3,229</td><td class="down">-2.77%</td><td>远月明显抗跌，近强远弱结构快速修复</td></tr>
+    <tr><td>MA2612</td><td class="down">3,368</td><td class="down">-4.45%</td><td>近端整体塌陷</td></tr>
+    <tr><td>MA2702 / 2705</td><td>3,123 / 2,919</td><td class="down">-1.39% / <span class="up">+0.48%</span></td><td>2705 已转涨，远端开始定价"供应回归"</td></tr>
+  </table>
+  <p class="note"><b>两个触发器</b>：① 地缘溢价回吐——伊朗 10/11 称美方已接受重开霍尔木兹的<b>部分</b>条件（海峡实际仍未通航，10/12 仍有油轮触雷）；② 需求负反馈正式落地——天津渤化、联泓二期、诚志一/二期、宁波富德、山东恒通等多套沿海 MTO 集中停车或降负，机构预计<b>10 月中旬外采 MTO 将全部停车</b>，MTO 单吨亏损扩至 1,800–2,000 元的<b>历史新高</b>；现货端产区起拍下调 200 元/吨后<b>纷纷流拍</b>，10/10 现货价格指数 4,014.20（单日 -154.23）。</p>
+</div>
+
+<div class="card">
+  <h2>二、价差轨迹与目标带</h2>
+  <div id="chart1" class="chart"></div>
+  <p class="note">灰色区 = 反套可兑现的目标区（250–300）；橙色区 = 反套重新建仓的价值区（≥430）；虚线 = 当前价差 384。<b>反套（空 2611 / 多 2701）在价差收敛时盈利</b>：价差每收窄 1 元/吨，1 手（10 吨）盈利 10 元。</p>
+  <div class="src">数据：09-30 生意社、10-08 曲合网、10-09 生意社、10-12 金投网盘中；10/8 宝城结算口径为 497，未纳入同一序列</div>
+</div>
+
+<div class="card">
+  <h2>三、空间量化表（从 384 出发，1 手 = 10 吨）</h2>
+  <table>
+    <tr><th>方向</th><th>价差目标</th><th>空间（元/吨）</th><th>盈亏（元/手）</th><th>占双边保证金比例*</th><th>触发依据</th></tr>
+    <tr><td rowspan="4"><b>反套盈利<br>（收敛）</b></td><td>360</td><td class="down">24</td><td class="down">+240</td><td>约 2.5%</td><td>单一交易日惯性即可达到</td></tr>
+    <tr><td><b>350</b></td><td class="down">34</td><td class="down">+340</td><td>约 3.6%</td><td>第一止盈档</td></tr>
+    <tr><td><b>300</b></td><td class="down">84</td><td class="down">+840</td><td>约 8.8%</td><td>相邻月差刻度参照（见下表），第二止盈档</td></tr>
+    <tr><td><b>250</b>（乐观）</td><td class="down">134</td><td class="down">+1,340</td><td>约 14.0%</td><td>需海峡实质复航 / 现货加速下移配合</td></tr>
+    <tr><td rowspan="4"><b>反向浮亏<br>（重新走阔）</b></td><td>430</td><td class="up">-46</td><td class="up">-460</td><td>约 -4.8%</td><td>情绪反弹 / 地缘消息反复</td></tr>
+    <tr><td>457（10/9 收盘）</td><td class="up">-73</td><td class="up">-730</td><td>约 -7.6%</td><td>一个交易日内即可回吐</td></tr>
+    <tr><td>497（10/8 口径）</td><td class="up">-113</td><td class="up">-1,130</td><td>约 -11.8%</td><td>地缘升温 + 现货再涨</td></tr>
+    <tr><td>550（挤仓）</td><td class="up">-166</td><td class="up">-1,660</td><td>约 -17.3%</td><td>仓单不足引发近月挤仓（低概率高冲击）</td></tr>
+  </table>
+  <p class="note">*双边保证金按 MA2611 3,613 + MA2701 3,229、各 14% 估算 ≈ <b>9,579 元/手</b>（单边各约 5,058 / 4,521 元）。反套占用的是两腿保证金，只有价差收益、没有单边方向敞口，所以"空间/保证金"是衡量效率的正确口径。</p>
+</div>
+
+<div class="card">
+  <h2>四、为什么下限看到 250–300，而不是更低</h2>
+  <table>
+    <tr><th style="width:32%">结构参照</th><th>数值（10-12 盘中，元/吨）</th><th>含义</th></tr>
+    <tr><td>2612 − 2701（相邻月差）</td><td><b>139</b></td><td>换月相邻档只有 139，说明曲线在中段已"回归常态"</td></tr>
+    <tr><td>2701 − 2702</td><td>106</td><td rowspan="2">2027 段月差稳定在 <b>80–140</b> 的量级</td></tr>
+    <tr><td>2702 − 2703</td><td>79</td></tr>
+    <tr><td><b>2611 − 2701（当前）</b></td><td><b>384</b></td><td>是相邻档的 <b>2.8–4.9 倍</b>——其中含两部分合法溢价</td></tr>
+  </table>
+  <p class="note">2611 的 384 里，"合理溢价"包含：① <b>11 月交割挤仓溢价</b>（仓单仅 5,316 张对应约 45 万手持仓，比例约 1.2%）；② <b>冬季稀缺溢价</b>（伊朗 11 月起冬季限气 + 进口维持低位）。这两块溢价在市场回归常态时约值 <b>50–150 元/吨</b>，叠加相邻档 139 的中枢，<b>收敛下限落在 250–300 是有结构依据的</b>；要打到 200 以下，需要海峡通航 + 基差彻底崩塌这类事件级驱动。</p>
+  <ul>
+    <li><b>时间在帮反套</b>：MA2611 最后交易日约 11 月中旬，仅剩约 4 周，挤仓溢价有"到期衰减"属性——时间越接近交割，未兑现的挤仓溢价越难维持。</li>
+    <li><b>现货锚在下移</b>：现货价格指数 10/10 报 4,014.20（-154.23）、太仓现货降至 4,600（-232），基差从 1,000 以上回落。近月的定价锚（现货）往下走，等于给价差收敛加了顺风。</li>
+  </ul>
+  <p class="note">⚠️ 现货数据存在口径分歧：安粮期货 10/12 报告中太仓主流现货仍报 4,750–4,800 元/吨（基差 +950~+1,000），而隆众 10/10 报太仓 4,600、小单最低成交 4,400、现货指数 4,014.20。<b>两者相差数百元，需以交易所/隆众一手数据核实</b>；若安粮口径成立，则近月下行动力弱于本报告的判断，反套空间应下修。</p>
+</div>
+
+<div class="card">
+  <h2>五、反向风险（做反套必须盯的三件事）</h2>
+  <table>
+    <tr><th>风险</th><th>当前证据</th><th>对反套的杀伤</th></tr>
+    <tr><td><b>挤仓重启（最大威胁）</b></td><td>注册仓单 5,316 张（10/12，环比 -182），对 MA2611 持仓比例约 1.2%；港口库存 30.51 万吨创历史新低（较 2023-10 以来均值 92.09 万吨低约 67%）</td><td>多头若坚持进入 11 月，近月可再度单边拉升，价差可能瞬间回到 500+，反套浮亏可达 100–170 元/吨</td></tr>
+    <tr><td><b>地缘反复</b></td><td>伊朗称美方"回应不够充分"、海峡在条件满足前不会开放；10/12 又有油轮触雷起火</td><td>溢价重新计入，近月领涨，价差走阔</td></tr>
+    <tr><td><b>波动与规则风险</b></td><td>涨跌停板 12%、保证金 14%；单个交易日价差波动可达 50–100 元/吨</td><td>仓位过重会在正常波动中被动减仓，失去持有到收敛的能力</td></tr>
+  </table>
+  <p class="note">机构分歧也印证了这一点：银河期货明确"<b>预计回调为主</b>"（支持反套）；而新华财经强调"深度贴水格局下<b>不宜过度看空</b>"、南华期货认为"<b>近月合约仍相对偏强</b>"（不支持继续压近月）。反套吃到 384 之后，已经站到了这两派观点的中间地带。</p>
+</div>
+
+<div class="card">
+  <h2>六、条件 → 操作</h2>
+  <table>
+    <tr><th style="width:30%">条件</th><th>操作</th></tr>
+    <tr><td>已持有反套（成本在 450+ 建仓）</td><td>350 平一半、300 再平一半；剩余尾仓以 250–280 为目标，跌破 / 突破 470 一律离场（挤仓信号）</td></tr>
+    <tr><td>空仓，价差在 384 附近</td><td><b>不新建仓</b>——剩余空间（80–135）与反向风险（70–170）大致对称，不值得占用两腿保证金约 9,579 元/手去博一个 1:1 的赔率</td></tr>
+    <tr><td>价差因情绪反弹至 <b>430–470</b></td><td>反套分批建仓第一档（赔率回到 2:1 左右）</td></tr>
+    <tr><td>价差因挤仓冲至 <b>520–550</b>，且 MA2611 持续减仓、2701 持续增仓</td><td>反套最佳窗口——挤仓衰竭 + 极端价格同时出现，此时向下空间可达 200 元/吨以上</td></tr>
+    <tr><td>确认海峡复航 / 基差快速收敛 / 外采 MTO 全部停车落地</td><td>反套加仓或持有至 250 目标</td></tr>
+  </table>
+  <p class="note">仓位与窗口提醒：① 反套为跨期组合，仍受两腿保证金合计约束（约 9,579 元/手，随价格与保证金比例变动）；② 个人投资者不能进入交割月，MA2611 头寸须在 10 月底前后了结，<b>有效持有窗口只剩约 3 周</b>，这既是收敛压力也是执行约束；③ 单日 50–100 元/吨的价差波动意味着满仓必被震出。</p>
+  <p class="disclaimer"><b>免责声明</b>：以上内容基于公开数据和量化分析，仅供参考，不构成投资建议。市场有风险，投资需谨慎。任何投资决策应结合个人风险承受能力、资金状况和投资目标独立判断，必要时咨询持牌专业机构。过往表现不预示未来收益。</p>
+</div>
+
+</div>
+
+<script>
+var xData = ['09-30', '10-08', '10-09', '10-12 09:56'];
+var yData = [412, 425, 457, 384];
+echarts.init(document.getElementById('chart1')).setOption({
+  tooltip: { trigger: 'axis', formatter: '{b}<br/>2611-2701价差: {c} 元/吨' },
+  grid: { left: 60, right: 40, bottom: 40, top: 50 },
+  xAxis: { type: 'category', data: xData },
+  yAxis: { type: 'value', name: '价差(元/吨)', min: 200, max: 560 },
+  series: [
+    {
+      name: '2611-2701价差',
+      type: 'line',
+      data: yData,
+      lineStyle: { width: 3, color: '#c2410c' },
+      itemStyle: { color: '#c2410c' },
+      label: { show: true, fontSize: 12, fontWeight: 600 },
+      markArea: {
+        silent: true,
+        data: [
+          [{ name: '反套建仓价值区 ≥430', xAxis: '09-30', yAxis: 430, itemStyle: { color: 'rgba(194,65,12,0.08)' }, label: { position: 'insideTop', color: '#c2410c', fontSize: 11 } }, { xAxis: '10-12 09:56', yAxis: 560 }],
+          [{ name: '反套目标区 250-300', xAxis: '09-30', yAxis: 250, itemStyle: { color: 'rgba(120,130,140,0.12)' }, label: { position: 'insideBottom', color: '#4b5563', fontSize: 11 } }, { xAxis: '10-12 09:56', yAxis: 300 }]
+        ]
+      },
+      markLine: {
+        symbol: 'none',
+        data: [{ yAxis: 384, lineStyle: { type: 'dashed', color: '#1f2329' }, label: { formatter: '当前 384', position: 'end', fontSize: 11 } }]
+      }
+    }
+  ]
+});
+</script>
+</body>
+</html>

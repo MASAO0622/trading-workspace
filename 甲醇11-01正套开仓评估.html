@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>甲醇 MA2611–MA2701 正套开仓评估</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root{--bg:#f6f7f9;--card:#fff;--ink:#1a2233;--muted:#5b6472;--line:#e3e7ee;--red:#c0392b;--green:#1e8449;--accent:#1f4e8c;--tag-bg:#eef2f7;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);line-height:1.65;padding:32px 16px;}
+  .wrap{max-width:1080px;margin:0 auto;}
+  h1{font-size:26px;font-weight:700;}
+  .sub{color:var(--muted);font-size:13px;margin:6px 0 24px;}
+  .tag{display:inline-block;background:var(--tag-bg);border:1px solid var(--line);border-radius:4px;padding:1px 8px;font-size:12px;color:var(--muted);margin-right:6px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px 22px;margin-bottom:18px;box-shadow:0 1px 3px rgba(20,30,50,.04);}
+  h2{font-size:17px;margin-bottom:12px;padding-left:10px;border-left:4px solid var(--accent);}
+  h3{font-size:14px;margin:14px 0 8px;}
+  p{font-size:14px;margin-bottom:8px;}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0;}
+  th{background:#f0f3f8;text-align:left;padding:8px 10px;font-weight:600;border-bottom:2px solid var(--line);white-space:nowrap;}
+  td{padding:8px 10px;border-bottom:1px solid var(--line);}
+  tr:last-child td{border-bottom:none;}
+  .num{text-align:right;font-variant-numeric:tabular-nums;}
+  .up{color:var(--red);font-weight:600;}
+  .down{color:var(--green);font-weight:600;}
+  .warn{background:#fff8ec;border:1px solid #f0dcb0;border-radius:8px;padding:12px 14px;font-size:13.5px;margin:10px 0;}
+  .danger{background:#fdf0ee;border:1px solid #eecdc8;border-radius:8px;padding:12px 14px;font-size:13.5px;margin:10px 0;}
+  .good{background:#eef7f0;border:1px solid #c8e6d0;border-radius:8px;padding:12px 14px;font-size:13.5px;margin:10px 0;}
+  .verdict{background:#1f4e8c;color:#fff;border-radius:10px;padding:16px 20px;margin:6px 0 18px;}
+  .verdict .vt{font-size:12px;opacity:.85;letter-spacing:1px;}
+  .verdict .vv{font-size:20px;font-weight:700;margin-top:4px;}
+  .verdict .vd{font-size:13px;opacity:.92;margin-top:6px;line-height:1.6;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:8px 0;}
+  .kpi{background:#f8fafc;border:1px solid var(--line);border-radius:8px;padding:10px 12px;}
+  .kpi .k{font-size:12px;color:var(--muted);}
+  .kpi .v{font-size:19px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums;}
+  .kpi .d{font-size:11.5px;color:var(--muted);margin-top:2px;}
+  .note{font-size:12.5px;color:var(--muted);}
+  ul{margin:6px 0 10px 20px;font-size:14px;}
+  li{margin-bottom:6px;}
+  .chart-box{position:relative;height:330px;margin:12px 0;}
+  .footer{color:var(--muted);font-size:12px;margin-top:20px;border-top:1px solid var(--line);padding-top:12px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>甲醇 MA2611–MA2701 跨期正套 · 开仓可行性评估</h1>
+  <div class="sub">
+    <span class="tag">数据源：Hitick 实时行情 + 郑商所结算数据 + 公开研报</span>
+    <span class="tag">行情时点：2026-10-15 早盘 09:35</span>
+    <span class="tag">乘数 10 吨/手</span>
+  </div>
+</header>
+
+<div class="verdict">
+  <div class="vt">结论</div>
+  <div class="vv">不建议现在开 11–01 正套（多 2611 / 空 2701）</div>
+  <div class="vd">三条硬伤：① 自然人 10-30 必须离场，有效持有窗口仅约 <b>11 个交易日</b>，且无法进入交割月吃挤仓红利；② 价差正处在明确收敛趋势中（5 个交易日收敛 266 元），开仓即逆势；③ 原本可赚的"结构性错配"已被完全修复——当前 211 的价差恰好等于相邻两档之和（122＋89），安全边际消失，只能赌方向。</div>
+</div>
+
+<!-- 1 -->
+<div class="card">
+  <h2>一、价差现状：已从极端 Back 收敛至曲线自然坡度</h2>
+  <div class="grid">
+    <div class="kpi"><div class="k">MA2611（早盘）</div><div class="v">3,434</div><div class="d">10-14 结算 3,502 · −1.94%</div></div>
+    <div class="kpi"><div class="k">MA2701（早盘）</div><div class="v">3,243</div><div class="d">10-14 结算 3,275 · −0.98%</div></div>
+    <div class="kpi"><div class="k">11–01 价差</div><div class="v">+191</div><div class="d">10-14 收盘为 +211</div></div>
+    <div class="kpi"><div class="k">5 日收敛幅度</div><div class="v down">−266 元</div><div class="d">457（10-09）→ 191（今晨）</div></div>
+  </div>
+  <table>
+    <thead><tr><th>日期</th><th class="num">MA2611</th><th class="num">MA2701</th><th class="num">11–01 价差</th><th>当日变化</th></tr></thead>
+    <tbody>
+      <tr><td>10-09 收盘</td><td class="num">3,835</td><td class="num">3,378</td><td class="num">+457</td><td>极端 Back（历史罕见）</td></tr>
+      <tr><td>10-12 收盘</td><td class="num">3,536</td><td class="num">3,229</td><td class="num">+307</td><td class="down">−150（MTO 负反馈落地）</td></tr>
+      <tr><td>10-14 收盘</td><td class="num">3,473</td><td class="num">3,262</td><td class="num">+211</td><td class="down">−96</td></tr>
+      <tr><td><b>10-15 早盘 09:35</b></td><td class="num">3,434</td><td class="num">3,243</td><td class="num">+191</td><td class="down">−20（仍在收敛）</td></tr>
+    </tbody>
+  </table>
+  <p class="note">价差数据：10-09/10-12 为公开行情口径；10-14 为郑商所结算（2611 收 3,473、2701 收 3,262）；10-15 早盘 MA2611 取金投网实时（前结算 3,502，跌 1.94%），MA2701 取 Hitick 实时。</p>
+</div>
+
+<!-- 2 -->
+<div class="card">
+  <h2>二、最关键的变化：可赚的"结构错配"已经消失</h2>
+  <p>把 10-14 收盘的整条月差曲线拆开看，会得到本次分析最重要的一个结论：</p>
+  <table>
+    <thead><tr><th>相邻月差</th><th class="num">数值（元/吨）</th><th>含义</th></tr></thead>
+    <tbody>
+      <tr><td>MA2611 − MA2612</td><td class="num">122</td><td>（3,473 − 3,351）</td></tr>
+      <tr><td>MA2612 − MA2701</td><td class="num">89</td><td>（3,351 − 3,262）</td></tr>
+      <tr><td><b>两档相加</b></td><td class="num"><b>211</b></td><td><b>与 11–01 实际价差 211 完全一致</b></td></tr>
+      <tr><td>MA2701 − MA2702</td><td class="num">78</td><td>远月坡度继续自然收敛</td></tr>
+      <tr><td>MA2702 − MA2703</td><td class="num">60</td><td>—</td></tr>
+    </tbody>
+  </table>
+  <div class="warn"><b>这意味着什么：</b>11–01 跨越两个月，其价差 211 若拆成两个单月档（2611→2612、2612→2701）分别是 122 和 89——<b>月差曲线已经完全平滑，11–01 这一档不存在任何"额外升水"</b>。<br><br>对比 10-12 时的情况：当时 11–01 为 384，而相邻两档合计仅约 245，超出部分近 140 元就是异常升水。那部分"错配"经过三个交易日的收敛已经<b>全部修复完毕</b>。<br><br><b>含义：现在无论做正套还是反套，都不再有"结构必然回归"这个安全垫，只能纯粹赌方向。</b></div>
+</div>
+
+<!-- 3 -->
+<div class="card">
+  <h2>三、为什么现在不该开正套（五条）</h2>
+
+  <h3>① 时间窗只剩约 11 个交易日，且吃不到挤仓红利</h3>
+  <ul>
+    <li>MA2611 交割月为 2026 年 11 月。<b>自然人客户持仓不得进入交割月</b>，须在 10 月最后一个交易日（10-30）收盘前离场，否则将被交易所强制平仓；</li>
+    <li>今天 10-15 起算，实际可持有约 <b>11 个交易日</b>；</li>
+    <li>更致命的是：近月多头的最大潜在收益——<b>进入交割月逼仓/接仓单</b>——对个人客户完全不可得。正套变成"高胜率低赔率"的结构里，唯一的大赔率来源被制度切断；</li>
+    <li>11 月起 2611 保证金将按交割月前一月标准上调，资金占用上升；10 月底后流动性骤降，平仓滑点显著放大。</li>
+  </ul>
+
+  <h3>② 价差正处在单向收敛趋势中</h3>
+  <ul>
+    <li>5 个交易日收敛 266 元，方向和斜率都极陡；</li>
+    <li>驱动是<b>近月需求端的崩塌</b>：MTO 亏损扩大至 1,800–2,000 元/吨（历史新高），沿海 MTO 开工不足 20%，几近全停（联泓格润、天津渤化已停，诚志一期 10-20 计划停）；</li>
+    <li>近月下跌速率快于远月，这就是价差收敛的直接原因。正套（多近月）在趋势上是逆势方。</li>
+  </ul>
+
+  <h3>③ 近月的两大支撑正在钝化</h3>
+  <ul>
+    <li><b>港口低库存出现累库拐点</b>：港口库存 36.72 万吨，较上期<b>累库 6.21 万吨</b>。"极低库存"这一近月核心支撑开始松动；</li>
+    <li><b>内地同步累库</b>：样本生产企业库存 35.69 万吨（+3.46 万吨），内地与港口"分化收敛"意味着全国性供应宽松正在形成；</li>
+    <li><b>国内开工高位</b>：产能利用率 92.15%（环比 +2.97pct），前期夏季检修装置大量重启，国产供应宽松。</li>
+  </ul>
+
+  <h3>④ 反方向的支持因素都是"事件驱动型"，不可预测且需催化</h3>
+  <ul>
+    <li>近月的多头逻辑（伊朗装置停车、10 月进口仅 40–47 万吨、霍尔木兹仍封锁、现货太仓 3,845–4,025 深度升水）确实存在，且这些是真实支撑；</li>
+    <li>但它们是<b>地缘事件驱动</b>：美伊谈判暂无实质进展、海峡是否重开无法预判。价差要重新走阔，需要"地缘升级 + 挤仓"这类外生冲击，本质是在赌突发事件；</li>
+    <li>在结构错配已被修复的前提下，用 11 个交易日去赌一个不可预测的事件催化，赔率并不划算。</li>
+  </ul>
+
+  <h3>⑤ 把两个正确判断压进了一个错误的工具</h3>
+  <p>甲醇当前确实同时存在两个可能成立的方向性判断——"近月低库存 vs 远月高供给"。但 11–01 正套是把它们捆在一起、并且加上了交割月限制的最差表达方式。同样的观点有约束更少的工具（见第五部分）。</p>
+</div>
+
+<!-- 4 -->
+<div class="card">
+  <h2>四、什么条件下才值得重新考虑正套</h2>
+  <table>
+    <thead><tr><th>条件</th><th>具体标准</th><th>逻辑</th></tr></thead>
+    <tbody>
+      <tr><td><b>价差回到低位</b></td><td>11–01 回落至 <b>120–150</b>，同时相邻月差坡度同步收窄</td><td>此时做多近月/空远月的赔率改善，即使收敛空间也有限</td></tr>
+      <tr><td><b>地缘实质升级</b></td><td>霍尔木兹持续封锁 + 伊朗装置进一步停产 + 港口库存重新去化</td><td>近月现货紧张 → 价差重新走阔，正套的核心催化</td></tr>
+      <tr><td><b>需求端止跌</b></td><td>MTO 装置重启（诚志、渤化等），沿海 MTO 开工回升至 40% 以上</td><td>近月需求修复 → 近月相对走强</td></tr>
+      <tr><td><b>技术确认</b></td><td>价差企稳并站回 <b>220</b> 上方（收敛趋势被打破）</td><td>趋势反转的确认信号，避免逆势抄底</td></tr>
+    </tbody>
+  </table>
+  <div class="danger"><b>特别注意执行约束：</b>即便上述条件满足，只要你是自然人客户，<b>11–01 正套的有效持有期也只有到 10-30</b>。若不能接受 11 个交易日的强制了结，这个价差组合本质上不适合个人投资者。</div>
+</div>
+
+<!-- 5 -->
+<div class="card">
+  <h2>五、约束更少的替代方案</h2>
+  <table>
+    <thead><tr><th>方案</th><th>当前价差</th><th>优势</th><th>风险</th></tr></thead>
+    <tbody>
+      <tr><td><b>MA2701–2705 正套</b><br>（多 2701 / 空 2705）</td><td class="num">+260<br>(3,262−3,002)</td><td><b>无交割月限制</b>，可持有至 12 月甚至更久，时间站在近月一边；同样表达"近强远弱 + 1/5 价差"逻辑，且 1/5 是甲醇最活跃的套利对</td><td>2705 流动性弱于 2701；价差 260 是否偏陡需结合季节性判断</td></tr>
+      <tr><td><b>单边空 MA2701 或 2705</b></td><td>—</td><td>直接表达"高开工 + 需求负反馈 + 新产能投放"的看空逻辑，不受月差约束</td><td>期货深度贴水现货（太仓 3,845–4,025 vs 2701 3,243，基差 600+），存在贴水修复反弹风险</td></tr>
+      <tr><td><b>11–01 反套</b><br>（空 2611 / 多 2701）</td><td class="num">+191</td><td>与当前收敛趋势同向</td><td>剩余空间仅约 60–90 元；仓单偏低存在挤仓尾部风险（10-09 的 457 就是例证），且同样受 10-30 强平约束</td></tr>
+      <tr><td><b>暂时不参与该价差</b></td><td>—</td><td>结构错配已修复，赔率中性，等待更好的位置</td><td>无</td></tr>
+    </tbody>
+  </table>
+  <div class="good"><b>结论性排序：</b>如果一定要在同一逻辑下持仓 —— 优先 <b>MA2701–2705 正套</b>（工具最合适）；其次择机单边；<b>最不建议</b>在 191 这个位置开 11–01 正套（工具最差、时间最短、边际最薄）。</div>
+</div>
+
+<!-- 6 -->
+<div class="card">
+  <h2>六、市场状态与风险提示</h2>
+  <h3>支撑近月的事实（对正套有利的一面，如实列出）</h3>
+  <ul>
+    <li>港口库存绝对值 36.72 万吨仍处历史低位区间；伊朗多套装置停车或低负荷，10 月进口预估仅 40–47 万吨（正常月近半）；</li>
+    <li>现货太仓 3,845–4,025 元/吨，对近月保持深度升水（基差 370–590）；</li>
+    <li>MA2611 持仓 310,499 手，此前测算仓单/持仓比极低，理论存在挤仓可能；</li>
+    <li>期限结构整体仍是 Back（逐月贴水），Hitick 期限结构因子确认 backwardation。</li>
+  </ul>
+  <h3>压制近月的事实（对正套不利的一面）</h3>
+  <ul>
+    <li>MTO 全面亏损停车，沿海开工不足 20%，近月真实需求快速萎缩；</li>
+    <li>港口累库拐点确认（+6.21 万吨）+ 内地累库（+3.46 万吨）；</li>
+    <li>国内开工 92.15% 高位，新产能投放预期仍在压制远月同时削弱整体溢价；</li>
+    <li>机构主流观点偏"高位震荡"：安粮"宽幅震荡"、宝城"高位震荡偏弱"、上海中期"MA2611 宽幅震荡为主"、永安"关注工厂累库斜率"、银河"震荡偏强但上行空间有限"。</li>
+  </ul>
+  <div class="warn"><b>数据口径说明：</b>① 期现基差存在源差异——安粮报太仓现货约 3,845，南华/隆众报 4,025，两者相差近 180 元，请以郑商所与隆众一手数据核实；② 本报告未取得甲醇 2611 最新注册仓单量，挤仓强度判断沿用此前口径，需以交易所每日仓单数据为准；③ 甲醇席位数据（MA701/MA611）今日在数据源中未入库，故未纳入席位分析。</div>
+  <div class="footer">
+    数据来源：Hitick（MA2701 实时行情与期限结构因子，2026-10-15 09:35）、郑商所结算数据（生意社 10-14）、金投网实时行情、公开研报与资讯（安粮期货、宝城期货、上海中期、国投期货、永安研究、银河期货、中信期货、同花顺、上海中期等）。<br>
+    免责声明：以上内容基于实时数据与量化测算，仅供参考，不构成投资建议。市场有风险，投资需谨慎。任何投资决策应结合个人风险承受能力、资金状况和投资目标独立判断，必要时咨询持牌专业机构。过往表现不预示未来收益。
+  </div>
+</div>
+
+<div class="card">
+  <h2>附图一：11–01 价差收敛轨迹</h2>
+  <div class="chart-box"><canvas id="spreadChart"></canvas></div>
+</div>
+<div class="card">
+  <h2>附图二：月差曲线坡度（10-14 收盘）</h2>
+  <div class="chart-box"><canvas id="curveChart"></canvas></div>
+  <p class="note">11–01 跨两个月（211）＝ 2611-2612（122）＋ 2612-2701（89），曲线平滑无额外升水——这是"结构错配已修复"的图形证据。</p>
+</div>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const c1 = document.getElementById('spreadChart');
+  if (c1) {
+    new Chart(c1, {
+      type: 'line',
+      data: {
+        labels: ['10-09 收盘', '10-12 收盘', '10-14 收盘', '10-15 早盘'],
+        datasets: [{
+          label: 'MA2611 − MA2701（元/吨）',
+          data: [457, 307, 211, 191],
+          borderColor: '#1f4e8c', backgroundColor: 'rgba(31,78,140,0.12)',
+          fill: true, tension: 0.25, pointRadius: 5, pointBackgroundColor: '#1f4e8c'
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {legend: {display: false}, title: {display: true, text: '5 个交易日收敛 266 元·正套属逆势方向', font: {size: 14}}},
+        scales: {y: {grid: {color: '#eef1f5'}, title: {display: true, text: '价差（元/吨）'}}, x: {grid: {display: false}}}
+      }
+    });
+  }
+  const c2 = document.getElementById('curveChart');
+  if (c2) {
+    new Chart(c2, {
+      type: 'bar',
+      data: {
+        labels: ['11-12', '12-01', '01-02', '02-03', '11-01\n(= 122 + 89)'],
+        datasets: [{
+          label: '月差（元/吨）',
+          data: [122, 89, 78, 60, 211],
+          backgroundColor: ['#1f4e8c','#1f4e8c','#1f4e8c','#1f4e8c','#b7791f'],
+          borderRadius: 3
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {legend: {display: false}, title: {display: true, text: '单月档 60–122；11-01（211）= 122 + 89，无额外升水', font: {size: 14}}},
+        scales: {y: {grid: {color: '#eef1f5'}, title: {display: true, text: '价差（元/吨）'}}, x: {grid: {display: false}}}
+      }
+    });
+  }
+});
+</script>
+
+</body>
+</html>

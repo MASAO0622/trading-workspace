@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>豆棕 2701 反套可行性评估 · 2026-10-22</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: #f2f5f9; color: #1f2733; line-height: 1.75; font-size: 15px;
+    padding: 32px 20px 64px;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; }
+  header { margin-bottom: 26px; }
+  .kicker { font-size: 12.5px; letter-spacing: 2px; color: #7c8798; text-transform: uppercase; margin-bottom: 10px; }
+  h1 { font-size: 30px; font-weight: 800; letter-spacing: -.5px; color: #16202e; line-height: 1.3; }
+  .meta { margin-top: 12px; font-size: 13px; color: #7c8798; display: flex; gap: 18px; flex-wrap: wrap; }
+  .meta b { color: #445064; font-weight: 600; }
+
+  .verdict {
+    background: linear-gradient(135deg, #7f1d1d 0%, #b91c1c 100%);
+    color: #fff; border-radius: 14px; padding: 26px 30px; margin: 24px 0 10px;
+    box-shadow: 0 10px 30px rgba(185,28,28,.22);
+  }
+  .verdict .tag { font-size: 12px; letter-spacing: 3px; opacity: .8; margin-bottom: 8px; }
+  .verdict h2 { font-size: 25px; font-weight: 800; line-height: 1.45; }
+  .verdict p { margin-top: 12px; font-size: 14.5px; opacity: .93; line-height: 1.75; }
+  .verdict .hl { background: rgba(255,255,255,.18); padding: 1px 7px; border-radius: 4px; font-weight: 700; }
+
+  .card { background: #fff; border-radius: 14px; padding: 26px 30px; margin-bottom: 18px; box-shadow: 0 1px 3px rgba(20,35,60,.06), 0 8px 24px rgba(20,35,60,.05); }
+  h3 { font-size: 18.5px; font-weight: 750; color: #16202e; margin-bottom: 6px; letter-spacing: -.2px; }
+  h3 .num { color: #b91c1c; font-weight: 800; margin-right: 8px; }
+  .sub { font-size: 13px; color: #8a94a6; margin-bottom: 18px; }
+  p.body { font-size: 14.5px; color: #3c4759; margin-bottom: 12px; }
+  p.body:last-child { margin-bottom: 0; }
+
+  .three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 18px; }
+  .flaw { background: #fff; border-radius: 12px; padding: 20px; border-top: 3px solid #b91c1c; box-shadow: 0 1px 3px rgba(20,35,60,.06); }
+  .flaw .n { font-size: 11.5px; font-weight: 700; color: #b91c1c; letter-spacing: 1.5px; margin-bottom: 8px; }
+  .flaw h4 { font-size: 15.5px; font-weight: 750; color: #16202e; margin-bottom: 8px; line-height: 1.45; }
+  .flaw p { font-size: 13.2px; color: #5b6675; line-height: 1.7; }
+  .flaw .big { font-size: 22px; font-weight: 800; color: #b91c1c; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; font-size: 12.5px; font-weight: 650; color: #7c8798; padding: 9px 12px; border-bottom: 1.5px solid #e3e9f0; letter-spacing: .3px; }
+  td { padding: 11px 12px; border-bottom: 1px solid #eef2f7; color: #2b3648; }
+  tr:last-child td { border-bottom: none; }
+  td.n { font-variant-numeric: tabular-nums; font-weight: 600; }
+  .neg { color: #1e8449; }
+  .pos { color: #c0392b; }
+  .muted { color: #8a94a6; font-size: 13px; }
+  .row-hl td { background: #fdf5f5; }
+
+  .chart-box { margin: 6px -6px 14px; }
+  .cap { font-size: 12.5px; color: #8a94a6; margin-top: 8px; line-height: 1.65; }
+
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .side { background: #f8fafc; border-radius: 11px; padding: 18px 20px; border-left: 3px solid #cbd5e1; }
+  .side.bear { border-left-color: #1e8449; }
+  .side.bull { border-left-color: #c0392b; }
+  .side h5 { font-size: 14.5px; font-weight: 750; margin-bottom: 10px; color: #16202e; }
+  .side ul { list-style: none; font-size: 13.3px; color: #4a5668; line-height: 1.85; }
+  .side li { padding-left: 14px; position: relative; }
+  .side li::before { content: "·"; position: absolute; left: 2px; font-weight: 800; color: #9aa5b5; }
+
+  .plan { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .step { border: 1px solid #e3e9f0; border-radius: 12px; padding: 20px; background: #fff; }
+  .step .h { font-size: 12px; font-weight: 700; letter-spacing: 1.5px; color: #2c6fb7; margin-bottom: 8px; }
+  .step .h.warn { color: #b91c1c; }
+  .step h4 { font-size: 16px; font-weight: 750; margin-bottom: 10px; color: #16202e; }
+  .step .kv { font-size: 13.5px; color: #4a5668; line-height: 2; }
+  .step .kv b { color: #16202e; font-weight: 700; }
+  code { background: #eef2f7; padding: 1.5px 6px; border-radius: 4px; font-size: 13px; font-family: "SF Mono", Menlo, monospace; color: #b91c1c; }
+
+  .note { font-size: 12.5px; color: #8a94a6; line-height: 1.8; }
+  .note b { color: #5b6675; }
+  footer { text-align: center; font-size: 12px; color: #9aa5b5; margin-top: 32px; line-height: 1.9; }
+  @media (max-width: 760px) {
+    .three, .two, .plan { grid-template-columns: 1fr; }
+    h1 { font-size: 24px; } .verdict h2 { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">Spread Strategy Review · DCE</div>
+  <h1>豆油 / 棕榈油 2701 反套可行性评估</h1>
+  <div class="meta">
+    <span>数据时点 <b>2026-10-22 14:38 盘中</b></span>
+    <span>合约 <b>Y2701 / P2701</b></span>
+    <span>价差定义 <b>Y − P（豆油减棕油）</b></span>
+  </div>
+</header>
+
+<div class="verdict">
+  <div class="tag">结 论</div>
+  <h2>不建议现在开。</h2>
+  <p>问题不在方向，在<b>数学</b>：从 −585 做缩，向现货锚 −640 收敛的可赚空间只有 <span class="hl">55 点（550 元/组）</span>，而 11 月豆棕价差单月中位波动是 <span class="hl">496 点</span>。要活下来止损至少放到 −450（风险 1,350 元），赔率立刻变成 1:0.4 —— 这是一个负期望结构。方向上我甚至偏向你（棕油边际在收紧），但这个位置表达不了。</p>
+</div>
+
+<div class="three">
+  <div class="flaw">
+    <div class="n">硬伤 01</div>
+    <h4>空间被现货封死</h4>
+    <p>01 已进入现货逻辑，天津现货价差 <b>−640</b>，盘面 <b>−585</b> 已升水现货 55 点。做缩的最大合理目标就是 −640，<span class="big">55 点</span>。</p>
+  </div>
+  <div class="flaw">
+    <div class="n">硬伤 02</div>
+    <h4>止损只有噪音的 9%</h4>
+    <p>要守住 55 点空间，止损只能放 −540（45 点）。近 4 年 11 月单月波动 112–791 点，中位 <span class="big">496 点</span>。必被扫。</p>
+  </div>
+  <div class="flaw">
+    <div class="n">硬伤 03</div>
+    <h4>站在曲线最浅端</h4>
+    <p>01 <b>−585</b> / 03 <b>−971</b> / 05 <b>−1315</b>。01 是整条豆棕曲线倒挂最浅的月份，做缩是在最贵的位置卖。</p>
+  </div>
+</div>
+
+<div class="card">
+  <h3>一、现在的位置</h3>
+  <div class="sub">14:38 盘中报价 · 昨结算对比</div>
+  <table>
+    <tr><th>项目</th><th>数值</th><th>变化 / 备注</th></tr>
+    <tr><td>豆油 Y2701</td><td class="n">8,971</td><td class="pos">+54（+0.61%），日内 8,862–8,988</td></tr>
+    <tr><td>棕榈油 P2701</td><td class="n">9,556</td><td class="neg">−58（−0.60%），日内 9,516–9,645</td></tr>
+    <tr class="row-hl"><td><b>豆棕 01 价差</b></td><td class="n"><b>−585</b></td><td><b>昨收 −734，今日走扩 +149</b></td></tr>
+    <tr><td>现货价差（天津）</td><td class="n">−640</td><td class="muted">豆油 9,000 / 棕油 9,640 → 盘面升水现货 55 点</td></tr>
+    <tr><td>基差拆分</td><td class="n">豆 +29 / 棕 +84</td><td class="muted">豆油基差比棕油弱 55 点，与价差升水一致</td></tr>
+    <tr><td>持仓 Y / P</td><td class="n">53.7 万 / 55.6 万</td><td class="muted">Y 较 9 月初 −28.2%，P 仅 −7.9%</td></tr>
+    <tr><td>CBOT 豆油</td><td class="n">66.05</td><td class="muted">+0.12%，夜盘小幅反弹，给豆油端托底</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3><span class="num">01</span>价差走势：区间上沿，但上方是真空</h3>
+  <div class="sub">Y2701 − P2701 收盘价差 · 近 60 个交易日</div>
+  <div class="chart-box"><svg viewBox="0 0 1000 330" width="100%" style="display:block">
+<rect x="0" y="0" width="1000" height="330" fill="#ffffff"/>
+<line x1="78" y1="288.0" x2="966" y2="288.0" stroke="#e9edf2" stroke-width="1"/><text x="68" y="292.0" text-anchor="end" font-size="12" fill="#8a94a6">-1400</text><line x1="78" y1="245.3" x2="966" y2="245.3" stroke="#e9edf2" stroke-width="1"/><text x="68" y="249.3" text-anchor="end" font-size="12" fill="#8a94a6">-1250</text><line x1="78" y1="202.6" x2="966" y2="202.6" stroke="#e9edf2" stroke-width="1"/><text x="68" y="206.6" text-anchor="end" font-size="12" fill="#8a94a6">-1100</text><line x1="78" y1="159.8" x2="966" y2="159.8" stroke="#e9edf2" stroke-width="1"/><text x="68" y="163.8" text-anchor="end" font-size="12" fill="#8a94a6">-950</text><line x1="78" y1="117.1" x2="966" y2="117.1" stroke="#e9edf2" stroke-width="1"/><text x="68" y="121.1" text-anchor="end" font-size="12" fill="#8a94a6">-800</text><line x1="78" y1="74.4" x2="966" y2="74.4" stroke="#e9edf2" stroke-width="1"/><text x="68" y="78.4" text-anchor="end" font-size="12" fill="#8a94a6">-650</text><line x1="78" y1="31.7" x2="966" y2="31.7" stroke="#e9edf2" stroke-width="1"/><text x="68" y="35.7" text-anchor="end" font-size="12" fill="#8a94a6">-500</text>
+<line x1="78" y1="57.9" x2="966" y2="57.9" stroke="#c0392b" stroke-width="1.4" stroke-dasharray="6 5" opacity=".75"/>
+<text x="960" y="49.9" text-anchor="end" font-size="12" fill="#c0392b">9-10月上沿 -592</text>
+<line x1="78" y1="71.6" x2="966" y2="71.6" stroke="#7f8c9a" stroke-width="1.2" stroke-dasharray="4 4" opacity=".8"/>
+<text x="960" y="87.6" text-anchor="end" font-size="12" fill="#7f8c9a">现货锚（天津）-640</text>
+
+<polyline points="78.0,240.4 93.1,233.9 108.1,227.1 123.2,215.9 138.2,235.3 153.3,237.9 168.3,219.9 183.4,217.9 198.4,217.9 213.5,249.8 228.5,244.4 243.6,236.5 258.6,249.6 273.7,252.7 288.7,245.0 303.8,245.3 318.8,258.7 333.9,253.0 348.9,245.9 364.0,244.4 379.0,263.2 394.1,269.8 409.1,270.9 424.2,263.8 439.2,241.6 454.3,235.9 469.3,232.8 484.4,241.9 499.4,230.8 514.5,194.9 529.5,200.9 544.6,192.6 559.6,225.9 574.7,235.6 589.7,220.8 604.8,202.9 619.8,176.6 634.9,179.8 649.9,192.6 665.0,190.9 680.0,171.2 695.1,168.4 710.1,151.6 725.2,140.8 740.2,116.0 755.3,129.7 770.3,106.3 785.4,85.8 800.4,62.7 815.5,61.0 830.5,68.4 845.6,93.2 860.6,81.8 875.7,90.6 890.7,57.9 905.8,68.7 920.8,61.3 935.9,86.7 950.9,98.3 966.0,55.9" fill="none" stroke="#2c6fb7" stroke-width="2.2" stroke-linejoin="round"/>
+
+<circle cx="966.0" cy="55.9" r="5.5" fill="#c0392b" stroke="#fff" stroke-width="2"/>
+<text x="958.0" y="41.9" text-anchor="end" font-size="14" font-weight="700" fill="#c0392b">-585</text>
+<circle cx="409.1" cy="270.9" r="4" fill="#2c6fb7"/>
+<text x="417.1" y="286.9" font-size="12" fill="#2c6fb7">低点 -1340（08-24）</text><text x="78.0" y="316" text-anchor="middle" font-size="11.5" fill="#8a94a6">07-23</text><text x="303.8" y="316" text-anchor="middle" font-size="11.5" fill="#8a94a6">08-13</text><text x="529.5" y="316" text-anchor="middle" font-size="11.5" fill="#8a94a6">09-03</text><text x="755.3" y="316" text-anchor="middle" font-size="11.5" fill="#8a94a6">09-24</text><text x="966.0" y="316" text-anchor="middle" font-size="11.5" fill="#8a94a6">10-22</text>
+</svg></div>
+  <p class="body">近 20 日价差在 <b>−592 ~ −734</b> 之间横盘，三次触顶（10-15 −592、10-19 −604、今日 −585）都没有效突破。但今天盘中价差一度冲到 <b>−528</b>，直接穿过 9–10 月的“上沿”—— 这说明 −592 之上<b>没有历史成交密集区</b>，不是真阻力，只是真空。一旦突破，容易加速而不是回落。</p>
+  <p class="body">近 60 日均值 <b>−1,052</b>、标准差 235，当前 −585 已在 <b>+2.0σ</b>。统计上确实“贵”，但 60 日区间被 9 月初的 −1,340 拉低了重心，这个 +2σ 的含金量不高。</p>
+</div>
+
+<div class="card">
+  <h3><span class="num">02</span>曲线结构：01 是倒挂最浅的一档</h3>
+  <div class="sub">同一时点四个合约的豆棕价差（14:38）</div>
+  <div class="chart-box"><svg viewBox="0 0 1000 330" width="100%" style="display:block"><rect width="1000" height="330" fill="#fff"/><line x1="268" y1="46" x2="268" y2="298" stroke="#cfd8e3" stroke-width="1.4"/><text x="250" y="75" text-anchor="end" font-size="14.5" font-weight="700" fill="#20293a">Y2701 − P2701</text>
+<text x="250" y="92" text-anchor="end" font-size="11" fill="#8a94a6">10 吨/手 · 临近交割，走现货逻辑</text>
+<rect x="268" y="62" width="242.1" height="24" fill="#c0392b" rx="3"/>
+<text x="522.1" y="80" font-size="16" font-weight="700" fill="#c0392b">-585</text><text x="250" y="139" text-anchor="end" font-size="14.5" font-weight="700" fill="#20293a">Y2703 − P2703</text>
+<text x="250" y="156" text-anchor="end" font-size="11" fill="#8a94a6">减产季末</text>
+<rect x="268" y="126" width="401.8" height="24" fill="#aebbcb" rx="3"/>
+<text x="681.8" y="144" font-size="16" font-weight="700" fill="#54606f">-971</text><text x="250" y="203" text-anchor="end" font-size="14.5" font-weight="700" fill="#20293a">Y2705 − P2705</text>
+<text x="250" y="220" text-anchor="end" font-size="11" fill="#8a94a6">南美豆压榨高峰 + 印棕减产定价</text>
+<rect x="268" y="190" width="544.1" height="24" fill="#aebbcb" rx="3"/>
+<text x="824.1" y="208" font-size="16" font-weight="700" fill="#54606f">-1315</text><text x="250" y="267" text-anchor="end" font-size="14.5" font-weight="700" fill="#20293a">Y2709 − P2709</text>
+<text x="250" y="284" text-anchor="end" font-size="11" fill="#8a94a6">印棕增产季</text>
+<rect x="268" y="254" width="534.2" height="24" fill="#aebbcb" rx="3"/>
+<text x="814.2" y="272" font-size="16" font-weight="700" fill="#54606f">-1291</text><line x1="532.8" y1="46" x2="532.8" y2="298" stroke="#7f8c9a" stroke-width="1.4" stroke-dasharray="6 5"/>
+<text x="532.8" y="316" text-anchor="middle" font-size="12" fill="#7f8c9a">现货价差锚 −640（天津）</text>
+<text x="268" y="316" text-anchor="middle" font-size="12" fill="#9aa5b5">0</text></svg></div>
+  <p class="body">市场把厄尔尼诺减产与印尼 B50 的溢价<b>几乎全部定价在远月</b>：05 合约倒挂 1,315 点，比 01 深 730 点。棕油 01–05 呈深度 Contango（9,556 → 10,100，升水 544），也印证同一个事实 —— 近月棕油并不缺货，缺的是明年的货。</p>
+  <p class="body">这对做缩的含义很直接：<b>你不是在曲线便宜的一端买棕油，而是在最贵的一端卖豆油。</b>想做多棕油的逻辑，01 是最差的表达载体。</p>
+</div>
+
+<div class="card">
+  <h3><span class="num">03</span>季节性：这是唯一的反向风险，而且是抛硬币</h3>
+  <div class="sub">历年 01 合约豆棕价差月度均值路径</div>
+  <div class="chart-box"><svg viewBox="0 0 1000 340" width="100%" style="display:block"><rect width="1000" height="340" fill="#fff"/><line x1="84" y1="275.2" x2="850" y2="275.2" stroke="#eef1f5" stroke-width="1"/><text x="74" y="279.2" text-anchor="end" font-size="12" fill="#8a94a6">-2000</text><line x1="84" y1="241.6" x2="850" y2="241.6" stroke="#eef1f5" stroke-width="1"/><text x="74" y="245.6" text-anchor="end" font-size="12" fill="#8a94a6">-1500</text><line x1="84" y1="208.0" x2="850" y2="208.0" stroke="#eef1f5" stroke-width="1"/><text x="74" y="212.0" text-anchor="end" font-size="12" fill="#8a94a6">-1000</text><line x1="84" y1="174.4" x2="850" y2="174.4" stroke="#eef1f5" stroke-width="1"/><text x="74" y="178.4" text-anchor="end" font-size="12" fill="#8a94a6">-500</text><line x1="84" y1="140.8" x2="850" y2="140.8" stroke="#cfd8e3" stroke-width="1"/><text x="74" y="144.8" text-anchor="end" font-size="12" fill="#8a94a6">0</text><line x1="84" y1="107.3" x2="850" y2="107.3" stroke="#eef1f5" stroke-width="1"/><text x="74" y="111.3" text-anchor="end" font-size="12" fill="#8a94a6">500</text><line x1="84" y1="73.7" x2="850" y2="73.7" stroke="#eef1f5" stroke-width="1"/><text x="74" y="77.7" text-anchor="end" font-size="12" fill="#8a94a6">1000</text><line x1="84" y1="40.1" x2="850" y2="40.1" stroke="#eef1f5" stroke-width="1"/><text x="74" y="44.1" text-anchor="end" font-size="12" fill="#8a94a6">1500</text><polyline points="84.0,204.9 339.3,169.0 594.7,168.2 850.0,156.6" fill="none" stroke="#c0392b" stroke-width="2.4" stroke-linejoin="round" opacity=".9"/><circle cx="84.0" cy="204.9" r="4" fill="#c0392b"/><circle cx="339.3" cy="169.0" r="4" fill="#c0392b"/><circle cx="594.7" cy="168.2" r="4" fill="#c0392b"/><circle cx="850.0" cy="156.6" r="4" fill="#c0392b"/><text x="862" y="161.6" font-size="13" font-weight="600" fill="#c0392b">2025/26</text><text x="862" y="178.6" font-size="11.5" fill="#8a94a6">11月 +534</text><polyline points="84.0,188.1 339.3,241.3 594.7,280.2 850.0,283.5" fill="none" stroke="#2c6fb7" stroke-width="2.4" stroke-linejoin="round" opacity=".9"/><circle cx="84.0" cy="188.1" r="4" fill="#2c6fb7"/><circle cx="339.3" cy="241.3" r="4" fill="#2c6fb7"/><circle cx="594.7" cy="280.2" r="4" fill="#2c6fb7"/><circle cx="850.0" cy="283.5" r="4" fill="#2c6fb7"/><text x="862" y="288.5" font-size="13" font-weight="600" fill="#2c6fb7">2024/25</text><text x="862" y="305.5" font-size="11.5" fill="#8a94a6">11月 -791</text><polyline points="84.0,91.3 339.3,83.8 594.7,80.5 850.0,91.2" fill="none" stroke="#1e8449" stroke-width="2.4" stroke-linejoin="round" opacity=".9"/><circle cx="84.0" cy="91.3" r="4" fill="#1e8449"/><circle cx="339.3" cy="83.8" r="4" fill="#1e8449"/><circle cx="594.7" cy="80.5" r="4" fill="#1e8449"/><circle cx="850.0" cy="91.2" r="4" fill="#1e8449"/><text x="862" y="96.2" font-size="13" font-weight="600" fill="#1e8449">2023/24</text><text x="862" y="113.2" font-size="11.5" fill="#8a94a6">11月 +112</text><polyline points="84.0,42.1 339.3,72.9 594.7,59.1 850.0,58.5" fill="none" stroke="#b8860b" stroke-width="2.4" stroke-linejoin="round" opacity=".9"/><circle cx="84.0" cy="42.1" r="4" fill="#b8860b"/><circle cx="339.3" cy="72.9" r="4" fill="#b8860b"/><circle cx="594.7" cy="59.1" r="4" fill="#b8860b"/><circle cx="850.0" cy="58.5" r="4" fill="#b8860b"/><text x="862" y="63.5" font-size="13" font-weight="600" fill="#b8860b">2022/23</text><text x="862" y="80.5" font-size="11.5" fill="#8a94a6">11月 -458</text><circle cx="84.0" cy="180.1" r="7" fill="#fff" stroke="#c0392b" stroke-width="2.5"/><text x="84.0" y="166.1" text-anchor="middle" font-size="13" font-weight="700" fill="#c0392b">今年 -585</text><text x="84.0" y="324" text-anchor="middle" font-size="13" fill="#5b6675">10月</text><text x="339.3" y="324" text-anchor="middle" font-size="13" fill="#5b6675">11月</text><text x="594.7" y="324" text-anchor="middle" font-size="13" fill="#5b6675">12月</text><text x="850.0" y="324" text-anchor="middle" font-size="13" fill="#5b6675">1月</text></svg></div>
+  <p class="body">11 月环比方向：<b>+534 / −791 / +112 / −458</b>，两次走扩、两次走缩，均值 −151 但方差极大。没有可依赖的季节性。</p>
+  <p class="body">更要命的是两边都有先例：<b>2024/25</b> 年 11 月价差走缩 791 点（印尼 B40 + 产地减产）—— 与今年的 B50 + 厄尔尼诺同源，支持你做缩；<b>2025/26</b> 年 11 月走扩 534 点（马棕创纪录库存 + 出口疲弱 + 美豆油生柴需求）—— 与今年的 351 万吨库存同源，支持反向。一个变量两套剧本，赌方向等于赌硬币。</p>
+</div>
+
+<div class="card">
+  <h3>四、基本面：两边都在弱，边际上棕油先动</h3>
+  <div class="sub">决定价差方向的是“谁更弱”，不是“谁强”</div>
+  <div class="two">
+    <div class="side bear">
+      <h5>豆油端 — 结构性宽松（利空 Y，利多价差走扩）</h5>
+      <ul>
+        <li>商业库存 <b>148 万吨</b>，历史同期高位，去库停滞</li>
+        <li>油厂开机回升，第 42 周压榨量增加，供应压力未解</li>
+        <li>美豆收割率 <b>64%</b>，USDA 10 月上调单产与期末库存，创纪录产量落地</li>
+        <li>巴西播种 <b>26%</b>，快于去年 24%，南美丰产预期压制</li>
+        <li>10 月大豆到港 &lt;850 万吨，高峰已过（唯一边际利多）</li>
+        <li>Y2701 持仓一个月减 28%，多头在撤</li>
+      </ul>
+    </div>
+    <div class="side bull">
+      <h5>棕油端 — 现实宽松、边际收紧（利多 P，利空价差）</h5>
+      <ul>
+        <li>MPOB 9 月产量环比 <b>+16.48%</b>，库存 <b>351 万吨</b>创历史纪录</li>
+        <li>但 SPPOMA 10/1–15 产量环比 <b>−1.79%</b>，拐点初现</li>
+        <li>ITS/SGS 10/1–20 出口环比 <b>+58.5%~78.4%</b>，印度排灯节 + 黑海葵油断供替代</li>
+        <li>马来传减免出口税促出口；印尼 B50 持续推进</li>
+        <li>超强厄尔尼诺 → 油世界估 2027 印棕减产 <b>160 万吨</b></li>
+        <li>国内商业库存 116 万吨，单周 <b>+19 万吨</b>（现实压力仍在）</li>
+      </ul>
+    </div>
+  </div>
+  <p class="body" style="margin-top:16px">关键观察：<b>马棕 10 月出口环比 +58%~78% 这种级别的利多，今天棕油仍然跌了 58 点。</b>要么被 351 万吨库存压住，要么已被 price in。基本面的“边际改善”暂时没有转化成盘面动能 —— 这正是做缩最不该忽视的信号：你赌的那条腿今天在往下走。</p>
+</div>
+
+<div class="card">
+  <h3>五、情景测算</h3>
+  <div class="sub">1 组 = 空 1 手 Y2701 + 多 1 手 P2701（均 10 吨/手，等吨数天然对冲）· 1 点 = 10 元</div>
+  <table>
+    <tr><th>情景</th><th>价差</th><th>点数</th><th>盈亏 / 组</th><th>保证金收益率*</th></tr>
+    <tr><td>止损</td><td class="n">−540</td><td class="n">+45</td><td class="n neg">−450</td><td class="n neg">−3.0%</td></tr>
+    <tr><td>目标：向现货锚收敛</td><td class="n">−640</td><td class="n">−55</td><td class="n pos">+550</td><td class="n pos">+3.7%</td></tr>
+    <tr><td>乐观：现货继续走弱至 −700</td><td class="n">−700</td><td class="n">−115</td><td class="n pos">+1,150</td><td class="n pos">+7.8%</td></tr>
+    <tr class="row-hl"><td>11 月重演 2025/26（走扩 534）</td><td class="n">−51</td><td class="n">+534</td><td class="n neg">−5,340</td><td class="n neg">−36%</td></tr>
+    <tr><td>11 月重演 2024/25（走缩 791）</td><td class="n">−1,376</td><td class="n">−791</td><td class="n pos">+7,910</td><td class="n pos">+53%</td></tr>
+  </table>
+  <p class="caption" style="margin-top:12px; font-size:12.5px; color:#8a94a6">*保证金按交易所标准 8% 估算 ≈ <b>14,800 元/组</b>（Y 8,971×10×8% + P 9,556×10×8%），期货公司实收约 1.9–2.1 万，收益率相应摊薄。手续费往返约 10 元/组，滑点按 2 点计 20 元/组。</p>
+  <p class="body" style="margin-top:14px">看赔率：<b>赚 550 / 亏 450 = 1 : 1.2</b>，而尾部（走扩 534 点）一次亏掉止损的 <b>12 倍</b>。要么把止损放到 −450 承认 1,350 元风险（赔率跌到 1:0.4），要么维持 −540 被噪音扫掉。<b>两条路都不通。</b></p>
+</div>
+
+<div class="card">
+  <h3>六、什么条件下这个交易才成立</h3>
+  <div class="sub">把“能不能开”变成一个可等待的触发条件</div>
+  <div class="plan">
+    <div class="step">
+      <div class="h">方案 A · 等更好的位置（推荐）</div>
+      <h4>价差升水现货 ≥ 150 点时做缩</h4>
+      <div class="kv">
+        触发：价差回到 <code>−460 至 −480</code>（对应豆油补涨或棕油补跌）<br>
+        入场：−470 附近 · 此时距现货锚有 <b>170 点</b>空间<br>
+        止损：<code>−390</code>（80 点，800 元风险，仍低于单月噪音）<br>
+        目标：<code>−620</code> 减半 / <code>−640</code> 全平（利润 1,500–1,700 元）<br>
+        赔率：<b>1 : 2 起</b>，且基差提供真实保护
+      </div>
+    </div>
+    <div class="step">
+      <div class="h warn">方案 B · 等风险窗口过去</div>
+      <h4>12 月季节性明朗后再评估</h4>
+      <div class="kv">
+        11 月是季节性最混沌的一个月，且自然人须在 11 月底前离场<br>
+        实际可持有窗口仅 <b>约 27 个交易日</b>（10/23–11/30）<br>
+        若 11 月 10 日 MPOB 报告显示马棕库存从 351 万吨<b>回落至 320 万吨以下</b><br>
+        → 做缩的基本面才真正成立，届时看价差是否给出好位置
+      </div>
+    </div>
+  </div>
+  <p class="body" style="margin-top:16px">如果你真正想表达的是<b>“棕油要涨”</b>（厄尔尼诺 + B50），01 豆棕价差是最差的载体。更贴合的路径是：<b>P2705 单边多</b>，或 <b>P2701–P2705 反套</b>（05 升水 544，做缩这 544 点）。后者与你现有的空 MA、空 PX、空 PL、空 EB 近月形成方向对冲，反而降低组合的同源风险。</p>
+</div>
+
+<div class="card">
+  <h3>七、与你现有持仓的关系</h3>
+  <p class="body">你手上 MA 空、PX 空、PL 空、EB 近月空、菜油 OI 期权多、PP 多、TA 多、JM 空 —— 其中四个空头都押在“原油/地缘”这一个变量上。<b>豆棕反套（空豆油/多棕油）方向上是这组头寸的对冲</b>：棕油与原油、生柴需求正相关，做多棕油等于给能源空头买保险。</p>
+  <p class="body">但从仓位效率看，用“豆棕价差”买这份保险，付出了 55 点的空间代价去换 496 点的噪音风险。<b>不如直接减 MA 或 PX 的一档空单</b>来降同源风险，成本更低、可控性更高。</p>
+</div>
+
+<div class="card">
+  <h3>数据说明</h3>
+  <p class="note">
+    <b>价格：</b>新浪财经期货行情接口，Y2701 / P2701 / Y2703 / P2705 / P2709 等，2026-10-22 14:38 盘中；日 K 序列为收盘价。<br>
+    <b>现货：</b>同花顺 10-22 早报，天津豆油 9,000 元/吨、天津棕油 9,640 元/吨、广东棕油 9,280 元/吨。地区间差异较大，现货价差采用同地区（天津）口径。<br>
+    <b>基本面：</b>MPOB 9 月报告、SPPOMA 10/1–15、ITS/SGS 10/1–20、USDA 10 月报告、华泰 / 银河 / 光大期货油脂日报（10-18 至 10-22）。<br>
+    <b>季节性：</b>Y2301–Y2701 与 P2301–P2701 日 K 收盘价差，按月取均值，样本为 4 个年度。<br>
+    <b>缺失：</b>Hitick 账户额度不足（剩余 🍊0.01，单次调用需 0.02），本期未取 P2701 期权链、GEX、波动率曲面数据。若需期权维度的结构与资金验证，需先补充额度。
+  </p>
+</div>
+
+<footer>
+  本报告基于公开数据整理，用于交易决策参考，不构成投资建议。<br>
+  价差交易风险在于两端同时反向，实际滑点与冲击成本可能高于测算。
+</footer>
+
+</div>
+</body>
+</html>

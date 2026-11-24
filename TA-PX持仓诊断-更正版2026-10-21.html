@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TA-PX 持仓诊断（更正版）| 2026-10-21</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --navy:#1f4e8c; --navy-d:#153a6b; --gold:#b7791f;
+    --red:#c0392b; --green:#1e8449; --gray:#5b6675;
+    --bg:#f5f7fa; --card:#ffffff; --line:#e3e8ef; --ink:#1c2430;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.75; font-size:15px; padding:0 0 60px;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+  header{background:linear-gradient(135deg,var(--navy-d) 0%,var(--navy) 100%);color:#fff;padding:38px 0 30px;margin-bottom:26px}
+  header .wrap{padding:0 22px}
+  header h1{font-size:27px;font-weight:700;letter-spacing:.5px;margin-bottom:8px}
+  header .sub{font-size:14px;opacity:.88}
+  header .meta{margin-top:14px;font-size:12.5px;opacity:.72;border-top:1px solid rgba(255,255,255,.2);padding-top:12px}
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 16px 14px}
+  .card .lb{font-size:12px;color:var(--gray);margin-bottom:6px}
+  .card .vl{font-size:23px;font-weight:700;letter-spacing:-.3px}
+  .card .ft{font-size:11.5px;color:var(--gray);margin-top:5px}
+  .red{color:var(--red)} .green{color:var(--green)} .gold{color:var(--gold)} .navy{color:var(--navy)}
+  section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:24px 26px;margin-bottom:20px}
+  h2{font-size:18px;color:var(--navy-d);margin-bottom:14px;padding-left:11px;border-left:4px solid var(--navy);line-height:1.3}
+  h3{font-size:15px;color:var(--navy-d);margin:18px 0 9px}
+  p{margin-bottom:11px}
+  ul,ol{margin:8px 0 12px 22px} li{margin-bottom:6px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:12px 0}
+  th{background:#eef2f8;color:var(--navy-d);font-weight:600;text-align:left;padding:9px 11px;border-bottom:2px solid #d5deeb}
+  td{padding:8px 11px;border-bottom:1px solid var(--line)}
+  tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  tr.hl{background:#fff8ec}
+  .chart-box{position:relative;height:300px;margin:14px 0 6px}
+  .cap{font-size:12px;color:var(--gray);text-align:center;margin-top:6px}
+  .note{background:#fff8ec;border-left:4px solid var(--gold);padding:13px 16px;border-radius:0 8px 8px 0;font-size:13.5px;margin:14px 0}
+  .warn{background:#fdf0ee;border-left:4px solid var(--red);padding:13px 16px;border-radius:0 8px 8px 0;font-size:13.5px;margin:14px 0}
+  .ok{background:#eef8f1;border-left:4px solid var(--green);padding:13px 16px;border-radius:0 8px 8px 0;font-size:13.5px;margin:14px 0}
+  .corr{background:#f0f4fa;border:1px solid #ccd9ea;border-radius:10px;padding:18px 20px;margin-bottom:20px}
+  .corr h2{border-left-color:var(--gold);margin-bottom:10px}
+  .big{font-size:30px;font-weight:700;letter-spacing:-.5px}
+  footer{text-align:center;font-size:11.5px;color:var(--gray);margin-top:30px;line-height:1.9}
+  @media(max-width:720px){.cards{grid-template-columns:repeat(2,1fr)}header h1{font-size:20px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>多 TA2701 / 空 PX2701 · 持仓诊断</h1>
+    <div class="sub">12 手 TA @6,466 ＋ 8 手 PX @9,203 —— 同月配对，加工费 438 建仓，当前 417</div>
+    <div class="meta">更正版 ｜ 数据时点：2026-10-21 11:04 盘中 ｜ TA2701 6,430 · PX2701 9,180（郑商所实时）｜ 上一版因合约口径取错作废，差异原因见第一节</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="corr">
+    <h2>先更正一个错误：你的浮亏是 1,256 元，不是 6,765 元</h2>
+    <p>上一版我用 PX2611 / PX2612 的价格代入计算，得出的加工费是 325、浮亏 6,765 元。<b>你空的是 PX2701，必须用 2701 的价格算。</b></p>
+    <table>
+      <tr><th>口径</th><th class="num">TA</th><th class="num">PX</th><th class="num">加工费</th><th class="num">浮亏</th></tr>
+      <tr><td>上一版（错，用 PX2611 夜盘）</td><td class="num">6,274</td><td class="num">9,082</td><td class="num">325</td><td class="num red">−6,765</td></tr>
+      <tr class="hl"><td><b>本版（对，用 PX2701 实时）</b></td><td class="num">6,430</td><td class="num">9,180</td><td class="num"><b>417</b></td><td class="num red"><b>−1,256</b></td></tr>
+    </table>
+    <p style="margin-bottom:0">差额 5,509 元全部来自合约错配——PX 曲线是陡峭的 Back 结构，2611（9,498）比 2701（9,180）贵 318 元，差一个合约就差出半个加工费的身位。<b>结论方向也因此要改：不是「深度浮亏、只能扛」，而是「接近成本、可以主动决策」。</b></p>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <div class="lb">你的成本加工费</div>
+      <div class="vl navy">438.0</div>
+      <div class="ft">6,466 − 0.655×9,203</div>
+    </div>
+    <div class="card">
+      <div class="lb">当前加工费（11:04）</div>
+      <div class="vl">417.1</div>
+      <div class="ft">6,430 − 0.655×9,180</div>
+    </div>
+    <div class="card">
+      <div class="lb">浮动盈亏</div>
+      <div class="vl red">−1,256</div>
+      <div class="ft">元（约 −1.4% 保证金）</div>
+    </div>
+    <div class="card">
+      <div class="lb">距回本</div>
+      <div class="vl gold">21 <span style="font-size:14px">元/吨</span></div>
+      <div class="ft">PX 跌到 9,148 即打平</div>
+    </div>
+  </div>
+
+  <section>
+    <h2>一、持仓核算</h2>
+    <table>
+      <tr><th>项目</th><th>多头腿 TA2701</th><th>空头腿 PX2701</th><th>合计 / 说明</th></tr>
+      <tr><td>手数 × 乘数</td><td>12 手 × 5 吨 = 60 吨</td><td>8 手 × 5 吨 = 40 吨</td><td>—</td></tr>
+      <tr><td>建仓价</td><td>6,466</td><td>9,203</td><td>加工费 438.0</td></tr>
+      <tr><td>当前价</td><td>6,430（−0.56%）</td><td>9,180（持平昨结）</td><td>加工费 417.1</td></tr>
+      <tr><td>理论配比</td><td>12 手</td><td class="num">7.86 手</td><td>实际 8 手 → 超配 0.7 吨</td></tr>
+      <tr><td>名义金额</td><td class="num">387,960 元</td><td class="num">368,120 元</td><td class="num">756,080 元</td></tr>
+      <tr><td>保证金（12%）</td><td class="num">46,555 元</td><td class="num">44,174 元</td><td class="num">90,729 元</td></tr>
+      <tr><td>价差敏感度</td><td colspan="2">加工费每变动 1 元/吨</td><td class="num">盈亏 ±60 元</td></tr>
+    </table>
+
+    <div class="ok">
+      <b>这次三个技术问题都不存在，比我上一版判断的要好：</b>
+      <ul style="margin-bottom:0">
+        <li><b>合约同月匹配</b>：TA2701 对 PX2701，都是 2027 年 1 月，价差是干净的加工费，没有月差污染</li>
+        <li><b>不用换月</b>：两腿最后交易日都是 2027-01-14，还有近 3 个月，不存在被迫展期</li>
+        <li><b>流动性够用</b>：PX2701 持仓 6.77 万手、日成交 9.2 万手，8 手进出毫无压力（非主力但绝不是僵尸合约）</li>
+      </ul>
+    </div>
+    <p>配比同样正确：12 手 TA 需要 7.86 手 PX，你用 8 手，超配 0.7 吨（1.8%），可忽略。</p>
+  </section>
+
+  <section>
+    <h2>二、今天你的头寸发生了什么</h2>
+    <p>今天是加工费剧烈波动的一天。按时间顺序：</p>
+    <table>
+      <tr><th>时点</th><th class="num">TA2701</th><th class="num">PX2701</th><th class="num">加工费</th><th class="num">相对你成本</th></tr>
+      <tr><td>10-20 日盘收盘</td><td class="num">6,488</td><td class="num">9,238</td><td class="num">437</td><td class="num">−60 元</td></tr>
+      <tr><td>10-21 开盘</td><td class="num">6,400</td><td class="num">9,294</td><td class="num red">312</td><td class="num red">−7,536 元</td></tr>
+      <tr class="hl"><td>10-21 11:04（现在）</td><td class="num">6,430</td><td class="num">9,180</td><td class="num"><b>417</b></td><td class="num red">−1,256 元</td></tr>
+    </table>
+    <div class="chart-box"><canvas id="chartIntraday"></canvas></div>
+    <div class="cap">10-20 收盘至 10-21 盘中的加工费轨迹（元/吨）。日内振幅达 125 元。</div>
+
+    <div class="note">
+      <b>关键事实：今天开盘那一刻，你的浮亏是 −7,536 元；现在只剩 −1,256 元。也就是说，这个上午你已经回血 6,280 元。</b>
+      <br><br>
+      原因不复杂：夜盘 PX 因原油跳水（SC −4.47%）跌得更狠，加工费被压到 312；早盘原油修复（布伦特反弹至 110.4），PX 从 8,908 收复到 9,180（+3.05%），而 TA 只从 6,368 回到 6,430（+0.97%）。<b>PX 反弹比 TA 快</b>，这恰恰是压制加工费的方向——所以「加工费从 312 修复到 417」这件事，是 TA 相对抗跌 + PX 前期超跌共同造成的。
+    </div>
+
+    <p>但请注意一个反直觉的点：<b>日内加工费最高一度超过 500</b>（当 PX 跌到 8,908 而 TA 还在 6,368 附近时，6,368 − 0.655×8,908 ≈ 533）。如果你在那个瞬间建仓，成本会好得多。你 438 的成本，说明你建在了上午 TA 冲高（最高 6,560）、PX 相对高位的时点。<b>不是建在最好的位置，但也没建在最差的。</b></p>
+  </section>
+
+  <section>
+    <h2>三、438 这个成本，在赔率上意味着什么</h2>
+    <p>加工费的坐标：<b>2025 年均值 273 → 行业现金成本 400–500 → 2026 年均值 450 → 9 月高点 900</b>。</p>
+    <p>你 438 建仓，等于买在「2026 年均值下方一点」，而当前 417 已回到「现金成本带的中部」。<b>这意味着：从估值角度，做扩加工费的赔率已经被消耗了大半。</b></p>
+
+    <table>
+      <tr><th>加工费走到</th><th class="num">距当前</th><th class="num">你的盈亏</th><th>性质</th></tr>
+      <tr><td>350</td><td class="num">−67</td><td class="num red">−5,282</td><td>PTA 全面亏损区，需减产才止</td></tr>
+      <tr><td>380</td><td class="num">−37</td><td class="num red">−3,482</td><td>接近现金成本下沿</td></tr>
+      <tr><td>400</td><td class="num">−17</td><td class="num red">−2,282</td><td>现金成本下沿</td></tr>
+      <tr class="hl"><td><b>417（当前）</b></td><td class="num">0</td><td class="num red"><b>−1,256</b></td><td>平衡带中部偏下</td></tr>
+      <tr><td><b>438（成本）</b></td><td class="num">+21</td><td class="num">0</td><td><b>回本线</b></td></tr>
+      <tr><td>450</td><td class="num">+33</td><td class="num green">+718</td><td>2026 年均值</td></tr>
+      <tr><td>470</td><td class="num">+53</td><td class="num green">+1,918</td><td>平衡带上沿</td></tr>
+      <tr><td>500</td><td class="num">+83</td><td class="num green">+3,718</td><td>偏贵区，做扩的合理上限</td></tr>
+    </table>
+    <div class="cap">盈亏 =（加工费 − 438）× 60 元</div>
+
+    <div class="warn">
+      <b>赔率已经中性偏负。</b>以 450 为目标（+1,980 元）、380 为止损（−2,220 元），赔率约 <b>0.9 : 1</b>——不值得。即使放宽到 470 目标（+3,180）对 380 止损（−2,220），也只有 <b>1.4 : 1</b>，勉强及格。<br><br>
+      而基本面的方向偏偏是反的（见下节）。所以此刻的核心问题不再是「该不该持有」，而是<b>「用什么价格体面地退出，还是再赌一次 21 元的回本」</b>。
+    </div>
+  </section>
+
+  <section>
+    <h2>四、基本面：机构主流仍在做缩，与你的方向相反</h2>
+    <table>
+      <tr><th>维度</th><th>数据</th><th class="num">对加工费</th></tr>
+      <tr><td>PTA 社会库存</td><td>169.86 万吨，环比 +7.02 万，连续五周累库</td><td class="num red">不利</td></tr>
+      <tr><td>PTA 开工率</td><td>67.6%（五年同期低位、同比 −9.1pct）</td><td class="num green">有利</td></tr>
+      <tr><td>聚酯负荷</td><td>72.49%（去年同期 84%+）</td><td class="num red">不利</td></tr>
+      <tr><td>织造开工</td><td>51.67%，旺季落空</td><td class="num red">不利</td></tr>
+      <tr><td>仓单</td><td>10-15 当周 +3.5 万张 ≈ 17.5 万吨</td><td class="num red">不利</td></tr>
+      <tr><td>PX 端</td><td>负荷 78.1%（五年偏低）、基差 +622、PXN 332 美元高位</td><td class="num red">不利（PX 更紧）</td></tr>
+      <tr><td>PX 新装置</td><td>华锦阿美 200 万吨年底前后投产</td><td class="num green">有利（远期）</td></tr>
+      <tr><td>今日资金</td><td>TA2701 增仓 10,373 手下跌；PX2701 减仓 3,472 手</td><td class="num red">不利（TA 被加空）</td></tr>
+    </table>
+
+    <p><b>机构表态（10-21 晨报）：</b></p>
+    <ul>
+      <li><b>国信期货</b>：建议「逢高<b>做缩</b>加工费」，月差关注反套</li>
+      <li><b>东吴期货</b>：「<b>多 PX 空 TA</b>」——与你的头寸完全相反</li>
+      <li><b>国投期货</b>：「加工差回落……<b>区间内逢高偏空</b>」</li>
+      <li><b>迈科期货</b>：「短期<b>加工利润承压</b>」</li>
+      <li><b>方正中期</b>：「建议上游企业<b>逢高做空加工费</b>，及时锁定加工利润」</li>
+    </ul>
+    <p>支持做扩的声音只有一条，而且是真实的：<b>PTA 开工 67.6% 已到五年低位 + 无新增产能</b>，产业逻辑上 400 以下的加工费不可能长期维持。但「不可能长期维持」和「这周就会修复」是两件事——累库还在继续，说明减产的力度还不够。</p>
+  </section>
+
+  <section>
+    <h2>五、两张换算表：直接盯这两个数字</h2>
+    <p>不用每天算公式。记住这两个表，看到价格就知道自己的位置。</p>
+
+    <h3>表一：TA 不动，盯 PX</h3>
+    <table>
+      <tr><th>PX2701 跌到</th><th class="num">加工费</th><th class="num">你的盈亏</th><th>动作含义</th></tr>
+      <tr><td>9,206</td><td class="num">400</td><td class="num red">−2,282</td><td>第一道防线，考虑减仓</td></tr>
+      <tr class="hl"><td><b>9,180（当前）</b></td><td class="num">417</td><td class="num red">−1,256</td><td>—</td></tr>
+      <tr><td><b>9,148</b></td><td class="num">438</td><td class="num">0</td><td><b>回本，平一半</b></td></tr>
+      <tr><td>9,130</td><td class="num">450</td><td class="num green">+718</td><td>第二档止盈</td></tr>
+      <tr><td>9,099</td><td class="num">470</td><td class="num green">+1,918</td><td>清大部分</td></tr>
+      <tr><td>9,053</td><td class="num">500</td><td class="num green">+3,718</td><td>清仓</td></tr>
+    </table>
+
+    <h3>表二：PX 不动，盯 TA</h3>
+    <table>
+      <tr><th>TA2701 涨到</th><th class="num">加工费</th><th class="num">你的盈亏</th></tr>
+      <tr><td>6,413</td><td class="num">400</td><td class="num red">−2,282</td></tr>
+      <tr class="hl"><td><b>6,430（当前）</b></td><td class="num">417</td><td class="num red">−1,256</td></tr>
+      <tr><td><b>6,451</b></td><td class="num">438</td><td class="num">0（回本）</td></tr>
+      <tr><td>6,463</td><td class="num">450</td><td class="num green">+718</td></tr>
+      <tr><td>6,483</td><td class="num">470</td><td class="num green">+1,918</td></tr>
+    </table>
+    <div class="note">
+      注意：这两张表是<b>单腿不动</b>的假设。实际两腿都在动，所以真正要盯的是<b>加工费本身</b>（TA − 0.655×PX），而不是单个价格。这两张表只是帮你在盘口快速估算。
+    </div>
+  </section>
+
+  <section>
+    <h2>六、三个方案</h2>
+
+    <h3>方案 A：减半兑现，剩余等回本（推荐）</h3>
+    <p>理由：目标区（400–450）已经到达，但还差 21 元没回本。这两个事实同时成立，所以用「减一半」来兼顾——既承认目标已达成，又保留回本的可能。</p>
+    <table>
+      <tr><th>步骤</th><th>触发</th><th>动作</th><th class="num">结果</th></tr>
+      <tr><td>现在</td><td>加工费 417</td><td>平 6 手 TA + 4 手 PX</td><td class="num red">−628</td></tr>
+      <tr><td>回本</td><td>加工费 ≥438（PX ≤9,148 或 TA ≥6,451）</td><td>再平 3 手 TA + 2 手 PX</td><td class="num">打平</td></tr>
+      <tr><td>止盈</td><td>加工费 450–470</td><td>清尾仓（3 手 TA / 2 手 PX）</td><td class="num green">+360 ~ +960</td></tr>
+      <tr><td>止损</td><td>加工费 &lt;400 且 PTA 社库继续增</td><td>剩余全部清掉</td><td class="num red">约 −1,100</td></tr>
+    </table>
+    <p style="margin-bottom:0">这个方案把最大亏损控制在 1,700 元以内，用一半仓位保留 450–470 的想象力。<b>代价是：如果加工费直接冲到 500，你只赚到一半。</b></p>
+
+    <h3>方案 B：全部平掉，等更好的位置重来</h3>
+    <p>理由：赔率 0.9:1 不值得，且机构共识相反。417 平掉，认 1,256 元的成本，等加工费回到 <b>380 以下</b>重建（那时做扩的赔率回到 2:1 以上）。</p>
+    <p style="margin-bottom:0">适合你如果不想为 21 元/吨的回本去承担 67 元/吨的下行风险。缺点是：如果 PX 明天就跌到 9,148，你会有点难受。</p>
+
+    <h3>方案 C：原仓不动，只设纪律</h3>
+    <p>只在两种情况下动手：<b>加工费跌破 390 全部止损</b>（亏 2,880 元），或<b>涨到 450 全部止盈</b>（赚 718 元）。中间不动。</p>
+    <p style="margin-bottom:0">最省事，但赔率最差——390 到 450 是 −2,880 对 +718，约 0.25:1。<b>不推荐，除非你有很强的理由相信 450 一定会到。</b></p>
+
+    <div class="warn">
+      <b>三个方案都不建议「加仓摊低」。</b>理由：加工费 417 已在现金成本带中部，不再是「明显偏便宜」的位置；而 PTA 累库五周、聚酯 72.5%、机构共识做缩，加仓等于逆着驱动加杠杆。如果一定要加，条件必须是加工费重新跌回 <b>380 以下</b>且 PTA 开工率<u>继续下降</u>（说明减产真的在发生）。
+    </div>
+  </section>
+
+  <section>
+    <h2>七、盯四个指标，比盯价格有用</h2>
+    <ol>
+      <li><b>PTA 周度开工率</b>（现 67.6%）：<b>降到 65% 以下</b> → 减产兑现，加工费修复有基础，可持有甚至加；<b>回升到 70%+</b> → 减产逻辑失效，止损</li>
+      <li><b>PTA 社会库存</b>（现 169.86 万吨，五连增）：<b>转去库</b> → 最关键的转折；<b>单周再增 7 万吨以上</b> → 压力加大，减仓</li>
+      <li><b>聚酯负荷</b>（现 72.49%）：<b>回到 76%+</b> → 需求端转向（双十一订单验证点）；继续下探 → 加工费还有压缩空间</li>
+      <li><b>原油 / 霍尔木兹</b>（布伦特 110.4）：<b>地缘缓和 → 油价补跌 → PX 跌得比 TA 快 → 加工费扩（对你有利）</b>；<b>地缘升级 → 油价冲高 → PX 更强 → 加工费缩（对你不利）</b></li>
+    </ol>
+    <div class="note">
+      第 4 条的机制值得单独记一下：你这笔交易的净头寸是「多 60 吨 TA、空 40 吨 PX」，本质是<b>偏空 PX = 偏空原油成本端</b>。所以「地缘缓和 → 化工整体跌」对你不是坏消息，因为两腿对冲掉了单边，只留下相对强弱——而 PX 的原油弹性大于 TA，跌的时候 PX 让利更多。
+    </div>
+  </section>
+
+  <section>
+    <h2>八、与你其他持仓的合并风险</h2>
+    <table>
+      <tr><th>持仓</th><th>与本笔关系</th><th>提示</th></tr>
+      <tr><td>PL2611 空 @8,718</td><td><b>同向</b>（都偏空油化工）</td><td>丙烯与 PX 同属油化工，原油下跌时两头寸同赚、上涨时同亏，<b>风险叠加</b></td></tr>
+      <tr><td>JM2701 空 @1,590</td><td>弱相关</td><td>黑色 vs 能化，链条不同，但同属「上游让利」宏观情绪</td></tr>
+      <tr><td>OI2701C11000 多</td><td>无关</td><td>农产品，独立</td></tr>
+    </table>
+    <p style="margin-bottom:0">关键：<b>PL 空 + PX 空，在「原油下行」这个变量上是同一个赌注。</b>按仓位合并算，你实际承担的是「油化工成本端下行」的加总敞口，不是两笔独立的中性套利。这一点在设总止损时必须算进去。</p>
+  </section>
+
+  <section>
+    <h2>九、一句话总结</h2>
+    <p style="font-size:16px;line-height:1.95;margin-bottom:0">
+      <b>头寸结构是干净的（同月匹配、配比准确、流动性够），问题只在成本——438 建在了目标区间的中部，把 325→450 这段最肥的空间让掉了。</b>现在 417 距回本只有 21 元，但距合理目标（450）也只有 33 元，而下方到 380 有 37 元——<b>赔率已经跨过中性线，不再值得满仓等回本</b>。建议减半落袋、剩余设纪律：回本平、450 清、破 400 撤。真正决定去留的是 PTA 开工率和社库拐点，不是每天几十元的加工费波动。
+    </p>
+  </section>
+
+  <footer>
+    数据来源：郑商所实时行情（TA2701 / PX2701，2026-10-21 11:04）、CCF / 隆众 / 卓创、国信·东吴·国投·迈科·方正中期 10-21 晨报。<br>
+    盘中价格为快照，收盘结算以郑商所盘后公布为准。上一版报告因 PX 合约口径取错（误用 2611/2612）作废，请以本版为准。<br>
+    <b>免责声明：</b>以上内容基于公开数据与量化测算，仅供参考，不构成投资建议。市场有风险，投资需谨慎。<br>
+    任何投资决策应结合个人风险承受能力、资金状况与投资目标独立判断，必要时咨询持牌专业机构。过往表现不预示未来收益。
+  </footer>
+</div>
+
+<script>
+window.addEventListener('load', function () {
+  var c1 = document.getElementById('chartIntraday');
+  if (c1) {
+    new Chart(c1, {
+      type: 'line',
+      data: {
+        labels: ['10-20 日盘收盘', '10-21 开盘', '10-21 盘中低点(近似)', '10-21 11:04'],
+        datasets: [
+          {
+            label: '盘面加工费（元/吨）',
+            data: [437, 312, 533, 417],
+            borderColor: '#1f4e8c',
+            backgroundColor: 'rgba(31,78,140,0.10)',
+            borderWidth: 2.5,
+            pointRadius: 5,
+            pointBackgroundColor: '#1f4e8c',
+            tension: 0.25,
+            fill: true
+          },
+          {
+            label: '你的成本 438',
+            data: [438, 438, 438, 438],
+            borderColor: '#b7791f',
+            borderWidth: 2,
+            borderDash: [7, 5],
+            pointRadius: 0,
+            fill: false
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { boxWidth: 14, font: { size: 12 } } },
+          tooltip: { callbacks: { label: function (i) { return i.dataset.label + '：' + i.raw + ' 元/吨'; } } }
+        },
+        scales: {
+          y: {
+            grid: { color: '#eef1f5' },
+            title: { display: true, text: '加工费（元/吨）', color: '#5b6675', font: { size: 12 } },
+            suggestedMin: 280,
+            suggestedMax: 560
+          },
+          x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+        }
+      }
+    });
+  }
+});
+</script>
+</body>
+</html>

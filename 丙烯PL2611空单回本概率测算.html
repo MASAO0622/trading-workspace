@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>丙烯 PL2611 空单（成本 8718）回本概率测算</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f7f8fa; color: #1f2329; margin: 0; padding: 24px; }
+  .wrap { max-width: 1040px; margin: 0 auto; }
+  h1 { font-size: 24px; margin: 0 0 4px; }
+  .sub { color: #6b7280; font-size: 13px; margin-bottom: 20px; line-height: 1.7; }
+  .card { background: #fff; border-radius: 12px; padding: 20px 24px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  .tldr { border-left: 4px solid #c0392b; }
+  .tldr h2 { margin-top: 0; font-size: 18px; color: #c0392b; }
+  .kpis { display: flex; gap: 14px; flex-wrap: wrap; margin: 12px 0 4px; }
+  .kpi { flex: 1; min-width: 145px; background: #fdf3f2; border-radius: 10px; padding: 12px 14px; }
+  .kpi .v { font-size: 21px; font-weight: 700; }
+  .kpi .l { font-size: 12px; color: #6b7280; margin-top: 2px; line-height: 1.5; }
+  h2 { font-size: 17px; margin: 0 0 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { border-bottom: 1px solid #eef0f3; padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: #f4f5f7; font-weight: 600; }
+  .up { color: #c0392b; font-weight: 600; }
+  .down { color: #1e8449; font-weight: 600; }
+  .note { font-size: 12px; color: #8a919c; line-height: 1.8; }
+  .disclaimer { font-size: 12px; color: #8a919c; border-top: 1px dashed #d5d9e0; padding-top: 12px; line-height: 1.8; }
+  .chart { width: 100%; height: 380px; }
+  .src { font-size: 11px; color: #9aa1ab; margin-top: 6px; }
+  ul { margin: 8px 0; padding-left: 20px; line-height: 1.9; }
+  .warn { background: #fff8e6; border-left: 4px solid #d68910; padding: 12px 16px; border-radius: 8px; font-size: 13.5px; line-height: 1.8; margin-top: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>丙烯 PL2611 空单（成本 8,718）回本概率测算</h1>
+<div class="sub">分析时点：2026-10-12（北京时间，盘中）｜合约：郑商所丙烯期货 PL2611，20 吨/手｜数据来源：郑商所行情（证券之星转载）、华泰期货日报、隆众/卓创现货、曲合网，均为公开整理、非一手来源需核实原文</div>
+
+<div class="card tldr">
+  <h2>结论：概率很低，量级在 3%–8%（中枢约 5%），而且时间不站在空头这边</h2>
+  <div class="kpis">
+    <div class="kpi"><div class="v">9,823</div><div class="l">PL2611 最新价（元/吨，10-12 盘中，最高 10,006）</div></div>
+    <div class="kpi"><div class="v">−11.2%</div><div class="l">回到成本 8,718 所需跌幅</div></div>
+    <div class="kpi"><div class="v">−22,100</div><div class="l">当前浮亏（元/手，20 吨/手）</div></div>
+    <div class="kpi"><div class="v">≈5%</div><div class="l">回本概率估算（区间 3%–8%）</div></div>
+  </div>
+  <p><b>一句话</b>：8,718 这个成本已经<b>躺在了整条曲线的最远端</b>——它几乎等于 2027 年 2 月合约 PL2702（8,736）的价格。要让 2611 跌回 8,718，等于要求"近月贴水现货 700 元 + 近强远弱的整个 Back 结构"全部消失，同时山东现货从 10,550 跌掉 1,000 元以上。<b>这不是一次普通回调能达到的位置，属于结构性反转</b>。</p>
+</div>
+
+<div class="card">
+  <h2>一、持仓现状（先看清自己在什么位置）</h2>
+  <table>
+    <tr><th>项目</th><th>数值</th><th>说明</th></tr>
+    <tr><td>空单成本</td><td>8,718 元/吨</td><td>你提供的建仓成本</td></tr>
+    <tr><td>PL2611 最新价</td><td class="up">9,823 元/吨</td><td>2026-10-12 盘中（昨结 9,838，当日高 10,006、低 9,790）；10/9 日盘收 9,904、夜盘 9,996</td></tr>
+    <tr><td>浮亏</td><td class="up">1,105 元/吨 = <b>22,100 元/手</b></td><td>20 吨/手；价格已逆向走 12.7%</td></tr>
+    <tr><td>回本所需跌幅</td><td class="down">−11.25%</td><td>从 9,823 到 8,718</td></tr>
+    <tr><td>保证金水平</td><td>现在 5% → <b>10 月 16 日起 10%</b> → 交割月 20%</td><td>10% 对应约 19,646 元/手（期货公司还会加点），资金占用将翻倍</td></tr>
+    <tr><td>限仓</td><td>10 月 16 日起 500 手 → 交割月 50 手</td><td><b>自然人客户在交割月最大单边持仓为 0</b></td></tr>
+  </table>
+  <div class="warn"><b>最关键的一条规则约束</b>：如果你是自然人客户，<b>不能持仓进入 11 月交割月</b>——实际可用的时间不是"到最后交易日"，而是<b>到 10 月 30 日（10 月最后一个交易日）为止，只剩 14 个交易日</b>。这意味着你的回本窗口比你想象的短得多。</div>
+</div>
+
+<div class="card">
+  <h2>二、为什么 8,718 是个"结构性"位置</h2>
+  <div id="chart1" class="chart"></div>
+  <p class="note">丙烯曲线是典型的近强远弱（Back），8,718 的成本线落在曲线最右下端：<br>
+  · 2611 现价 9,823（贴水山东现货约 700 元/吨，现货 10,550 / 华东 10,405）<br>
+  · 2612 报 9,508、2701 报 9,096、<b>2702 报 8,736</b>——已与你的成本几乎重合<br>
+  · 要让 2611 跌到 8,718，等于 2611 必须跌到比 2027 年 2 月合约还低，<b>整个期限结构倒挂</b></p>
+  <div class="src">数据：郑商所各月份合约行情（2026-10-12 盘中，证券之星行情中心转载）</div>
+</div>
+
+<div class="card">
+  <h2>三、概率测算（波动率 + 时间窗）</h2>
+  <p class="note" style="margin-bottom:12px">方法：按近期实际日波动估算日均波动率约 1.8%–2.2%（参考 10/8 +6.21%、9/29 +3.21%、9/30 +2.02% 等大幅波动日，当前波动率处极高位），用布朗运动近似算所需跌幅对应的标准差倍数。这是<b>统计估算，不是预测</b>。</p>
+  <table>
+    <tr><th>情景（可用时间）</th><th>剩余交易日</th><th>期间波动(σ)</th><th>所需跌幅(≈−11.25%)对应 z</th><th>回本概率(零漂移)</th><th>计入上行漂移后</th></tr>
+    <tr>
+      <td><b>自然人客户</b><br>（10/30 前必须离场）</td>
+      <td>14 天</td><td>≈7.5%</td><td class="up">约 −1.5σ</td><td>≈6%–7%</td>
+      <td><b>≈2%–4%</b></td>
+    </tr>
+    <tr>
+      <td>可持仓至最后交易日<br>（约 11 月中旬）</td>
+      <td>24 天</td><td>≈9.8%</td><td class="up">约 −1.15σ</td><td>≈12%</td>
+      <td><b>≈3%–6%</b></td>
+    </tr>
+  </table>
+  <p class="note">"计入上行漂移"指：当前市场处于成本推动的上行趋势且期货对现货深度贴水（基差 371–391 元/吨），近月本身存在<b>向现货修复的动力</b>——机构主流判断是"高位运行"，这会进一步压低空头回本概率。综合取<b>3%–8%，中枢约 5%</b>。</p>
+</div>
+
+<div class="card">
+  <h2>四、什么条件下才可能到 8,718（必须同时满足）</h2>
+  <table>
+    <tr><th>条件</th><th>当前状态（10-12）</th><th>是否支持下跌</th></tr>
+    <tr><td>① 地缘反转：中东降温、霍尔木兹复航</td><td>美伊谈判僵持，美方新制裁+增派第三艘航母，胡塞与沙特冲突升温；丙烷 CP 11 月报 681 美元/吨继续上调</td><td class="up">否，仍在升级方向</td></tr>
+    <tr><td>② 成本塌陷：丙烷/原油大跌</td><td>丙烷创十年新高（9 月中 7,816 元/吨），PDH 成本同比 +28%，PDH 利润被压至低位</td><td class="up">否，成本仍在上行</td></tr>
+    <tr><td>③ 供应回归：PDH 装置集中重启 + 新增产能</td><td>PDH 开工 70.07%（同比低位）；振华石化 75 万吨持续停车、东华宁波/巨正源/泉州国亨检修；仅鲁西化工、宁夏润丰 10 月中旬存重启预期</td><td class="down">部分，但量级不足</td></tr>
+    <tr><td>④ 需求崩塌：下游负反馈全面落地</td><td><b>已全线亏损</b>：PP 粉 −270、PO −565、丙烯腈 −2,164、酚酮 −1,409 元/吨；长协 PP 粉开工仅 19%</td><td class="down">是，这是唯一真实的下行力量</td></tr>
+    <tr><td>⑤ 期货贴水修复完毕</td><td>基差仍有 371–391 元/吨，近月对现货仍深贴水，尚未修复</td><td class="up">否，反而是上涨动力</td></tr>
+  </table>
+  <p class="note">五个条件里，只有"需求负反馈"在往下跌的方向走；成本、地缘、贴水三项都在往上顶。<b>即使④完全兑现（下游大面积停车），也不过是把价格压回到现货成本区（9,400–9,800），距离 8,718 仍有约 700–1,100 元的缺口。</b></p>
+</div>
+
+<div class="card">
+  <h2>五、但请正视尾部风险——今天的甲醇就是教材</h2>
+  <p class="note">不要因为"概率 5%"就当成"不会发生"。同属地缘+成本驱动链条的<b>甲醇今天早盘一小时暴跌 5.4%</b>（MA2611 从夜盘 3,933 砸到 3,613，盘中最大跌幅超 6%），触发原因正是"地缘边际缓和 + 下游 MTO 集中停车"两条——<b>与丙烯上面列的第①④条完全同构</b>。也就是说：</p>
+  <ul>
+    <li>一旦中东出现实质缓和信号，叠加下游（PP 粉、PO）集中降负，<b>PL 单日 4%–6% 的下跌会瞬间出现</b>；</li>
+    <li>14 个交易日里只要出现 2–3 根这样的阴线，8,718 就可能被触及——概率小，但<b>尾部不是零</b>；</li>
+    <li>反过来，如果地缘继续升级，9,823 之上还有空间，<b>空头是被两头夹的：向下要奇迹，向上是趋势</b>。</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2>六、比"等回本"更值得考虑的三种处置</h2>
+  <table>
+    <tr><th style="width:24%">方案</th><th>做法</th><th>适用判断</th></tr>
+    <tr><td><b>① 移仓换月（最值得评估）</b></td><td>把空头从 PL2611 平掉，改空 <b>PL2702（8,736）或 PL2701（9,096）</b>。同样看跌丙烯，但远月没有"贴水修复 + 交割挤仓 + 时间窗只剩 14 天"三重不利，且 2702 已在 8,700 一线，与你的原目标价重合。</td><td>你仍看空丙烯、但承认近月结构性强势</td></tr>
+    <tr><td><b>② 减仓 + 期权保护</b></td><td>先减一半仓位降低保证金与情绪压力；丙烯期权已上市（标的 2601/2602 系列），可买入看涨期权为剩余空头买保险，把最大亏损锁定。</td><td>不愿止损、但要防地缘再升级</td></tr>
+    <tr><td><b>③ 认错离场</b></td><td>1,105 元/吨（22,100 元/手）已是明确亏损；10/16 起保证金翻倍、自然人 10/30 必须离场，继续持有等于用更高的资金成本赌一个小概率。</td><td>风控优先、不想被规则逼平</td></tr>
+  </table>
+  <div class="warn"><b>不建议的做法</b>：在 9,823 追加空单摊低成本。近月正处"期货贴水现货 700 元 + PDH 检修 + 成本创新高"的偏强结构中，加仓是把方向性赌博放大，而上方空间在机构看来并未关闭。</div>
+  <p class="disclaimer"><b>免责声明</b>：以上内容基于公开数据和量化分析，仅供参考，不构成投资建议。市场有风险，投资需谨慎。任何投资决策应结合个人风险承受能力、资金状况和投资目标独立判断，必要时咨询持牌专业机构。过往表现不预示未来收益。</p>
+  <p class="note">附：最后交易日为合约交割月份（2026 年 11 月）的第 10 个交易日，按 2026 年 11 月交易日历推算约在 <b>11 月 13 日前后</b>；公开数据源另有标注"交割日期 2026-11-16"的口径，<b>请以郑商所官方交易日历与结算参数公告为准</b>。10 月 16 日起保证金升至 10%、限仓降至 500 手，请据此提前安排。</p>
+</div>
+
+</div>
+
+<script>
+var curDates = ['PL2611', 'PL2612', 'PL2701', 'PL2702', 'PL2703'];
+var curVals = [9823, 9508, 9096, 8736, 8344];
+echarts.init(document.getElementById('chart1')).setOption({
+  tooltip: { trigger: 'axis' },
+  grid: { left: 70, right: 40, bottom: 40, top: 50 },
+  xAxis: { type: 'category', data: curDates, name: '合约' },
+  yAxis: { type: 'value', name: '价格(元/吨)', min: 8200, max: 10200 },
+  series: [
+    {
+      name: '丙烯期限结构',
+      type: 'line',
+      data: curVals,
+      smooth: true,
+      lineStyle: { width: 3, color: '#c0392b' },
+      itemStyle: { color: '#c0392b' },
+      label: { show: true, fontSize: 12, fontWeight: 600 },
+      markLine: {
+        symbol: 'none',
+        data: [
+          { yAxis: 8718, lineStyle: { type: 'dashed', color: '#1e8449', width: 2 }, label: { formatter: '你的成本 8718', position: 'insideEndTop', color: '#1e8449', fontSize: 11 } }
+        ]
+      },
+      markArea: {
+        silent: true,
+        data: [
+          [{ name: '成本线以下区域', xAxis: 'PL2611', yAxis: 8200, itemStyle: { color: 'rgba(30,132,73,0.06)' }, label: { position: 'insideTopLeft', color: '#1e8449', fontSize: 11 } }, { xAxis: 'PL2703', yAxis: 8718 }]
+        ]
+      }
+    }
+  ]
+});
+</script>
+</body>
+</html>

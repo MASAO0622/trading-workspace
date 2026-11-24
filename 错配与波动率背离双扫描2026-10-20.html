@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>结构性错配 + 波动率背离 双扫描 | 2026-10-20</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #f5f6f8; color: #1a202c; line-height: 1.75; font-size: 15px;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 32px 24px 64px; }
+  header { border-bottom: 3px solid #1f4e8c; padding-bottom: 18px; margin-bottom: 26px; }
+  h1 { font-size: 27px; font-weight: 700; color: #12263f; letter-spacing: -0.3px; }
+  .sub { color: #6b7a8f; font-size: 13.5px; margin-top: 8px; }
+  .tag { display: inline-block; background: #e8eef7; color: #1f4e8c; padding: 2px 9px; border-radius: 3px; font-size: 12px; margin-right: 6px; }
+  h2 { font-size: 20px; font-weight: 700; color: #12263f; margin: 38px 0 14px; padding-left: 11px; border-left: 4px solid #1f4e8c; }
+  h3 { font-size: 16.5px; font-weight: 700; color: #1f4e8c; margin: 26px 0 10px; }
+  h4 { font-size: 14.5px; font-weight: 700; color: #2d3748; margin: 18px 0 8px; }
+  p { margin: 10px 0; color: #2d3748; }
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(238px, 1fr)); gap: 14px; margin: 18px 0 8px; }
+  .card { background: #fff; border-radius: 8px; padding: 16px 18px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(18,38,63,.05); }
+  .card .lab { font-size: 12px; color: #8896a8; letter-spacing: .5px; margin-bottom: 7px; }
+  .card .val { font-size: 22px; font-weight: 700; color: #12263f; line-height: 1.3; }
+  .card .note { font-size: 12.5px; color: #6b7a8f; margin-top: 7px; line-height: 1.6; }
+  .card.accent { border-left: 3px solid #1f4e8c; }
+  .card.warn { border-left: 3px solid #c05621; }
+  .card.bad { border-left: 3px solid #2f855a; }
+  table { width: 100%; border-collapse: collapse; margin: 14px 0 18px; font-size: 13.5px; background: #fff; }
+  th { background: #eef2f7; color: #2d3748; font-weight: 700; text-align: left; padding: 9px 11px; border-bottom: 2px solid #d7e0ea; font-size: 13px; }
+  td { padding: 9px 11px; border-bottom: 1px solid #edf1f6; color: #2d3748; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: #fafbfd; }
+  .num { font-family: "SF Mono", Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; }
+  .up { color: #c53030; font-weight: 700; }
+  .down { color: #2f855a; font-weight: 700; }
+  .mut { color: #8896a8; }
+  .chart-box { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 12px 6px; margin: 16px 0 22px; }
+  .chart-title { font-size: 13.5px; font-weight: 700; color: #2d3748; margin: 2px 0 0 8px; }
+  .chart-sub { font-size: 12px; color: #8896a8; margin: 2px 0 6px 8px; }
+  .callout { background: #fffaf0; border-left: 4px solid #c05621; padding: 14px 18px; border-radius: 0 6px 6px 0; margin: 18px 0; font-size: 14px; }
+  .callout.blue { background: #f0f5fb; border-left-color: #1f4e8c; }
+  .callout.green { background: #f2f8f4; border-left-color: #2f855a; }
+  .callout b { color: #12263f; }
+  ul, ol { margin: 10px 0 10px 22px; }
+  li { margin: 6px 0; color: #2d3748; }
+  .pill { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 11.5px; font-weight: 700; }
+  .p3 { background: #fde8e4; color: #a8321a; }
+  .p2 { background: #fdf3e0; color: #96590d; }
+  .p1 { background: #eef1f5; color: #6b7a8f; }
+  .dead { background: #eef1f5; color: #8896a8; }
+  .foot { margin-top: 44px; padding-top: 18px; border-top: 1px solid #dde3ea; font-size: 12.5px; color: #8896a8; line-height: 1.8; }
+  .src { font-size: 12px; color: #8896a8; margin-top: -6px; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>结构性错配 + 波动率背离 双扫描</h1>
+  <div class="sub">
+    <span class="tag">2026-10-20 11:06</span>
+    <span class="tag">日内实时</span>
+    <span class="tag">Hitick 因子引擎 + 公开数据</span>
+    数据时点：行情为 10-20 上午盘中，因子信号覆盖 10-19 09:00 至 10-20 11:06
+  </div>
+</header>
+
+<div class="card-grid">
+  <div class="card accent">
+    <div class="lab">错配 · 唯一 ★★★</div>
+    <div class="val">多 TA 空 PX</div>
+    <div class="note">PTA 加工费 ~500 元/吨，为五年均值 768 的 65%，是全市场唯一「极值尚未被修复」的环节</div>
+  </div>
+  <div class="card warn">
+    <div class="lab">背离 · 今日有效仅 2 个</div>
+    <div class="val">j2611 / bz2611</div>
+    <div class="note">均为「价涨 + 隐波暴跌 4–5 个点」的看跌弱档 70，且都在 10-23 到期（只剩 3 天）</div>
+  </div>
+  <div class="card bad">
+    <div class="lab">已失效 · 不要再做</div>
+    <div class="val">乙二醇 / 甲醇跨期</div>
+    <div class="note">EG 港库连续第二周累库，"等拐点"反向；甲醇 11-01 = 192 曲线平滑无错配</div>
+  </div>
+  <div class="card warn">
+    <div class="lab">持仓 · 必须处理</div>
+    <div class="val">焦煤空单已到两档止盈</div>
+    <div class="note">JM2701 现价 1,403，已同时跌破 1,450 与 1,400 两个止盈位，浮盈约 187 元/吨</div>
+  </div>
+</div>
+
+<h2>一、今天盘面最重要的一个事实</h2>
+
+<p>原油夜盘 <b>+2.34%（735.6 元/桶）</b>，而化工品全线下跌，PX −2.92%、乙二醇 −2.83%、焦煤 −2.64%。<b>成本端在涨、产品端在跌</b>——这一背离是所有"加工利润错配"的同源来源，也是今天选品种的第一把尺子。</p>
+
+<div class="chart-box">
+  <div class="chart-title">今日主要品种涨跌幅（10-20 盘中）</div>
+  <div class="chart-sub">红涨绿跌；原油独涨、能化与黑色普跌，说明化工走弱来自自身供需而非成本</div>
+  <div id="chartMove" style="width:100%;height:400px;"></div>
+</div>
+
+<div class="callout">
+  <b>这条背离的两面性必须同时看到：</b>它让"做多加工利润"看起来天然正确，但也意味着这类头寸本质是「赌原油回落或化工补涨」——如果原油继续上行，所有多利润头寸会同时亏。<b>所以下面几个机会不能同时开，它们是同一个风险的不同包装。</b>
+</div>
+
+<h2>二、结构性错配：先过三道筛子</h2>
+
+<p>把全市场 30 个品种的期限结构因子跑完，再把主要的产业链加工利润逐个量化，最后只有 2 个够格。筛选标准是上周沿用的三条，一条不过就淘汰：</p>
+
+<ol>
+  <li><b>有锚</b>——有成本线、交割成本或替代比价能给出"合理值"，而不是凭均值想象</li>
+  <li><b>有收敛机制</b>——检修、提降、交割、产能出清，存在某个力量把价格拉回锚</li>
+  <li><b>有表达工具</b>——两个腿都有足够流动性和持仓，且你能持有到收敛发生（不受交割月限制）</li>
+</ol>
+
+<table>
+  <thead>
+    <tr><th>环节</th><th>现值</th><th>锚 / 均值</th><th>位置</th><th>状态</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>PTA 加工费</b></td>
+      <td class="num">≈ 500</td>
+      <td class="num">768（五年均值）</td>
+      <td class="num">65%</td>
+      <td><span class="pill p3">★★★ 极值未修复</span></td>
+    </tr>
+    <tr>
+      <td><b>焦化利润</b>（J − 1.3×JM）</td>
+      <td class="num">+86</td>
+      <td class="num">0（盈亏平衡）</td>
+      <td class="mut">今日逆势扩张 +42</td>
+      <td><span class="pill p2">★★ 做缩有依据</span></td>
+    </tr>
+    <tr>
+      <td><b>PP − 3×MA</b></td>
+      <td class="num">−142</td>
+      <td class="num">0（均衡）、−397（10/13 极值）</td>
+      <td class="mut">距极值 255</td>
+      <td><span class="pill p2">★★ 重新走阔</span></td>
+    </tr>
+    <tr>
+      <td>乙二醇价差</td>
+      <td class="num">327</td>
+      <td class="num">1,032（均值）</td>
+      <td class="num">32%</td>
+      <td><span class="pill dead">已失效 · 港库连续累库</span></td>
+    </tr>
+    <tr>
+      <td>PX − 石脑油</td>
+      <td class="num">322 美元</td>
+      <td class="num">376 美元</td>
+      <td class="num">86%</td>
+      <td><span class="pill p1">已修复</span></td>
+    </tr>
+    <tr>
+      <td>长丝 POY 利润</td>
+      <td class="num">1,593</td>
+      <td class="num">1,381</td>
+      <td class="num">115%</td>
+      <td><span class="pill p1">偏高，不做</span></td>
+    </tr>
+    <tr>
+      <td>氧化铝（完全成本 − 期价）</td>
+      <td class="num">+135</td>
+      <td class="num">基差已收敛至 +5~15</td>
+      <td class="mut">只剩成本底</td>
+      <td><span class="pill p1">★ 从上周降级</span></td>
+    </tr>
+    <tr>
+      <td>生猪（期货 − 现货）</td>
+      <td class="num">+405（升水 4%）</td>
+      <td class="num">现货 9,810，低于现金成本</td>
+      <td class="mut">升水反映 2027Q1 预期</td>
+      <td><span class="pill p1">★ 非错误定价</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="chart-box">
+  <div class="chart-title">各环节价格 / 利润占历史均值的比例</div>
+  <div class="chart-sub">0% 代表完全无利润；PTA 65% 与 EG 32% 同处低位，但 EG 已被累库证伪</div>
+  <div id="chartPct" style="width:100%;height:330px;"></div>
+</div>
+
+<h2>三、唯一够格的 ★★★：多 TA 空 PX</h2>
+
+<p><b>为什么是它：</b>PX 端已经修复完了（PX−石脑油 322 美元，回到均值 86%），但 PTA 端还在 65%。这意味着上游已经拿回了自己的利润，中游的挤压是<b>尚未出清的那一段</b>。今天 PX 跌 2.92%、TA 跌 1.48%，中间品再次让利。</p>
+
+<h4>但必须先看清反向证据</h4>
+<ul>
+  <li><b>PTA 社会库存连续五周边际累库至 137.5 万吨</b>，可流通货源增加，现货基差从 +475 降到 +450</li>
+  <li>PTA 负荷 67.6%（周环比 −3.3pct，同比 −9.1pct），嘉通能源 300 万吨 10/14 起停车 12 天——供应是收缩的，但需求更弱</li>
+  <li>聚酯负荷仅 74.4%、江浙涤丝产销 3 成，终端"旺季不旺"</li>
+  <li>PX 供应在回升：华南 100 万吨已重启，扬子剩余 35 万吨、海南炼化 100 万吨预计 10 月下旬重启</li>
+</ul>
+
+<div class="callout">
+  <b>结论：修复路径更可能是"PX 让利"而不是"PTA 上涨"。</b>所以这笔交易<b>必须按价差计价，不能按单边持有</b>——如果你抱着"多 TA 等它涨"，PTA 的累库会让你的多头腿先亏钱。
+</div>
+
+<h4>执行参数</h4>
+<table>
+  <thead><tr><th>项目</th><th>参数</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>配比</td><td class="num">3 手 TA : 2 手 PX</td><td>TA 5 吨/手、PX 5 吨/手，按 0.655 折算后 3:2 近似中性</td></tr>
+    <tr><td>入场</td><td>加工费 &lt; 520 分批</td><td>当前 ≈500，已在区间内，可先建 1/3</td></tr>
+    <tr><td>目标</td><td class="num">700 → 768</td><td>回到均值即了结，不赌超越</td></tr>
+    <tr><td>止损</td><td class="num">加工费跌破 400</td><td>破 400 意味着 PTA 端出现结构性过剩，逻辑作废</td></tr>
+    <tr><td>时间</td><td>2–4 周</td><td>PX 检修装置重启是主要反向催化，10 月下旬前要有进展</td></tr>
+  </tbody>
+</table>
+
+<div class="callout">
+  <b>一处数据局限（必须说明）：</b>PX 主力今天刚从 2611 换到 2612（10/19 主力还是 2611 收 9,476，今天 2612 收 9,294），两个合约天然差约 180 元，<b>跨日加工费比较会被换月污染</b>。我今天用的是"同口径结算价对比"：TA −102、PX −130，按 0.655 加权后加工费日内约 −17 元，基本走平。所以"加工费仍在 500 附近"这个结论成立，但精确到个位数不可靠。
+</div>
+
+<h2>四、两个 ★★：值得挂单，不值得追</h2>
+
+<h3>① 焦化利润做缩（空 J 多 JM，1 : 1.3）</h3>
+
+<p>焦化利润 = J2701 − 1.3 × JM2701 = <span class="num">1,910 − 1,823.9 = +86 元/吨</span>。这个位置很微妙：</p>
+<ul>
+  <li>现货端全国独立焦化厂平均吨焦利润只有 <b>+1 元/吨</b>，兰格口径甚至是 <b>−130 元/吨</b>，部分重点焦企已主动限产 30–40%</li>
+  <li><b>第三轮提降（预期 50–55 元/吨）尚未落地</b>，一旦落地，焦化利润再压 50 以上</li>
+  <li>期货端焦炭 1,910 对日照港准一 1,900 是<b>升水</b>（现货平水），等于盘面还没定价第三轮提降</li>
+  <li>钢厂盈利率仅 6.93%–8.23%，超九成亏损，压价意愿强</li>
+</ul>
+
+<p><b>但今天焦化利润是逆势扩张的（+44 → +86）</b>，因为保供复产在压焦煤（−2.64%）比压焦炭（−1.65%）更狠。所以这是"焦煤单边下跌"带来的假扩张，不是焦化环节真的改善了。</p>
+
+<div class="callout">
+  <b>与你持仓直接冲突，这条对你可能不适用：</b>你手上有 JM2701 空单（成本 1,590）。做缩焦化利润需要<b>买入焦煤</b>作为一条腿，等于部分对冲掉你的空单——不是不能做，但两个头寸在焦煤上是反向的，必须合并计算净敞口，否则你会在两边都付手续费和滑点。
+</div>
+
+<h3>② PP − 3MA 重新走阔至 −142</h3>
+
+<p>这条价差上周被我判定为"已修复、不要追"，今天它<b>又走回来了</b>：</p>
+<ul>
+  <li>10/13 <span class="num">−397</span>（极值）→ 10/16 <span class="num">−216</span> → 10/19 <span class="num">−83</span> → 10/20 <span class="num">−142</span></li>
+  <li>今天 PP −1.25%、MA −1.38%，但 3 倍权重放大后，价差单日走弱 59</li>
+</ul>
+
+<div class="chart-box">
+  <div class="chart-title">PP − 3×MA 价差修复轨迹</div>
+  <div class="chart-sub">6 个交易日从 −397 修复到 −83，今日回吐 59 至 −142；距极值仍有 255 的空间</div>
+  <div id="chartPP3MA" style="width:100%;height:320px;"></div>
+</div>
+
+<p><b>操作：</b>多 2 手 PP2701 + 空 3 手 MA2701（配比 2:3）。<b>−200 以下再入场</b>，目标 −50 ~ 0，止损 −300。当前 −142 不是极值，只能挂单等，不能市价追。</p>
+
+<h2>五、今天明确不要做的四件事</h2>
+
+<table>
+  <thead><tr><th>品种 / 策略</th><th>为什么不做</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><b>多乙二醇</b></td>
+      <td>上周我给的条件是"等港库拐点"，<b>拐点反向出现了</b>：华东主港库存 18 万吨，环比 +6.8 万吨，<b>连续第二周累库</b>；11 月下基差从升水 350–400 快速收敛到 150–190；10 月中旬沙特、加拿大、台湾货源集中到港。条件未满足，放弃。</td>
+    </tr>
+    <tr>
+      <td><b>甲醇 11–01 跨期</b></td>
+      <td>MA2611 3,335 − MA2701 3,143 = <b>+192</b>，曲线依旧平滑无额外升水；且自然人 10-30 前必须平仓，只剩 <b>8 个交易日</b>，吃不到交割月收敛。</td>
+    </tr>
+    <tr>
+      <td><b>苯乙烯 11–01 反套</b></td>
+      <td>昨天已论证不建议。今天 EB2611 减仓 <b>20,492 手</b>（25.26 万手），移仓已启动，价差的主导变量从"基本面"变成"移仓节奏"，更难把握。</td>
+    </tr>
+    <tr>
+      <td><b>赌焦煤基差修复</b></td>
+      <td>JM2701 1,403 对现货 1,600 贴水 <b>197（12%）</b>，蒙 5 仓单口径更深。但基差走扩是在定价保供复产（山西停产矿降至 38–39 座、样本矿产能利用率 71.4%），<b>不是期货被错杀</b>；且收敛靠交割，你进不了交割月。</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>六、波动率背离：今天只有 2 个信号，而且都是弱档</h2>
+
+<p>把三个因子全部跑完，结果比上周清淡得多：</p>
+
+<div class="card-grid">
+  <div class="card">
+    <div class="lab">ATM 波动率背离</div>
+    <div class="val">6 命中</div>
+    <div class="note">今日盘中仅 2 个（j2611、bz2611），其余 4 个是 10-19 的过期信号；<b>全部为"弱"档 70 分</b></div>
+  </div>
+  <div class="card">
+    <div class="lab">偏度背离</div>
+    <div class="val">1 命中</div>
+    <div class="note">lh2611（生猪）偏多·中 70，11:06 实时，20D，插值质量 INTERPOLATED</div>
+  </div>
+  <div class="card">
+    <div class="lab">期权持仓异动</div>
+    <div class="val">未取得</div>
+    <div class="note">Hitick 额度耗尽（剩余 0.01，单次需 0.02–0.03），本次缺失，不做替代推断</div>
+  </div>
+</div>
+
+<h3>6.1 今日有效的两个：j2611 与 bz2611</h3>
+
+<table>
+  <thead><tr><th>标的</th><th>窗口</th><th>价格变动</th><th>ATM 隐波变动</th><th>方向</th><th>到期</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><b>j2611</b> 冶金焦炭</td>
+      <td class="num">09:03–09:33</td>
+      <td class="num up">1,936.5 → 1,943.5（+0.36%）</td>
+      <td class="num down">28.39% → 24.27%（<b>−4.12pt</b>）</td>
+      <td><span class="pill p2">看跌 · 弱 70</span></td>
+      <td class="num">10-23（3 天）</td>
+    </tr>
+    <tr>
+      <td><b>bz2611</b> 纯苯</td>
+      <td class="num">09:01–09:31</td>
+      <td class="num up">9,378 → 9,412（+0.36%）</td>
+      <td class="num down">35.69% → 30.79%（<b>−4.90pt</b>）</td>
+      <td><span class="pill p2">看跌 · 弱 70</span></td>
+      <td class="num">10-23（3 天）</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="chart-box">
+  <div class="chart-title">6 个 ATM 背离命中的分布：价格变动 × 隐波变动</div>
+  <div class="chart-sub">左下角（价涨、隐波跌）是看跌信号区；今日盘中两个 j2611/bz2611 落在同一位置，昨夜 jm2612 孤悬在"横盘+升波"处</div>
+  <div id="chartDiv" style="width:100%;height:360px;"></div>
+</div>
+
+<p>两个信号是<b>同一个模板</b>：价格微涨 0.36%，隐波同步暴跌 4–5 个点。这在期权语言里的含义很明确——<b>上涨没有波动率背书</b>，是空头回补或移仓推的价格，不是新多进场。</p>
+
+<p>但它们今天<b>不能当交易信号用</b>，三个理由：</p>
+<ol>
+  <li><b>只剩 3 天到期</b>（10-23）。3 天期权的 Gamma 极高，IV 回落 4 个点带来的 Vega 收益，很容易被一次 1% 的标的波动全部吃掉</li>
+  <li><b>IV 绝对值仍然很高</b>：j2611 还有 24.3%、bz2611 还有 30.8%。卖掉它们赚的是"高波动率均值回归"，但赔率被 Gamma 反向压住</li>
+  <li><b>分数只有 70（弱档）</b>，是"背离成立"的置信度下限，不是方向胜率</li>
+</ol>
+
+<div class="callout blue">
+  <b>可用的方式只有一个：当作"上涨质量差"的旁证。</b>bz2611（纯苯）今天结算 9,287，而华东现货 10,250–10,350，<b>近月深贴水约 1,000 元</b>。在这种贴水下 IV 还在 30% 以上、且上涨时 IV 暴跌，说明市场并不认为近月会去修复贴水——这对"做多纯苯近月"是警示，而不是做空理由。
+</div>
+
+<h3>6.2 昨夜那个"看涨"信号，今天被证伪了——这是今天最值得记住的一课</h3>
+
+<table>
+  <thead><tr><th>标的</th><th>窗口</th><th>价格</th><th>隐波</th><th>信号</th><th>结果</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><b>jm2612</b> 焦煤</td>
+      <td class="num">10-19 22:29–22:59</td>
+      <td class="num">1,328 → 1,328（<b>横盘</b>）</td>
+      <td class="num up">33.97% → 37.98%（<b>+4.01pt</b>）</td>
+      <td><span class="pill p2">看涨 · 中 70</span></td>
+      <td class="down">今日 JM2701 <b>−2.64%</b></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>因子把它读成"横盘 + 隐波上涨 = 有人在买 Call 押突破"。但今天焦煤大跌 2.64%，说明<b>那 4 个点的隐波上涨，是有人在下跌前买 Put 保险，不是买 Call</b>。</p>
+
+<div class="callout">
+  <b>方法论修正：</b>"横盘 + IV 上升"这个组合<b>方向不可辨</b>——它只说明"有人愿意为波动付钱"，不说明买的是哪一边。在<b>下跌趋势中</b>（焦煤已连续两周走弱、保供复产发酵），它更可能读作 Put 需求。以后遇到"横盘 + IV 涨"，必须先看偏度（Call 端还是 Put 端升波），单看 ATM 隐波会读反。
+</div>
+
+<h3>6.3 唯一的偏度背离：生猪 lh2611 偏多</h3>
+
+<table>
+  <thead><tr><th>项目</th><th>内容</th></tr></thead>
+  <tbody>
+    <tr><td>信号</td><td>偏度背离 <b>偏多 · 中 70</b>，20D，比较基准 PREVIOUS_CLOSE_SAME_STRIKE（昨收同执行价）</td></tr>
+    <tr><td>结构</td><td>价格<b>大跌</b> + Call 端升波<b>显著强于</b> Put 端（dominantWing = CALL）</td></tr>
+    <tr><td>时点</td><td>2026-10-20 11:06:09 实时，插值质量 <b>INTERPOLATED</b>（非全档实测）</td></tr>
+    <tr><td>标的背景</td><td>LH2701 现价 <b>10,215（−1.02%）</b>，持仓 19.16 万手（+9,130），10-19 曾单日 −2.48% 创<b>上市以来新低</b></td></tr>
+  </tbody>
+</table>
+
+<p>这个信号值得注意，因为它是<b>今天唯一"背离方向与价格方向相反"的信号</b>：价格创新低，却有人在买 Call。而且它有三个基本面呼应：</p>
+<ul>
+  <li>现货 9,810 元/吨，已在行业现金成本（12.5 元/公斤 = 12,500 元/吨）下方运行约 6 个月，继续下探空间有限</li>
+  <li><b>10-22 中央储备冻猪肉轮换收储 13,800 吨</b>（10-20 今日出库 15,000 吨）——政策托底信号明确</li>
+  <li>能繁母猪 3,780 万头，环比 −3.2%、同比 −6.5%，已逼近 3,750 万头正常保有量；仔猪跌破 100 元/头，补栏信心冰点</li>
+</ul>
+
+<div class="callout">
+  <b>但我不建议按这个信号实盘。</b>三个折扣必须说清：① <b>lh2611 在 10-23 到期，只剩 3 天</b>，时间价值衰减极快；② 数据是 <b>INTERPOLATED 插值</b>，不是逐档实测，生猪期权流动性本就薄；③ 单点命中，没有第二个因子同向确认（持仓异动因子今天缺数据）。<br><br>
+  <b>如果一定要表达"生猪见底"，请换工具：</b>用 LH2701（10,215，持仓 19.2 万手，流动性好、无 3 天到期问题），等回踩 <b>10,000–10,100</b> 轻仓试多、止损 <b>9,850</b>，逻辑写"收储 + 现金成本底"，而不是写"偏度背离"——因为后者不足以承担仓位。
+</div>
+
+<h2>七、与现有持仓的直接冲突</h2>
+
+<div class="callout">
+  <b>焦煤 JM2701 空单（成本 1,590，现价 1,403）——今天必须处理。</b>
+  <ul style="margin-top:8px;">
+    <li>浮盈 <b>187 元/吨 = 11,220 元/手</b>（60 吨/手），较上周五的 120 元/吨又扩大 67 元</li>
+    <li>现价 1,403 <b>已同时跌破我给的两档止盈位</b>：第一档 1,450（平 1/3）、第二档 1,400（再平 1/3）</li>
+    <li>若你已按纪律执行，现在只剩尾仓，应在 <b>1,360–1,380（Put Wall）</b>区间清掉</li>
+    <li>若你还满仓未动，<b>今天的 1,393 最低点就是这轮的最好离场位</b>，现在追跌卖出反而在低位交筹码；建议 1,400 附近先平一半，剩余用 1,430 的移动止盈保护</li>
+  </ul>
+</div>
+
+<p>另外两个持仓的冲突保持上周判断：<b>菜油 OI2701C11000 多头</b>——菜油目前是 backwardation，近月有支撑，但基差保护薄；<b>丙烯 PL2611 空 8,718</b>——近月偏强结构未改，仍在不利方向上的时间消耗。</p>
+
+<p><b>最关键的一点：</b>上面的★★★（多 TA 空 PX）和★★（做缩焦化利润）都依赖"上游让利"兑现，而你空焦煤、空丙烯也在这个同一个变量上。三个头寸在"能源成本"这个因子上<b>同源</b>，仓位必须合并计算，不能各按单笔风险算。</p>
+
+<h2>八、数据局限（本次缺失项）</h2>
+
+<ul>
+  <li><b>Hitick 额度耗尽</b>：查询返回"剩余额度 🍊0.01，单次需 0.02–0.03"，因此<b>本次没有取到 GEX 结构图、期权链和席位数据</b>，也没有期权持仓异动因子。所有涉及持仓结构和 Gamma 位置的判断本次全部缺失，<b>我不做替代推断</b>。</li>
+  <li><b>PX 主力换月</b>（2611 → 2612）使跨日加工费比较失真，已用同口径结算价对比处理，但精确值不可靠。</li>
+  <li><b>聚丙烯涨跌幅字段冲突</b>：交易所记录显示 +4.955%（收盘 9,320 低于前结算 9,382 却标正涨幅，字段自相矛盾），第三方盘口 9,287（−1.25%）。本文按 −1.25% 与第三方价格 9,287 计算，具体以交易所盘后正式结算为准。</li>
+  <li><b>焦煤基差口径分歧</b>：大越现货基准 1,600 对应 +197；蒙 5 精煤仓单口径更深。跨口径不可直接比较。</li>
+  <li><b>因子信号时效</b>：ATM 背离 6 个命中里，只有 j2611、bz2611 是今天盘中（09:31–09:33），其余 4 个是 10-19 的信号，已过期，仅作参考不做交易依据。</li>
+</ul>
+
+<div class="foot">
+  <p><b>免责声明</b>：以上内容基于 Hitick 因子引擎与公开市场数据，仅供参考，不构成投资建议。市场有风险，投资需谨慎。任何投资决策应结合个人风险承受能力、资金状况和投资目标独立判断，必要时咨询持牌专业机构。过往表现不预示未来收益。</p>
+  <p style="margin-top:10px;">数据时点：2026-10-20 11:06（北京时间）｜因子覆盖窗口：2026-10-19 09:00 – 2026-10-20 11:06｜行情口径：交易所盘中快照 + 第三方盘口交叉核对</p>
+</div>
+
+</div>
+
+<script>
+(function () {
+  // 图1：今日涨跌幅
+  var moveData = [
+    { name: '原油 SC', v: 2.34 },
+    { name: '氧化铝 AO', v: -0.04 },
+    { name: '苯乙烯 EB', v: -0.21 },
+    { name: '生猪 LH', v: -1.02 },
+    { name: '聚丙烯 PP', v: -1.25 },
+    { name: '甲醇 MA', v: -1.38 },
+    { name: 'PTA TA', v: -1.48 },
+    { name: '焦炭 J', v: -1.65 },
+    { name: '焦煤 JM', v: -2.64 },
+    { name: '乙二醇 EG', v: -2.83 },
+    { name: 'PX', v: -2.92 }
+  ];
+  moveData.sort(function (a, b) { return a.v - b.v; });
+
+  echarts.init(document.getElementById('chartMove')).setOption({
+    grid: { left: 90, right: 60, top: 20, bottom: 30 },
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: '{b}: {c}%' },
+    xAxis: { type: 'value', name: '涨跌幅(%)', axisLine: { lineStyle: { color: '#cbd5e0' } }, splitLine: { lineStyle: { color: '#eef1f5' } } },
+    yAxis: {
+      type: 'category',
+      data: moveData.map(function (d) { return d.name; }),
+      axisLine: { lineStyle: { color: '#cbd5e0' } },
+      axisLabel: { color: '#4a5568', fontSize: 12 }
+    },
+    series: [{
+      type: 'bar',
+      barWidth: '58%',
+      data: moveData.map(function (d) {
+        return { value: d.v, itemStyle: { color: d.v >= 0 ? '#c53030' : '#2f855a', borderRadius: 2 } };
+      }),
+      label: { show: true, position: 'right', formatter: '{c}%', color: '#4a5568', fontSize: 11 }
+    }]
+  });
+
+  // 图2：占均值比例
+  var pctData = [
+    { name: 'EG 价差', v: 32, c: '#8896a8' },
+    { name: 'PTA 加工费', v: 65, c: '#c53030' },
+    { name: 'PX−石脑油', v: 86, c: '#4a90c4' },
+    { name: 'POY 利润', v: 115, c: '#4a90c4' }
+  ];
+  echarts.init(document.getElementById('chartPct')).setOption({
+    grid: { left: 100, right: 70, top: 24, bottom: 30 },
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: '{b}: 均值的 {c}%' },
+    xAxis: { type: 'value', max: 130, axisLabel: { formatter: '{value}%' }, splitLine: { lineStyle: { color: '#eef1f5' } } },
+    yAxis: { type: 'category', data: pctData.map(function (d) { return d.name; }), axisLabel: { color: '#4a5568', fontSize: 12 } },
+    series: [{
+      type: 'bar',
+      barWidth: '52%',
+      data: pctData.map(function (d) { return { value: d.v, itemStyle: { color: d.c, borderRadius: 2 } }; }),
+      label: { show: true, position: 'right', formatter: '{c}%', color: '#4a5568', fontSize: 11 },
+      markLine: {
+        symbol: 'none',
+        silent: true,
+        lineStyle: { color: '#a0aec0', type: 'dashed' },
+        data: [{ xAxis: 100, label: { formatter: '均值', position: 'end', color: '#8896a8', fontSize: 11 } }]
+      }
+    }]
+  });
+
+  // 图3：PP-3MA 轨迹
+  var pp3ma = [-397, -216, -83, -142];
+  echarts.init(document.getElementById('chartPP3MA')).setOption({
+    grid: { left: 60, right: 40, top: 26, bottom: 34 },
+    tooltip: { trigger: 'axis', formatter: '价差: {c} 元/吨' },
+    xAxis: {
+      type: 'category',
+      data: ['10-13', '10-16', '10-19', '10-20'],
+      boundaryGap: false,
+      axisLine: { lineStyle: { color: '#cbd5e0' } }
+    },
+    yAxis: { type: 'value', name: 'PP − 3×MA（元/吨）', splitLine: { lineStyle: { color: '#eef1f5' } } },
+    series: [{
+      type: 'line',
+      data: pp3ma,
+      smooth: false,
+      symbolSize: 9,
+      lineStyle: { width: 2.5, color: '#1f4e8c' },
+      itemStyle: { color: '#1f4e8c' },
+      label: { show: true, position: 'top', formatter: '{c}', color: '#2d3748', fontSize: 11 },
+      areaStyle: { color: 'rgba(31,78,140,0.08)' },
+      markLine: {
+        symbol: 'none',
+        silent: true,
+        lineStyle: { color: '#a0aec0', type: 'dashed' },
+        data: [{ yAxis: 0, label: { formatter: '均衡 0', position: 'insideEndTop', color: '#8896a8', fontSize: 11 } }]
+      }
+    }]
+  });
+
+  // 图4：波动率背离散点
+  var divPts = [
+    { name: 'j2611', v: [0.36, -4.12], dir: '看跌' },
+    { name: 'bz2611', v: [0.36, -4.90], dir: '看跌' },
+    { name: 'jm2612', v: [0.00, 4.01], dir: '看涨' },
+    { name: 'l2611', v: [-0.09, -4.48], dir: '看涨' },
+    { name: 'nr2611', v: [-0.24, -4.19], dir: '看涨' },
+    { name: 'hc2612', v: [0.06, -4.68], dir: '看跌' }
+  ];
+  var bearPts = divPts.filter(function (d) { return d.dir === '看跌'; }).map(function (d) { return { name: d.name, value: d.v }; });
+  var bullPts = divPts.filter(function (d) { return d.dir === '看涨'; }).map(function (d) { return { name: d.name, value: d.v }; });
+
+  echarts.init(document.getElementById('chartDiv')).setOption({
+    grid: { left: 70, right: 60, top: 40, bottom: 50 },
+    legend: { data: ['看跌信号', '看涨信号'], top: 4, textStyle: { color: '#4a5568', fontSize: 12 } },
+    tooltip: {
+      formatter: function (p) {
+        return p.seriesName + ' · ' + p.data.name + '<br/>30分钟价格变动: ' + p.value[0] + '%<br/>隐波变动: ' + p.value[1] + 'pt';
+      }
+    },
+    xAxis: {
+      type: 'value',
+      name: '30分钟价格变动(%)',
+      nameLocation: 'middle',
+      nameGap: 30,
+      min: -0.4,
+      max: 0.6,
+      splitLine: { lineStyle: { color: '#eef1f5' } }
+    },
+    yAxis: {
+      type: 'value',
+      name: '隐波变动(pt)',
+      splitLine: { lineStyle: { color: '#eef1f5' } }
+    },
+    series: [
+      {
+        name: '看跌信号',
+        type: 'scatter',
+        symbolSize: 16,
+        data: bearPts,
+        itemStyle: { color: '#c05621' },
+        label: { show: true, position: 'right', formatter: '{b}', color: '#2d3748', fontSize: 11 }
+      },
+      {
+        name: '看涨信号',
+        type: 'scatter',
+        symbolSize: 16,
+        data: bullPts,
+        itemStyle: { color: '#1f4e8c' },
+        label: { show: true, position: 'right', formatter: '{b}', color: '#2d3748', fontSize: 11 }
+      }
+    ]
+  });
+
+  window.addEventListener('resize', function () {
+    ['chartMove', 'chartPct', 'chartPP3MA', 'chartDiv'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) { var inst = echarts.getInstanceByDom(el); if (inst) { inst.resize(); } }
+    });
+  });
+})();
+</script>
+</body>
+</html>

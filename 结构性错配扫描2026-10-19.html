@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>结构性错配扫描 · 2026-10-19</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0 0 60px;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: #f4f6f9; color: #1a2332; line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+  header {
+    background: linear-gradient(135deg, #16324f 0%, #1f4e8c 60%, #2a63a8 100%);
+    color: #fff; padding: 44px 0 38px; margin-bottom: 28px;
+  }
+  header .wrap { padding: 0 24px; }
+  .kicker { font-size: 12px; letter-spacing: 2.5px; opacity: .72; text-transform: uppercase; margin-bottom: 10px; }
+  h1 { font-size: 30px; line-height: 1.3; margin: 0 0 12px; font-weight: 700; letter-spacing: -.5px; }
+  .sub { font-size: 15px; opacity: .9; margin: 0 0 20px; max-width: 760px; }
+  .meta { font-size: 12.5px; opacity: .7; border-top: 1px solid rgba(255,255,255,.18); padding-top: 14px; }
+  .meta span { margin-right: 18px; }
+
+  .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: -46px 0 32px; position: relative; z-index: 2; }
+  .card { background: #fff; border-radius: 10px; padding: 16px 16px 14px; box-shadow: 0 2px 12px rgba(20,40,70,.10); border-top: 3px solid #1f4e8c; }
+  .card.warn { border-top-color: #c0392b; }
+  .card.ok { border-top-color: #1e8449; }
+  .card.mute { border-top-color: #8a95a5; }
+  .card .lab { font-size: 11.5px; color: #6b7789; letter-spacing: .5px; margin-bottom: 6px; }
+  .card .val { font-size: 25px; font-weight: 700; letter-spacing: -.8px; line-height: 1.15; }
+  .card .val small { font-size: 12px; font-weight: 500; color: #6b7789; margin-left: 4px; }
+  .card .note { font-size: 12px; color: #5a6678; margin-top: 6px; line-height: 1.5; }
+
+  section { background: #fff; border-radius: 10px; padding: 26px 30px 28px; margin-bottom: 18px; box-shadow: 0 1px 6px rgba(20,40,70,.06); }
+  h2 { font-size: 19px; margin: 0 0 6px; font-weight: 700; color: #16324f; letter-spacing: -.2px; }
+  h2 .num { display: inline-block; width: 26px; height: 26px; line-height: 26px; text-align: center; background: #1f4e8c; color: #fff; border-radius: 6px; font-size: 13px; margin-right: 10px; vertical-align: 2px; }
+  h3 { font-size: 15px; margin: 22px 0 8px; color: #1f4e8c; font-weight: 600; }
+  .dek { font-size: 13.5px; color: #6b7789; margin: 0 0 18px; padding-bottom: 14px; border-bottom: 1px solid #eef1f5; }
+  p { margin: 0 0 13px; font-size: 14.5px; }
+  strong { color: #16324f; }
+  em { font-style: normal; background: linear-gradient(transparent 62%, #ffe9a8 62%); padding: 0 2px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13.2px; margin: 14px 0 8px; }
+  th { background: #f2f5f9; color: #4a5768; font-weight: 600; text-align: left; padding: 9px 11px; border-bottom: 2px solid #dde3ec; font-size: 12.5px; white-space: nowrap; }
+  td { padding: 9px 11px; border-bottom: 1px solid #eef1f5; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .up { color: #c0392b; font-weight: 600; }
+  .dn { color: #1e8449; font-weight: 600; }
+  .tag { display: inline-block; padding: 1px 7px; border-radius: 4px; font-size: 11.5px; font-weight: 600; white-space: nowrap; }
+  .t-red { background: #fdecea; color: #c0392b; }
+  .t-grn { background: #e8f5ec; color: #1e8449; }
+  .t-gry { background: #eef1f5; color: #5a6678; }
+  .t-amb { background: #fdf3e0; color: #a76a00; }
+
+  .chart { width: 100%; height: 330px; margin: 6px 0 4px; }
+  .cap { font-size: 12px; color: #8a95a5; margin: 2px 0 0; }
+  .callout { background: #f7f9fc; border-left: 3px solid #1f4e8c; padding: 13px 16px; border-radius: 0 6px 6px 0; font-size: 13.8px; margin: 14px 0; color: #34445a; }
+  .callout.red { border-left-color: #c0392b; background: #fdf7f6; }
+  .callout.amber { border-left-color: #d68910; background: #fdfaf3; }
+  ul, ol { margin: 8px 0 14px; padding-left: 22px; font-size: 14.5px; }
+  li { margin-bottom: 7px; }
+  .kv { display: grid; grid-template-columns: 118px 1fr; gap: 6px 14px; font-size: 13.5px; margin: 12px 0; }
+  .kv .k { color: #6b7789; }
+  .kv .v { font-weight: 600; color: #16324f; }
+  footer { text-align: center; font-size: 12px; color: #8a95a5; padding: 18px 0 0; line-height: 1.9; }
+  .disc { background: #fbfcfd; border: 1px solid #e6eaf0; border-radius: 8px; padding: 16px 18px; font-size: 12.5px; color: #5a6678; }
+  @media (max-width: 860px) {
+    .cards { grid-template-columns: repeat(2, 1fr); }
+    h1 { font-size: 23px; }
+    section { padding: 20px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="kicker">Structural Mismatch Scan · 跨期 / 跨品种 / 产业链利润</div>
+    <h1>结构性错配扫描：错配不等于机会</h1>
+    <p class="sub">用「有锚、有收敛机制、有表达工具」三个判据筛完全市场，今天真正还落在可交易区的只剩 2 个；最深的那个错配（焦煤基差）反而是风险而不是机会。</p>
+    <div class="meta">
+      <span>行情时点：2026-10-19 10:15–11:30 盘中</span>
+      <span>数据源：Hitick 实时 / 生意社 / Mysteel / 机构晨报</span>
+      <span>品种覆盖：能化 · 黑色 · 有色 · 聚酯 · 农产品</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<div class="cards">
+  <div class="card warn">
+    <div class="lab">最深错配</div>
+    <div class="val">+738<small>元/吨</small></div>
+    <div class="note">焦煤基差，约占期货价 50%<br>但方向偏多 → 对空单是风险</div>
+  </div>
+  <div class="card ok">
+    <div class="lab">唯一仍在极值、未修复</div>
+    <div class="val">32<small>%</small></div>
+    <div class="note">乙二醇价差占历史均值<br>327 元 vs 均值 1,032 元</div>
+  </div>
+  <div class="card mute">
+    <div class="lab">已修复，不必再追</div>
+    <div class="val">−83<small>元/吨</small></div>
+    <div class="note">PP−3×MA 从 −397 修复<br>6 个交易日走了 314 点</div>
+  </div>
+  <div class="card">
+    <div class="lab">不可表达</div>
+    <div class="val">+804<small>元/吨</small></div>
+    <div class="note">甲醇基差 25.4%，但 11 月交割<br>制度把个人投资者切在外面</div>
+  </div>
+</div>
+
+<section>
+  <h2><span class="num">0</span>先说方法：错配要同时满足三个条件才算机会</h2>
+  <p class="dek">否则只是"看起来不合理"的价格，无法转化为可执行、可收敛的头寸</p>
+
+  <p>市场上每天都能找到"价格很离谱"的地方，但绝大多数不是机会，因为<strong>要么没有锚、要么没有收敛机制、要么你根本表达不了</strong>。今天的扫描用三条硬标准过滤：</p>
+
+  <div class="kv">
+    <div class="k">① 有锚</div>
+    <div class="v">价格偏离的参照物是硬的——交割成本、完全成本、替代品比价、制度规则</div>
+    <div class="k">② 有收敛机制</div>
+    <div class="v">存在一个可预期的力量把它拉回：交割、产能调整、季节性、仓单注销</div>
+    <div class="k">③ 有表达工具</div>
+    <div class="v">你能真的建仓：合约有流动性、不受交割月限制、保证金扛得住</div>
+  </div>
+
+  <div class="callout">
+    <strong>今天的结论先说：</strong>全市场共有 9 个基差率超过 8% 的品种、5 个加工费处于历史低位的环节，但用三条件筛完——<strong>2 个及格（聚酯链、氧化铝）、2 个已修复（PP−3MA、铜）、3 个不可表达（甲醇、碳酸锂、鸡蛋）、2 个是风险不是机会（焦煤、生猪）</strong>。
+  </div>
+
+  <h3>图 1｜全市场基差率：高基差集中在"低库存 + 近月挤仓"的能化与煤端</h3>
+  <div id="chart1" class="chart"></div>
+  <p class="cap">基差率 =（现货 − 期货）/ 期货。焦煤按山西低硫主焦 2,203.75 计；若按蒙 5 仓单成本 1,903 计，基差率约 30%。铜已从 10 月上旬的 1,080 元升水收敛至接近平水。</p>
+</section>
+
+<section>
+  <h2><span class="num">1</span>焦煤：全市场最深的错配，但它是风险不是机会</h2>
+  <p class="dek">基差 +738 元/吨（约 50%）＋ 2701 起交割规则调整导致远月转 Contango，两套定价方向相反</p>
+
+  <div class="kv">
+    <div class="k">JM2701</div>
+    <div class="v">约 1,466 元/吨（10-19 盘中，−1%；10-16 收 1,482）</div>
+    <div class="k">现货（山西主焦）</div>
+    <div class="v">2,203.75 元/吨 → 基差 <span class="up">+738</span>，约占期货价 50%</div>
+    <div class="k">蒙 5 仓单成本</div>
+    <div class="v">1,903 元/吨 → 基差 +437（29.8%）</div>
+    <div class="k">期限结构</div>
+    <div class="v">JM2701–2705 近月升水约 +97（Back），但 2701 起交割品规则调整，远月合约定价转 Contango</div>
+  </div>
+
+  <p>这是今天全市场最"离谱"的一组数字：期货比现货便宜一半。但要注意三件事，它们决定了这<strong>不是一个可以做多的套利机会</strong>：</p>
+
+  <ol>
+    <li><strong>基差已经不是"流动性错价"，而是在定价保供复产。</strong>523 家矿山开工率一周跳升 4.54 个百分点至 67.71%，是 6 月以来最大周度增幅；山西停产煤矿从 49 座降到 40 座。基差走扩是在"预期未来现货要跌"，不是在"期货被错杀"。</li>
+    <li><strong>两个方向相反的定价同时存在。</strong>近月对现货深度贴水（现实偏紧），远月却因交割规则改为升水（预期转紧）。任何一侧被证伪都会带来剧烈回归——这正是波动率放大的来源，不是套利收益的来源。</li>
+    <li><strong>收敛机制依赖交割，而个人投资者进不了交割月。</strong>JM2701 的自然人持仓限制让"买期货等交割收敛"这条路对你关闭，只能做价差回归的博弈，赔率大幅下降。</li>
+  </ol>
+
+  <div class="callout red">
+    <strong>与你持仓直接相关：</strong>你手上是 JM2701 空单（成本 1,590），现价约 1,466，浮盈约 120 元/吨、7,200 元/手。当前 738 元的基差就是你这笔空单最大的反向风险——10 月 9 日刚刚预演过一次单日 +6% 的贴水修复反弹。<strong>该做的是按原计划在 1,450 减第一档，而不是因为"基差这么大"去做多焦煤。</strong>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">2</span>聚酯链：全市场唯一"极值还没被修复"的环节</h2>
+  <p class="dek">四组价差里三组低于历史均值，乙二醇只有均值的 32%——这是今天唯一及格的错配机会</p>
+
+  <div id="chart4" class="chart" style="height:300px;"></div>
+  <p class="cap">各环节价差占自身历史均值的百分比。100% 为历史均值线。数据截至 2026-10-16 当周，来自聚酯产业链周度价差统计。</p>
+
+  <table>
+    <thead>
+      <tr><th>环节价差</th><th class="num">最新</th><th class="num">历史均值</th><th class="num">占均值</th><th>周环比</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>PX − 石脑油</td><td class="num">322 美元/吨</td><td class="num">376</td><td class="num">86%</td><td class="dn">−36</td></tr>
+      <tr><td>PTA − 0.66×PX（加工费）</td><td class="num">560 元/吨</td><td class="num">768</td><td class="num"><strong>73%</strong></td><td class="dn">−614</td></tr>
+      <tr><td>乙二醇价差</td><td class="num">327 元/吨</td><td class="num">1,032</td><td class="num"><strong>32%</strong></td><td class="dn">−662</td></tr>
+      <tr><td>涤纶长丝 POY</td><td class="num">1,593 元/吨</td><td class="num">1,381</td><td class="num">115%</td><td class="up">+623</td></tr>
+    </tbody>
+  </table>
+
+  <p>这组数据的含义很清晰：<strong>上游 PX 拿走了大部分利润（86% 均值），中游 PTA 加工费被压到均值的 73%，乙二醇被压到 32%，而下游长丝反而逆向走扩至 115%。</strong>利润在产业链上的分布是"两端厚、中间薄"的哑铃形，中游两个环节都处在现金成本附近。</p>
+
+  <p>今天盘中这个错配还在加深：<strong>PTA2701 早盘跌 1.96% 至 6,486，而 PX 夜盘还涨 0.54%</strong>——加工费被进一步压缩。乙二醇主力跌 1.21%，同样在压缩自身价差。</p>
+
+  <h3>怎么表达</h3>
+  <ul>
+    <li><strong>首选：多 PTA、空 PX（做扩加工费）。</strong>逻辑最干净——同一产业链上下游，赚的是分配比例回归，不赌绝对价格。PTA 负荷已降至 67.6%（五年同期低位），PX 负荷反而升至 78.1%，供给端支持加工费修复。</li>
+    <li><strong>次选：多乙二醇（单边或对空 PTA）。</strong>32% 的均值占比是全组最极端，且已跌破现金流成本。但 EG 自身供需偏弱（今日仍跌 1.21%），需要港库去化配合，胜率低于加工费。</li>
+    <li><strong>不建议做空 POY 端。</strong>长丝已走扩至 115%，但 10 月中旬聚酯负荷同比低 18 个百分点，低开工本身支撑利润，做空下游利润是在与减产对抗。</li>
+  </ul>
+
+  <div class="callout amber">
+    <strong>必须交代的反向证据：</strong>PTA 仓单 10-15 单周增加 3.5 万张（约 17.5 万吨），10 月下旬将批量流入流通市场，现货基差已从 10-08 的 +922 元急跌至 10 月底货源的 +450、11 月中旬的 +330。<strong>加工费修复的路径更可能是"PX 让利"而不是"PTA 上涨"</strong>——所以做扩加工费要能承受 PTA 单边下跌，仓位必须按价差而非单边计价。
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">3</span>氧化铝 vs 电解铝：一个亏 104，一个赚 6,877</h2>
+  <p class="dek">产业链利润分布在冶炼环节被拉到极致，且氧化铝已在完全成本线下方</p>
+
+  <div id="chart3" class="chart" style="height:320px;"></div>
+  <p class="cap">主要工业环节即期利润（元/吨）。MTO 取机构测算区间 −1,800~−2,000 的中值；短纤为 9 月单吨亏损。</p>
+
+  <p>这张图是今天最有信息量的一张：<strong>利润几乎全部堆在电解铝一个点上（6,877 元/吨），而它的直接原料氧化铝在亏 104 元/吨，期价甚至低于完全成本 165–177 元/吨。</strong>同一条产业链的上下游，一边暴利一边亏损，这是典型的分配失衡。</p>
+
+  <ul>
+    <li><strong>氧化铝已进入"减产触发区"。</strong>即期利润连续两日恶化（−101.91 → −104.42），盘面持续压缩高成本产能利润。历史经验是：一旦跌破完全成本超过 150 元/吨，高成本产能（尤其山西、河南）会开始实质性检修。</li>
+    <li><strong>但供给压力仍在。</strong>氧化铝运行产能 9,291 万吨、周产量 178.2 万吨，仍在增加。所以这是"估值错配"而非"驱动反转"，需要等减产落地才有趋势。</li>
+    <li><strong>更干净的表达是价差而非单边：多氧化铝、空电解铝。</strong>赚的是冶炼利润从 6,877 向常态回归。铝棒加工费 10-16 单日跳升 65–68 元/吨（Φ90 由 256 升至 324），说明下游已经在修复，方向一致。</li>
+  </ul>
+
+  <div class="callout">
+    <strong>这个头寸的真实风险：</strong>电解铝的高利润不一定会回归——它有产能天花板（4,561 万吨运行产能、开工率 98.54%），供给刚性会让利润长期维持高位。如果只因为"利润太高"就去做空电解铝，是在赌一个可能不发生的均值回归。<strong>更稳妥的做法是只做多氧化铝单边，用成本线做止损锚。</strong>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">4</span>已经修复完毕、不必再追的三个</h2>
+  <p class="dek">上周的判断在这几天兑现了，现在追进去赔率已经不对</p>
+
+  <h3>① PP − 3×MA：6 天修复 314 点，最肥的一段走完了</h3>
+  <div id="chart2" class="chart" style="height:280px;"></div>
+  <p class="cap">PP2701 − 3×MA2701（元/吨）。10-13 数值引自中信期货测算 −397；10-16、10-19 按当日盘中价计算。</p>
+
+  <p>10-16 我给这个头寸的报价是 <strong>−216</strong>，今天的数字是 <strong>PP2701 9,406 − 3×3,163 = −83</strong>。三个交易日又修复了 133 点，从起点 −397 累计修复 314 点。<strong>逻辑没错，但空间已经消耗了大部分</strong>——MTO 现金成本对应的合理价差大约在 0 至 +200 区间，剩下 80–280 点的空间要换来的是甲醇继续单边下跌（今天已跌 0.75%，周跌幅 12.23%），而甲醇的 11 月合约正处在逼仓窗口，随时可能反抽。</p>
+  <p><strong>结论：持有的可以留，空仓的不必新开。</strong>若价差回到 −150 以下再考虑加，现在追是在给前面的人抬轿。</p>
+
+  <h3>② 铜：Back 结构还在，但套利窗口已经关闭</h3>
+  <p>10 月上旬沪铜隔月 Back 达 550–760 元、现货升水一度 1,080 元，同时上期所库存单周暴增 2 万吨（+51.62%）至 58,744 吨——<strong>Back 与累库并存，说明月差来自低仓单而非需求</strong>。这个矛盾在换月后已经释放：现货升水从 1,080 快速缩至 420 元，缩水 660 元。剩下的 Back 是仓单结构性紧张，不是错价，做反套要承担挤仓风险。</p>
+
+  <h3>③ 甲醇：基差 804 元（25.4%）看着最诱人，但你进不去</h3>
+  <p>现货 3,966.67 vs MA2701 3,163，基差 804 元、基差率 25.4%，是全市场第二高。但这个基差来自<strong>霍尔木兹通航受限造成的实物硬约束 + 11 月合约逼仓窗口</strong>，而 11 月合约的观察窗口已在 10-15 关闭，自然人不能持仓进交割月。<strong>对个人投资者，这是一个看得见摸不到的错配</strong>——强行用 2701 去表达，等于用远月去赌近月的挤仓，方向对但工具错。</p>
+</section>
+
+<section>
+  <h2><span class="num">5</span>今天的机会排序</h2>
+  <p class="dek">按"错配深度 × 收敛确定性 × 可表达性"三项打分，同分时优先流动性好的</p>
+
+  <table>
+    <thead>
+      <tr><th>排序</th><th>机会</th><th>错配深度</th><th>收敛机制</th><th>可表达性</th><th>结论</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>★★★</strong></td>
+        <td><strong>多 PTA / 空 PX</strong><br><span style="color:#6b7789;font-size:12px;">做扩 PTA 加工费</span></td>
+        <td>加工费 560，均值 73%<br>今日再压缩约 130</td>
+        <td>中</td>
+        <td>高</td>
+        <td><span class="tag t-grn">可建仓</span></td>
+      </tr>
+      <tr>
+        <td><strong>★★★</strong></td>
+        <td><strong>多氧化铝（单边）</strong><br><span style="color:#6b7789;font-size:12px;">或 多 AO / 空 AL</span></td>
+        <td>即期亏 104，期价低于<br>完全成本 165–177</td>
+        <td>中（待减产）</td>
+        <td>高</td>
+        <td><span class="tag t-grn">可建仓</span></td>
+      </tr>
+      <tr>
+        <td><strong>★★</strong></td>
+        <td><strong>多乙二醇</strong></td>
+        <td>价差 327，仅均值 32%<br>全组最极端</td>
+        <td>低（供需仍弱）</td>
+        <td>高</td>
+        <td><span class="tag t-amb">等港库拐点</span></td>
+      </tr>
+      <tr>
+        <td><strong>★★</strong></td>
+        <td><strong>多纯碱 / 空玻璃</strong></td>
+        <td>纯碱负荷单周 −11.55pct<br>至 64.59%，玻璃需求最弱</td>
+        <td>中</td>
+        <td>高</td>
+        <td><span class="tag t-amb">轻仓试</span></td>
+      </tr>
+      <tr>
+        <td>★</td>
+        <td>PP − 3MA 做扩</td>
+        <td>已从 −397 修复至 −83</td>
+        <td>高（已发生）</td>
+        <td>高</td>
+        <td><span class="tag t-gry">持有不加</span></td>
+      </tr>
+      <tr>
+        <td>—</td>
+        <td>焦煤基差修复</td>
+        <td>基差 738，约 50%</td>
+        <td>低（复产压制）</td>
+        <td>低（交割月限制）</td>
+        <td><span class="tag t-red">是风险非机会</span></td>
+      </tr>
+      <tr>
+        <td>—</td>
+        <td>甲醇正/反套</td>
+        <td>基差 804，25.4%</td>
+        <td>低（制度切断）</td>
+        <td>低</td>
+        <td><span class="tag t-gry">不可表达</span></td>
+      </tr>
+      <tr>
+        <td>—</td>
+        <td>鸡蛋 / 生猪反向排列</td>
+        <td>JD 贴水 785；LH2703 凹点</td>
+        <td>已证伪</td>
+        <td>高</td>
+        <td><span class="tag t-gry">不做</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>两个★★★的具体执行参数</h3>
+  <div class="kv">
+    <div class="k">TA−0.66PX</div>
+    <div class="v">现约 430–560 元；目标 700–768（均值）；止损 <strong>跌破 350</strong>；配比按 1 手 TA 对 0.66 手 PX 折算，实际用 3:2 近似</div>
+    <div class="k">单边锚</div>
+    <div class="v">TA2701 区间 6,300–6,600（中信建投），6,300 附近是多头一侧的安全边际</div>
+    <div class="k">AO 单边</div>
+    <div class="v">以完全成本 2,769.6 为锚，期价低于成本 165–177 元时建仓；跌破成本 250 元（约 2,520）止损，对应减产逻辑失效</div>
+    <div class="k">共同风险</div>
+    <div class="v">原油在 110 美元高位，成本端继续上移会同时抬升两条链的估值，价差反而不动</div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">6</span>与你现有持仓的三处冲突</h2>
+  <p class="dek">这两个机会对你不适用，或者需要先处理已有头寸</p>
+
+  <table>
+    <thead><tr><th>你的持仓</th><th>今日相关变化</th><th>冲突 / 提示</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>焦煤 JM2701 空单</strong><br>成本 1,590</td>
+        <td>现价约 1,466，浮盈约 120 元/吨<br>基差 738 元（约 50%）</td>
+        <td>"焦煤贴水修复"是空单最大反向风险。距 1,450 第一档止盈仅 16 点，<strong>止盈纪律优先</strong></td>
+      </tr>
+      <tr>
+        <td><strong>菜油 OI2701C11000</strong><br>成本 120.2，5 张</td>
+        <td>菜油今日跌近 1%<br>菜油基差仅 452（4.2%，全市场偏低）</td>
+        <td>菜油不具备高基差结构，期权多头缺少基差保护，<strong>时间价值仍在流失</strong></td>
+      </tr>
+      <tr>
+        <td><strong>丙烯 PL2611 空单</strong><br>成本 8,718</td>
+        <td>丙烯现货 10,684，基差率 10.9%<br>成本端原油 110 美元</td>
+        <td>丙烯是全市场基差率前列品种，<strong>近月偏强结构未改</strong>，与"多中游利润"方向相反</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout red">
+    <strong>一句话提醒：</strong>今天这两个★★★机会（聚酯加工费、氧化铝）都需要"上游让利"才能兑现，而你的焦煤空单和丙烯空单赚的恰恰是"上游下跌"——<strong>方向同源，但工具不同</strong>。如果同时持有，实际是在同一个宏观变量（能源成本下移）上重复下注，仓位要合并计算，不能各算各的。
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">7</span>今天的市场背景与数据局限</h2>
+
+  <h3>驱动主线</h3>
+  <p>原油周五一度触及 110 美元（美国两党议员提案阻止美俄柴油协议 + 特朗普称或再打击伊朗核设施），但周末伊朗外长表示"7 天内重开霍尔木兹"方案仍有效，周一油价开盘回落。<strong>能化整体偏强（燃料油 +5%、低硫燃料油 +2%、纯碱 +1.7%、PVC +1.1%），黑色与聚酯偏弱（焦煤 −1%、PTA −1.96%、乙二醇 −1.21%、碳酸锂 −3%）。</strong>这个分化正是今天所有错配的源头：成本端抬升 → 中游加工费被压 → 上游拿利润。</p>
+
+  <h3>三点必须说明的数据局限</h3>
+  <ul>
+    <li><strong>焦煤基差有两个口径。</strong>按山西低硫主焦 2,203.75 算是 +738（50%）；按蒙 5 仓单成本 1,903 算是 +437（30%）。差 300 元，是因为期货交割品对标的是进口蒙煤与山西主焦的混合品质，两个口径都成立，判断方向时不应取极值。</li>
+    <li><strong>PX2701 的今日盘中价没有取到</strong>，PTA 加工费的最新值是估算区间（430–560），表中 560 用的是 10-16 的官方周度口径。今日压缩幅度按 PTA −1.96% 与 PX 夜盘 +0.54% 推算，仅作方向参考。</li>
+    <li><strong>氧化铝与乙二醇的"历史均值"来自不同机构口径</strong>，不是同一分位体系，横向比较时看排序而非绝对倍数。</li>
+  </ul>
+
+  <div class="disc">
+    <strong>免责声明：</strong>以上内容基于公开数据与量化分析，仅供参考，不构成投资建议。市场有风险，投资需谨慎。任何投资决策应结合个人风险承受能力、资金状况和投资目标独立判断，必要时咨询持牌专业机构。过往表现不预示未来收益。部分盘中价格为快讯口径，存在时点差异，请以交易所结算数据为准。
+  </div>
+</section>
+
+<footer>
+  结构性错配扫描 · 2026-10-19 · 行情时点 10:15–11:30<br>
+  数据来源：Hitick 实时行情、生意社基差表、Mysteel、中信建投/华闻/信达期货晨报
+</footer>
+
+</div>
+
+<script>
+(function () {
+  var axisStyle = {
+    axisLine: { lineStyle: { color: '#dde3ec' } },
+    axisLabel: { color: '#6b7789', fontSize: 12 },
+    splitLine: { lineStyle: { color: '#f0f3f7' } }
+  };
+
+  // 图1：全市场基差率
+  var c1 = echarts.init(document.getElementById('chart1'));
+  c1.setOption({
+    grid: { left: 92, right: 60, top: 18, bottom: 30 },
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, valueFormatter: function (v) { return v + '%'; } },
+    xAxis: Object.assign({ type: 'value', name: '基差率(%)', nameTextStyle: { color: '#8a95a5', fontSize: 11 } }, axisStyle),
+    yAxis: Object.assign({ type: 'category', inverse: true, data: ['焦煤(山西主焦)', '甲醇', '纯碱', '丙烯', 'PX', '玻璃', '棉花', '菜油', '铜(已修复)'] }, axisStyle, { splitLine: { show: false } }),
+    series: [{
+      type: 'bar',
+      barWidth: '58%',
+      data: [
+        { value: 50.3, itemStyle: { color: '#c0392b' } },
+        { value: 25.4, itemStyle: { color: '#d9603f' } },
+        { value: 11.6, itemStyle: { color: '#e08a56' } },
+        { value: 10.9, itemStyle: { color: '#e6a06e' } },
+        { value: 10.3, itemStyle: { color: '#eab388' } },
+        { value: 10.0, itemStyle: { color: '#eec4a2' } },
+        { value: 9.2, itemStyle: { color: '#f0d2b8' } },
+        { value: 4.2, itemStyle: { color: '#cdd6e2' } },
+        { value: 0.4, itemStyle: { color: '#cdd6e2' } }
+      ],
+      label: { show: true, position: 'right', formatter: '{c}%', color: '#4a5768', fontSize: 12, fontWeight: 600 }
+    }]
+  });
+
+  // 图2：PP-3MA 修复轨迹
+  var c2 = echarts.init(document.getElementById('chart2'));
+  c2.setOption({
+    grid: { left: 62, right: 40, top: 30, bottom: 34 },
+    tooltip: { trigger: 'axis', valueFormatter: function (v) { return v + ' 元/吨'; } },
+    xAxis: Object.assign({ type: 'category', boundaryGap: false, data: ['10-13', '10-16', '10-19'] }, axisStyle),
+    yAxis: Object.assign({ type: 'value', name: '元/吨', min: -450, max: 100 }, axisStyle),
+    series: [{
+      type: 'line',
+      data: [-397, -216, -83],
+      smooth: true,
+      symbolSize: 9,
+      lineStyle: { width: 3, color: '#1f4e8c' },
+      itemStyle: { color: '#1f4e8c' },
+      areaStyle: { color: 'rgba(31,78,140,0.10)' },
+      label: { show: true, position: 'top', formatter: '{c}', color: '#16324f', fontWeight: 700, fontSize: 13 },
+      markLine: {
+        symbol: 'none',
+        silent: true,
+        lineStyle: { color: '#c0392b', type: 'dashed', width: 1.5 },
+        label: { formatter: '合理区下沿 0', color: '#c0392b', fontSize: 11, position: 'insideEndTop' },
+        data: [{ yAxis: 0 }]
+      }
+    }]
+  });
+
+  // 图3：产业链利润哑铃
+  var c3 = echarts.init(document.getElementById('chart3'));
+  c3.setOption({
+    grid: { left: 92, right: 70, top: 18, bottom: 34 },
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, valueFormatter: function (v) { return v + ' 元/吨'; } },
+    xAxis: Object.assign({ type: 'value', name: '元/吨', nameTextStyle: { color: '#8a95a5', fontSize: 11 } }, axisStyle),
+    yAxis: Object.assign({ type: 'category', inverse: true, data: ['电解铝', '热卷(长流程)', '螺纹(长流程)', '短纤', 'MTO', '氧化铝', '焦化'] }, axisStyle, { splitLine: { show: false } }),
+    series: [{
+      type: 'bar',
+      barWidth: '56%',
+      data: [
+        { value: 6877, itemStyle: { color: '#c0392b' } },
+        { value: -428, itemStyle: { color: '#1e8449' } },
+        { value: -272, itemStyle: { color: '#1e8449' } },
+        { value: -522, itemStyle: { color: '#1e8449' } },
+        { value: -1900, itemStyle: { color: '#15733f' } },
+        { value: -104, itemStyle: { color: '#3aa06a' } },
+        { value: -52, itemStyle: { color: '#5cb383' } }
+      ],
+      label: {
+        show: true,
+        position: 'right',
+        formatter: '{c}',
+        color: '#4a5768',
+        fontSize: 12,
+        fontWeight: 600
+      }
+    }]
+  });
+
+  // 图4：聚酯链价差占历史均值
+  var c4 = echarts.init(document.getElementById('chart4'));
+  c4.setOption({
+    grid: { left: 62, right: 30, top: 34, bottom: 34 },
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, valueFormatter: function (v) { return v + '%'; } },
+    xAxis: Object.assign({ type: 'category', data: ['PX−石脑油', 'PTA加工费', '乙二醇', '长丝POY'] }, axisStyle),
+    yAxis: Object.assign({ type: 'value', name: '占历史均值(%)', max: 130, nameTextStyle: { color: '#8a95a5', fontSize: 11 } }, axisStyle),
+    series: [{
+      type: 'bar',
+      barWidth: '46%',
+      data: [
+        { value: 86, itemStyle: { color: '#e0a75e' } },
+        { value: 73, itemStyle: { color: '#dd7f4d' } },
+        { value: 32, itemStyle: { color: '#c0392b' } },
+        { value: 115, itemStyle: { color: '#3aa06a' } }
+      ],
+      label: { show: true, position: 'top', formatter: '{c}%', color: '#16324f', fontWeight: 700, fontSize: 13 },
+      markLine: {
+        symbol: 'none',
+        silent: true,
+        lineStyle: { color: '#8a95a5', type: 'dashed', width: 1.2 },
+        label: { formatter: '历史均值 100%', color: '#8a95a5', fontSize: 11, position: 'insideEndTop' },
+        data: [{ yAxis: 100 }]
+      }
+    }]
+  });
+
+  window.addEventListener('resize', function () {
+    c1.resize(); c2.resize(); c3.resize(); c4.resize();
+  });
+})();
+</script>
+
+</body>
+</html>

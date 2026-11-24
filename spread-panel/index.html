@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<script>
+// 独立盯盘链接：根链接 + #/watch → 自动带授权参数跳盯盘页
+if (location.hash === '#/watch' || location.hash === '#watch') {
+  location.replace('watch.html' + location.search);
+}
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>价差面板</title>
+<style>
+  :root{
+    --bg:#f5f5f3; --card:#fff; --line:rgba(0,0,0,.10); --txt:#1a1a1a; --dim:#6b6b6b; --hint:#9a9a9a;
+    --up:#d63a3a; --down:#1a9e64; --warn:#c8871a; --stop:#c0392b; --ok:#5b6b7a;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#141414; --card:#1d1d1d; --line:rgba(255,255,255,.12); --txt:#f0f0f0; --dim:#a5a5a5; --hint:#7a7a7a;
+      --up:#e8625f; --down:#3ec08a; --warn:#e0a53d; --stop:#e05a4c; --ok:#8b9aa8; }
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;background:var(--bg);color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial,sans-serif;
+    font-size:14px;line-height:1.5;padding:14px 14px 40px;padding-top:calc(14px + env(safe-area-inset-top));}
+  header{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 2px 12px}
+  h1{font-size:16px;font-weight:500;margin:0}
+  .stamp{font-size:12px;color:var(--hint);font-variant-numeric:tabular-nums;text-align:right}
+  .grid{display:grid;grid-template-columns:1fr;gap:10px}
+  @media (min-width:720px){ .grid{grid-template-columns:1fr 1fr} }
+  .card{background:var(--card);border:0.5px solid var(--line);border-radius:12px;padding:14px}
+  .card.hit{border:1.5px solid var(--stop)}
+  .top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+  .name{font-size:14px;font-weight:500}
+  .note{font-size:12px;color:var(--hint);margin-top:2px}
+  .badge{font-size:11px;padding:2px 7px;border-radius:20px;white-space:nowrap;border:0.5px solid var(--line);color:var(--ok)}
+  .badge.warn{color:var(--warn);border-color:var(--warn)}
+  .badge.stop{color:#fff;background:var(--stop);border-color:var(--stop)}
+  .val{display:flex;align-items:baseline;gap:10px;margin:10px 0 2px;flex-wrap:wrap}
+  .big{font-size:27px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-.5px}
+  .unit{font-size:12px;color:var(--hint)}
+  .pnl{font-size:14px;font-weight:500;font-variant-numeric:tabular-nums}
+  .up{color:var(--up)} .down{color:var(--down)} .flat{color:var(--dim)}
+  .meta{font-size:12px;color:var(--dim);display:flex;justify-content:space-between;gap:8px;margin-top:2px}
+  .bar{position:relative;height:5px;border-radius:4px;background:var(--line);margin:12px 0 6px;overflow:visible}
+  .bar .fill{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:var(--ok);opacity:.45}
+  .bar .mark{position:absolute;top:-4px;width:2px;height:13px;border-radius:1px;background:var(--txt);transform:translateX(-1px)}
+  .ticks{display:flex;justify-content:space-between;font-size:11px;color:var(--hint);font-variant-numeric:tabular-nums}
+  .lv{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .chip{font-size:11px;color:var(--dim);border:0.5px solid var(--line);border-radius:6px;padding:2px 6px;font-variant-numeric:tabular-nums}
+  .chip.stop{color:var(--stop);border-color:var(--stop)}
+  .chip.add{color:var(--txt);border-color:var(--dim)}
+  .chip.target{color:var(--down);border-color:var(--down)}
+  .legs{font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums;margin-top:8px;line-height:1.7}
+  .legs b{font-weight:500;color:var(--txt)}
+  .slim{padding:12px 14px}
+  .wide{grid-column:1/-1}
+  .rows{font-size:12.5px;font-variant-numeric:tabular-nums;margin-top:10px;line-height:1.85}
+  .rows .r{display:flex;justify-content:space-between;gap:10px;border-top:0.5px solid var(--line);padding-top:4px;margin-top:4px}
+  .rows .r:first-child{border-top:0;padding-top:0;margin-top:0}
+  .rows .r span:first-child{color:var(--dim)}
+  footer{margin:16px 2px 0;font-size:11px;color:var(--hint);line-height:1.7}
+  .err{background:var(--stop);color:#fff;padding:8px 12px;border-radius:8px;font-size:12px;margin-bottom:10px;display:none}
+  .skel{height:120px;border-radius:12px;background:var(--card);border:0.5px solid var(--line);opacity:.6}
+</style>
+</head>
+<body>
+<header>
+  <h1>价差面板</h1>
+  <div class="stamp" id="stamp">连接中…</div>
+</header>
+<div class="err" id="err"></div>
+<div class="grid" id="grid">
+  <div class="skel"></div><div class="skel"></div><div class="skel"></div>
+</div>
+<footer>
+  行情：东方财富直连（浏览器发起，含期权买卖盘）→ 新浪直连 → 服务器转发，三级回退，3 秒刷新。<br>
+  期货价差为「A − 系数 × B」；期权按「买腿 bid − 卖腿 ask / 中价」双向列示，仅作盯盘与阈值提醒，不构成下单指令。<br>
+  颜色：红＝浮盈 / 绿＝浮亏。徽章：安全 / 警戒（接近不利线）/ 触发（已越线）。<br>
+  持仓口径：<b><s>CU 01-03 反套 1 组</s>（开 @890，11-20 23:46-48 双腿平仓 <span style="color:var(--up)">约 +300 元落袋</span>，全程浮亏最深 −950；平仓理由：占用超 50% 为 TA-PX 预留资金 + 论点地基已坏〔11-19 仓单 −905〕）</b>· <b>TA-PX 6 组（空 TA 共 18 手 @5,962、多 PX 共 12 手 @8,313，成本 fee 516.98 / 90 元每点；<b>11-20 改规则：止损 600 → 620 收盘全平（历史 max 618.1 上方，触发总亏 ≈−9,272）+ 时间止损 11-27 收盘 fee ≥600 无条件全清</b>；T1 430 / T2 400）</b>· <s>LH 01-03 反套两轮已结案</s>（第1轮 +2,640 / 第2轮 11-24 @475 止损 −1,840，合计 +800；<b>再入场等现货止涨开关：连 2 日不创新高或二育出栏启动；触发①冲 520~545 受阻 / ②跌破 430 / ③12-08 事件窗口，1 组起步上限 2 组</b>）· UR 价差 2 组（19.5 / 40；<b>11-24 拍板：价格线撤销拿到期，唯一硬线=12-04 复核 UR&lt;1740 全平 / ≥1740 拿到期</b>）· <b>AP 1-5 反套 2 组（11-24 09:0x @688 开，空 AP2701+多 AP2705，20 元/点；收盘止损 830、证伪线 720、T1 500；补仓只认回落跌破 679 企稳窗口，反弹 700+ 不追）</b>· <b>PP 1-5 做窄 4 组（11-23 夜盘 2组@789 + 2组@813，均价 801，空 PP2701 + 多 PP2705，20 元/点；<b>上限 6 组——剩 2 组窗口=再次反弹 820~830 受阻回落实证；破新低/恐慌日不追加；止损＝日盘收盘收复 850 全平（4 组 980 元）；加满 6 组则 L-PP 重进触发作废</b>）</b>· <b>L-PP 全链 4 组已平结案：11-18 落袋 <span style="color:var(--up)">+1,075</span>、11-20 @−808 落袋 <span style="color:var(--up)">+730</span>，合计 <span style="color:var(--up)">+1,775 元</span>（反复攻击 −750 未果、动能衰减 → 落袋观察降占用）</b>· <b>LH 第 1 轮 11-19 @210 平仓 <span style="color:var(--up)">+2,640</span>（开 375）</b>。  <b>J-JM 第二轮 1 组已于 11-18 夜盘平仓 <span style="color:var(--up)">+190</span>（归因证伪了结）；J-JM 第三轮 11-20 归因核实后取消（本轮走阔有基本面腿：JM 复产加速 + J 利空出尽）</b>；JD 1-5 反套 11-18 9:02 触 150 清仓（+2,080，全链 +8,426）；FG 1-5 2 组 11-18 上午 @−42 平仓（+80）；J-JM 第一轮 11-17 平仓 +3,370；SH 1-5 11-16 止损 −2,160；PP 双买 11-13 平仓。
+  占用口径：<b>同花顺期货通套利组合只收单边保证金</b>——TA-PX 6 组约 3 万 + UR ≈ 0.3 万 + PP 4 组约 1.4 万（满配 6 组 ≈ 2.1 万）+ AP 2 组约 1.1 万 ≈ <b>5.8 万（19%）</b>· 在跑风险约 1.5 万（TA-PX 至 620 线 9,272 + UR 780 + PP 至 850 线 980 / 满配 ≈1,230 + AP 至 830 线 2,840）。（CU 5.5 万、LH 两轮均已结案）
+</footer>
+
+<script>
+// 期货价差卡：做空 or 做多价差
+const CFG = [
+  {
+    id: 'cu', name: 'CU 01-03 反套（已平 11-20 夜盘）', note: '1 组 · 5 元/点 · 空01多03 开890 · 保留价差观察',
+    calc: q => q.CU2701.last - q.CU2703.last,
+    legs: q => 'CU01 ' + q.CU2701.last.toFixed(0) + ' / CU03 ' + q.CU2703.last.toFixed(0),
+    cost: 890, unit: 5, dec: 0, good: 300, bad: 1250, warn: 1100, stop: 1250,
+    closed: true, closedPnl: 200,
+    levels: [{v: 470, t: '原T1', k: 'target'}, {v: 300, t: '原T2', k: 'target'},
+             {v: 1100, t: '原警戒', k: 'stop'}, {v: 1250, t: '原止损', k: 'stop'}],
+    extra: (q, v) => `<b style="color:var(--dim)">11-20 23:47 成交回报确认（现价差 ${v.toFixed(0)}）· 空 CU2701 + 多 CU2703 · 开 @890（11-19 21:11 夜盘）</b><br>
+<b><span style="color:var(--up)">+200 元落袋（精确）</span></b>：买平昨 CU2701 @92,640 / 卖平昨 CU2703 @91,790 → 平价差 850，收敛 40 点 × 5 元/点 · 全程浮亏最深 −950<br>
+<b style="color:var(--dim)">平仓理由：保证金占用超 50%，为 TA-PX 周一跳空预留资金 · 论点地基已坏（11-19 仓单 −905、开仓引用过期数据）· 已平不计入组合浮动</b>`
+  },
+  {
+    id: 'fee', name: 'TA-PX 加工费（6 组·已摊高成本）', note: '6 组 · 90 元/点 · 空TA18手@5962 / 多PX12手@8313 · 成本 fee 516.98',
+    calc: q => q.TA2701.last - 0.655 * q.PX2701.last,
+    legs: q => 'TA ' + q.TA2701.last.toFixed(0) + ' / PX ' + q.PX2701.last.toFixed(0),
+    cost: 516.98, unit: 90, dec: 1, good: 400, bad: 620, warn: 580, stop: 620,
+    levels: [{v: 430, t: 'T1', k: 'target'}, {v: 400, t: 'T2', k: 'target'},
+             {v: 493.09, t: '原4组成本', k: 'target'}, {v: 600, t: '时间线观察', k: 'stop'}, {v: 618.1, t: '历史max', k: 'stop'}, {v: 620, t: '全平', k: 'stop'}],
+    extra: (q, v) => `<b>11-20 改规则：止损 600 → 620（历史极值 618.1 上方），11-27 收盘 fee ≥600 时间止损全清</b><br>
+距 620 全平线 <b>${(620 - v).toFixed(1)}</b> 点 = ${((620 - v) * 90).toFixed(0)} 元（触发总亏 ≈ −9,272） · 600 时间线：${v < 600 ? '<b style="color:var(--down)">已回 600 下方，时间线暂停</b>' : `还差 <b>${(v - 600).toFixed(1)}</b> 点，11-27 收盘未回 600 下方即全清`} · 距回本 516.98 差 <b>${(v - 516.98).toFixed(1)}</b> 点<br>
+<b style="color:var(--dim)">配比 18×0.655=11.79≈12 手（标准 1:0.655）· 767日历史 max 618.1（08-06），620 = 极值上方认错位 · 论点作废线（提前走）：珠海 BP 复产 + PX 减仓 = 燃料熄火</b>`
+  },
+  {
+    id: 'lpp', name: 'L-PP 反套（已平·观察）', note: '2 组已平 @−808 · 落袋 +730 · 全链 4 组 +1,775 · 保留价差观察',
+    calc: q => q.L2701.last - q.PP2701.last,
+    legs: q => 'L ' + q.L2701.last.toFixed(0) + ' / PP ' + q.PP2701.last.toFixed(0),
+    cost: -881, unit: 10, long: true, dec: 0, good: -700, bad: -1020, warn: -990, stop: -1020,
+    closed: true, closedPnl: 730,
+    levels: [{v: -700, t: '原目标', k: 'target'}, {v: -881, t: '原成本保护', k: 'stop'}, {v: -1020, t: '原止损', k: 'stop'}],
+    extra: (q, v) => `<b style="color:var(--dim)">11-20 14:30 全平剩 2 组 <b>@−808</b>（现价差 ${v.toFixed(0)}）· 多 L + 空 PP</b><br>
+<b>收敛 73 点 × 5 元/组 × 2 = <span style="color:var(--up)">+730 元落袋</span></b>；全链 4 组合计 <span style="color:var(--up)">+1,775</span>（11-18 @−777/−770 +1,075 · 11-20 @−808 +730）<br>
+<b style="color:var(--up)">11-20 夜盘放量破 −750 收 −726（PP 单独领跌 −1.76%）</b>——下午「动能衰减」判断被证伪；但距 −700 目标仅 26 点，平仓赔率不对称仍成立<br>
+<b style="color:var(--dim)">重进触发（11-21 更新）：回踩 −750~−765 破位回踩确认 + PP 弱势仍在 → 1 组，目标 −700/−680，止 −800 上；现价不追。</b>`
+  },
+  {
+    id: 'lh', name: 'LH 01-03 反套（两轮已结案·等再入场）', note: '第1轮 +2,640 / 第2轮 −1,840 · 合计 +800 · 保留价差观察',
+    calc: q => q.LH2701.last - q.LH2703.last,
+    legs: q => 'LH01 ' + q.LH2701.last.toFixed(0) + ' / LH03 ' + q.LH2703.last.toFixed(0),
+    cost: 475, unit: 16, dec: 0, good: 300, bad: 570, warn: 520, stop: 570,
+    closed: true, closedPnl: -1840,
+    levels: [{v: 545, t: '161日历史高', k: 'stop'}, {v: 520, t: '触发①极值区', k: 'add'}, {v: 430, t: '触发②回落线', k: 'add'}, {v: 226, t: '161日中枢', k: 'target'}],
+    extra: (q, v) => `<b style="color:var(--down)">第 2 轮 11-24 @475 止损平仓 −1,840</b>（开 360 · 01 涨停锁仓一日后硬线执行）；第 1 轮 +2,640，两轮合计 <span style="color:var(--up)">+800</span><br>
+<b>再入场方案（11-24 定，先决开关缺一不进）</b>：现货止涨——全国均价连 2 日不创新高或回落；或二育出栏启动/栏舍利用率拐头/集团出栏放量<br>
+开关亮后三选一：<b>①</b> 价差冲 520~545 后首根阴线/长上影 → 1 组，止损收盘创新高 570；<b>②</b> 价差跌破 430 且现货已止涨 → 顺势 1 组，止损 500 收盘；<b>③</b> 12-08 起事件窗口（腌腊退潮）开关亮即进<br>
+<b style="color:var(--dim)">161 日 μ=226 σ=106 range 30~545 · 12 月中下旬腌腊退潮+集团冲量+二育集中出栏为机构一致回落窗口 · 本品种两轮一胜一负，第三次入场必须等状态变量亮灯 · 1 组起步上限 2 组 · 无夜盘</b>`
+  },
+  {
+    id: 'pp', name: 'PP 1-5 做窄（4 组·计划上限 6 组）', note: '4 组 · 20 元/点 · 空01多05 · 2组@789 + 2组@813 · 均价 801',
+    calc: q => q.PP2701.last - q.PP2705.last,
+    legs: q => 'PP01 ' + q.PP2701.last.toFixed(0) + ' / PP05 ' + q.PP2705.last.toFixed(0),
+    cost: 801, unit: 20, dec: 0, good: 650, bad: 870, warn: 830, stop: 850,
+    levels: [{v: 700, t: 'T1 平2组', k: 'target'}, {v: 650, t: 'T2', k: 'target'}, {v: 451, t: '127日中枢', k: 'target'},
+             {v: 820, t: '剩2组窗口 820~830', k: 'add'}, {v: 850, t: '收盘止损', k: 'stop'}],
+    extra: (q, v) => `<b>11-23 夜盘 2 组 @789 开仓；22:05 反弹至加仓区加 2 组 @813 → 现 4 组均价 801（空 PP2701 + 多 PP2705）</b><br>
+论点：挤仓退潮——01 OI 8 连降 564k→509k（−9.7%）多头离场 + 库存三口径同累 + 现货补跌<br>
+止损＝<b>日盘收盘</b>价差收复 850 全平（收盘确认制，盘中触线不算）：4 组风险 <b>${((850 - 801) * 20).toFixed(0)} 元</b>；满配 6 组（末 2 组按 ~825）至 850 线 ≈1,230 元、跳空 870 ≈1,830 元<br>
+<b>剩 2 组加仓窗口</b>：再次反弹 820~830 受阻回落实证 → 加至 6 组；<b>破新低不追加、恐慌日不追加</b>；作废线（现货止跌 / 两油库存转降）出现 → 停止加仓并重估论点<br>
+<b style="color:var(--dim)">⚠️ 813 加仓发生在反弹途中（未等回落确认），若反弹续向 830~850 走会先浮亏——纪律不变，850 收盘线不动 · 仓单 2.3 万张/OI 50.9 万手=4.5%，逼仓残余尾部仍在 · 加满 6 组则 L-PP 重进触发作废</b>`
+  },
+  {
+    id: 'ap', name: 'AP 1-5 反套（2 组）', note: '2 组 · 20 元/点 · 空01多05 · 11-24 09:0x @688 开仓 · 无夜盘',
+    calc: q => q.AP2701.last - q.AP2705.last,
+    legs: q => 'AP01 ' + q.AP2701.last.toFixed(0) + ' / AP05 ' + q.AP2705.last.toFixed(0),
+    cost: 688, unit: 20, dec: 0, good: 400, bad: 830, warn: 750, stop: 830,
+    levels: [{v: 500, t: 'T1 平1组', k: 'target'}, {v: 400, t: '移动止盈', k: 'target'}, {v: 300, t: '延伸(μ回归)', k: 'target'},
+             {v: 720, t: '证伪线', k: 'stop'}, {v: 830, t: '收盘止损', k: 'stop'}],
+    extra: (q, v) => `<b>11-24 09:0x @688 开 2 组（空 AP2701 + 多 AP2705；交易所限仓 AP01 每次开仓 ≥2 手，最小合规仓位即 2 组一笔）</b><br>
+论点：挤仓退潮——01 OI 150,398→141,330→<b>盘中续减</b>（减仓+限仓生效）+ 12 月收敛季节窗口 + 昨日涨停系限仓公告前空头回补挤出<br>
+止损＝<b>收盘</b>价差 830 全平（151 点结构宽度，此品种 11-19 曾单日 670→504 后两日拉回 712，剧烈反复是常态）· T1 500 平 1 组 → 剩 1 组移动止盈 400/延伸 300<br>
+<b>补仓裁定（11-24 10:10）：不补</b>——4 组至 830 风险 5,560 元超 2 份预算 39% + 反弹腿上加死码（PP 813 同款）；<b>替代窗口=回落跌破 679 企稳或回踩 660~670 不创新低才加 2 组；反弹 700+ 追补任何时候不做</b><br>
+<b style="color:var(--dim)">证伪线：反弹收复 720 站稳 → 收盘重估离场 · 127 日 μ=8 σ=242 · ⚠️ 无夜盘，止损/止盈只在日盘执行</b>`
+  },
+  {
+    id: 'jjm', name: 'J-JM 焦化利润（已平·观察）', note: '1 组 · 已平仓 · 保留 fee 供后续另寻时机 · 逐腿口径为准',
+    calc: q => q.J2701.last - 1.3 * q.JM2701.last,
+    legs: q => 'J ' + q.J2701.last.toFixed(1) + ' / JM ' + q.JM2701.last.toFixed(1) + ' ×2',
+    cost: 117.05, unit: 108, dec: 1, good: 74, bad: 127, warn: 121, stop: 127,
+    closed: true, closedPnl: 190,
+    levels: [{v: 90, t: '原T1', k: 'target'}, {v: 74, t: '原T2', k: 'target'},
+             {v: 121, t: '原警戒', k: 'stop'}, {v: 127, t: '原止损=作废', k: 'stop'}],
+    extra: (q, v) => `<b style="color:var(--dim)">已平仓 11-18 夜盘 <b>@J 1,892 / JM 1,366</b> · 空 J 1 手 @1,906.5 / 多 JM 2 手 @1,376.5</b><br>
+<b>逐腿（点值口径：J 100 元/点（1 跳 0.5 = 50 元）· JM 60 元/点、2 手 120 元/点（1 跳 0.5 = 30 元、2 手 60 元））</b><br>
+<b>J 空 1 手：(1,906.5 − 1,892) = +14.5 点 × 100 = <span style="color:var(--up)">+1,450</span></b><br>
+<b>JM 多 2 手：(1,366 − 1,376.5) = −10.5 点 × 120 = <span style="color:var(--stop)">−1,260</span></b><br>
+<b>合计 = <span style="color:var(--up)">+190 元</span></b>　⚠️ 注意：120 元/点已含 2 手（60×2），<b>不可再乘手数</b><br>
+卡上实时 fee 仅作观察，<b>不再有持仓、不再执行 T1/止损/时间线</b>。<br>开仓归因「通关恢复」已被证伪（真实驱动＝需求负反馈、JM 增仓 +6,689 新空进场），了结离场、后续另寻时机。`
+  }
+];
+
+// 待触发候选（不开仓，只盯触发价）
+const WATCH = [
+  {name: 'RM 单腿空', calc: q => q.RM2701.last, need: ['RM2701'],
+   legs: q => 'RM ' + q.RM2701.last.toFixed(0),
+   lv: 2290, dir: 'down', note: '2,270-2,290 收阴 + 减仓确认再进 · 止损 2,345 / 目标 2,146 · M>3,170 撤'},
+  {name: 'AP 1-5 反套观察', calc: q => q.AP2701.last - q.AP2705.last, need: ['AP2701', 'AP2705'],
+   legs: q => 'AP01 ' + q.AP2701.last.toFixed(0) + ' / AP05 ' + q.AP2705.last.toFixed(0),
+   lv: 450, dir: 'down', note: '价差回落 <450 或 AP01 减仓收阴再评估 · 现 99 分位只看不做'}
+];
+
+// UR 牛市价差：买 C1740 ×2 + 卖 C1800 ×2，净成本 19.5 点/组，20 元/点，2 组
+// PP 双买已于 2026-11-13 平仓（C @535.5 / P @190），不再跟踪
+// 到期日 2026-12-11。11-24 用户拍板：价格线 <1700/<1690 撤销拿到期；唯一硬线=12-04 复核（UR<1740 全平 / ≥1740 拿到期）
+const UR = { cost: 19.5, unit: 40, be: 1759.5, review: 1740, expiry: '2026-12-11' };
+
+const SEC = {
+  TA2701: '115.TA701', PX2701: '115.PX701',
+  FG2701: '115.FG701', FG2705: '115.FG705',
+  SH2701: '115.SH701', SH2705: '115.SH705',
+  UR2701: '115.UR701', RM2701: '115.RM701', AP2701: '115.AP701', AP2705: '115.AP705',
+  M2701: '114.m2701', PP2701: '114.pp2701', PP2705: '114.pp2705', J2701: '114.j2701', JM2701: '114.jm2701',
+  JD2701: '114.jd2701', JD2705: '114.jd2705', L2701: '114.l2701',
+  LH2701: '114.lh2701', LH2703: '114.lh2703',
+  CU2701: '113.cu2701', CU2703: '113.cu2703',
+  UR_C1740: '141.UR701C1740', UR_C1800: '141.UR701C1800'
+};
+const BACK = {};
+for (const k in SEC) BACK[SEC[k].split('.')[1].toUpperCase()] = k;
+
+let seq = 0;
+function emQuotes() {
+  return new Promise((resolve, reject) => {
+    const name = '__emcb' + (++seq) + Date.now().toString(36);
+    const url = 'https://push2.eastmoney.com/api/qt/ulist.np/get?fltt=2&secids='
+      + Object.values(SEC).join(',')
+      + '&fields=f2,f3,f4,f5,f12,f13,f14,f15,f16,f17,f18,f28,f31,f32,f108&cb=' + name;
+    const s = document.createElement('script');
+    let settled = false;
+    const timer = setTimeout(() => { if (!settled) { settled = true; cleanup(); reject(new Error('超时')); } }, 8000);
+    function cleanup() { clearTimeout(timer); try { delete window[name]; } catch (e) { window[name] = undefined; } if (s.parentNode) s.remove(); }
+    window[name] = function (d) {
+      if (settled) return;
+      settled = true; cleanup();
+      const diff = (d && d.data && d.data.diff) || [];
+      if (!diff.length) return reject(new Error('空数据'));
+      const q = {};
+      for (const x of diff) {
+        const k = BACK[String(x.f12 || '').toUpperCase()];
+        if (!k) continue;
+        q[k] = {
+          last: +x.f2, preSettle: +x.f28 || +x.f18,
+          open: +x.f17, high: +x.f15, low: +x.f16,
+          bid: +x.f31, ask: +x.f32, oi: +x.f108 || 0
+        };
+      }
+      Object.keys(q).length ? resolve(q) : reject(new Error('代码未匹配'));
+    };
+    s.onerror = () => { if (!settled) { settled = true; cleanup(); reject(new Error('脚本加载失败')); } };
+    s.src = url;
+    document.head.appendChild(s);
+  });
+}
+
+async function serverQuotes() {
+  const r = await fetch('/api/q', { cache: 'no-store' });
+  const d = await r.json();
+  if (!r.ok || d.error) throw new Error(d.error || ('HTTP ' + r.status));
+  if (!d.q || !Object.keys(d.q).length) throw new Error('服务器无数据');
+  return d.q;
+}
+
+// 新浪备用：以 script 方式加载（跨域可用），只覆盖期货，无期权
+const SINA_CODES = ['TA2701','PX2701','FG2701','FG2705','SH2701','SH2705','PP2701','PP2705','UR2701','JD2701','JD2705','L2701','J2701','JM2701','LH2701','LH2703','CU2701','CU2703'];
+function sinaQuotes() {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.charset = 'gbk';
+    let settled = false;
+    const timer = setTimeout(() => { if (!settled) { settled = true; cleanup(); reject(new Error('超时')); } }, 6000);
+    function cleanup() { clearTimeout(timer); if (s.parentNode) s.remove(); }
+    s.onload = () => {
+      if (settled) return;
+      settled = true; cleanup();
+      const q = {};
+      for (const c of SINA_CODES) {
+        const raw = window['hq_str_nf_' + c];
+        if (!raw) continue;
+        const f = raw.split(',');
+        if (f.length < 15 || !f[8]) continue;
+        q[c] = { last: +f[8], preSettle: +f[10], open: +f[2], high: +f[3], low: +f[4], bid: +f[6], ask: +f[7], oi: +f[13] };
+      }
+      Object.keys(q).length ? resolve(q) : reject(new Error('空数据'));
+    };
+    s.onerror = () => { if (!settled) { settled = true; cleanup(); reject(new Error('脚本加载失败')); } };
+    s.src = 'https://hq.sinajs.cn/list=' + SINA_CODES.map(c => 'nf_' + c).join(',') + '&_=' + Date.now();
+    document.head.appendChild(s);
+  });
+}
+
+// ---------- 渲染 ----------
+function money(n) {
+  const s = Math.abs(Math.round(n)).toLocaleString('en-US');
+  return (n >= 0 ? '+' : '−') + s;
+}
+function cls(n) { return n > 0 ? 'up' : n < 0 ? 'down' : 'flat'; }
+function daysTo(dt) { return Math.max(0, Math.round((new Date(dt + 'T15:00:00') - new Date()) / 86400000)); }
+function mid(o) { return (o.bid + o.ask) / 2; }
+
+function card(c, q) {
+  let v;
+  try { v = c.calc(q); if (!isFinite(v)) return ''; } catch (e) { return ''; }
+  const pnl = c.closedPnl !== undefined ? c.closedPnl : (c.long ? v - c.cost : c.cost - v) * c.unit;
+  const st = c.closed ? 'ok' : (v >= c.stop ? 'stop' : v >= c.warn ? 'warn' : 'ok');
+  const badge = c.closed ? '已平' : (st === 'stop' ? '触发' : st === 'warn' ? '警戒' : '安全');
+  const pct = Math.max(0, Math.min(1, (v - c.good) / (c.bad - c.good)));
+  const chips = c.levels.map(l =>
+    `<span class="chip ${l.k || ''}">${l.t} ${l.v}</span>`).join('');
+  return `<div class="card ${st === 'stop' ? 'hit' : ''}">
+    <div class="top">
+      <div><div class="name">${c.name}</div><div class="note">${c.note}</div></div>
+      <span class="badge ${st === 'warn' ? 'warn' : st === 'stop' ? 'stop' : ''}">${badge}</span>
+    </div>
+    <div class="val">
+      <span class="big">${v.toFixed(c.dec)}</span>
+      <span class="pnl ${cls(pnl)}">${money(pnl)}</span>
+    </div>
+    <div class="meta"><span>${c.legs(q)}</span><span>成本 ${c.cost}</span></div>
+    <div class="bar"><div class="fill" style="width:${(pct * 100).toFixed(1)}%"></div><div class="mark" style="left:${(pct * 100).toFixed(1)}%"></div></div>
+    <div class="ticks"><span>${c.good} 有利</span><span>${c.bad} 不利</span></div>
+    <div class="lv">${chips}</div>
+    ${c.extra ? `<div class="legs">${c.extra(q, v)}</div>` : ''}
+  </div>`;
+}
+
+function urCard(q) {
+  const a = q.UR_C1740, b = q.UR_C1800, f = q.UR2701;
+  if (!a || !b || !f || !a.bid || !b.bid) {
+    return `<div class="card"><div class="top"><div><div class="name">UR 牛市价差 2 组</div>
+      <div class="note">买 C1740 ×2 + 卖 C1800 ×2 · 净成本 19.5 点</div></div>
+      <span class="badge warn">期权行情缺失</span></div>
+      <div class="legs">${f ? 'UR2701 <b>' + f.last.toFixed(0) + '</b>' : ''} 期权盘口未取到，稍后自动重试</div></div>`;
+  }
+  const vMid = mid(a) - mid(b);
+  const vBid = a.bid - b.ask;              // 立即平仓：卖 C1740 吃 bid，买回 C1800 吃 ask
+  const pnlMid = (vMid - UR.cost) * UR.unit;
+  const pnlBid = (vBid - UR.cost) * UR.unit;
+  const gap = UR.be - f.last;              // 距保本还差多少点
+  const d = daysTo(UR.expiry);
+  const dr = daysTo('2026-12-04');
+  const pastReview = dr <= 0;
+  const bad = pastReview && f.last < UR.review;   // 12-04 起且 <1740 才亮离场
+  const warn = !pastReview && dr <= 3;            // 复核日前 3 天预警
+  const badge = bad ? '复核离场' : gap <= 0 ? '已过保本' : warn ? '临近12-04复核' : '持有到期';
+  const bcls = bad ? 'stop' : (gap <= 0 || warn) ? 'warn' : '';
+  return `<div class="card ${bad ? 'hit' : ''}">
+    <div class="top">
+      <div><div class="name">UR 牛市价差 2 组</div>
+      <div class="note">买 C1740 ×2 + 卖 C1800 ×2 · 净成本 19.5 点 · ${d} 天后到期 · 11-24 拍板：价格线撤销拿到期</div></div>
+      <span class="badge ${bcls}">${badge}</span>
+    </div>
+    <div class="val">
+      <span class="big">${vMid.toFixed(1)}</span>
+      <span class="unit">点 · 中价</span>
+      <span class="pnl ${cls(pnlMid)}">${money(pnlMid)}</span>
+    </div>
+    <div class="meta"><span>立刻平仓（bid/ask）${vBid.toFixed(1)} 点 / <span class="${cls(pnlBid)}">${money(pnlBid)}</span></span><span>最大亏损 780 封顶</span></div>
+    <div class="legs">
+      UR2701 <b>${f.last.toFixed(0)}</b> · 保本 <b>${UR.be}</b> · ${gap > 0 ? '还差 <b>' + gap.toFixed(1) + '</b> 点' : '<b>已过保本 ' + Math.abs(gap).toFixed(1) + '</b> 点'}<br>
+      C1740 <b>${a.bid}</b> / ${a.ask}（成本 31.5）· C1800 <b>${b.bid}</b> / ${b.ask}（成本 12）
+    </div>
+    <div class="lv">
+      <span class="chip stop">12-04 复核：UR&lt;1740 全平 / ≥1740 拿到期</span>
+      <span class="chip stop">到期最大亏损 780 封顶</span>
+      <span class="chip">价格线 &lt;1700/&lt;1690 已撤销</span>
+      <span class="chip">无夜盘</span>
+    </div>
+  </div>`;
+}
+
+// ---------- 组合汇总 ----------
+function pnlRows(q) {
+  const out = [];
+  // CU 01-03 已于 11-20 夜盘双腿平仓，约 +300 落袋，不再计入组合浮动
+  if (q.TA2701 && q.PX2701)
+    out.push(['TA-PX 6组（止损620 / 11-27时间线）', (516.98 - (q.TA2701.last - 0.655 * q.PX2701.last)) * 90]);
+  // L-PP 已于 11-20 @−808 全平，+730 落袋（全链 +1,775），不再计入组合浮动
+  // LH 第 2 轮已于 11-24 @475 止损平仓 −1,840（两轮合计 +800），不再计入组合浮动；再入场等现货止涨开关
+  // AP 1-5 反套 2 组 11-24 @688 开，做空价差（688 - 现价差）× 20 元/点
+  if (q.AP2701 && q.AP2705)
+    out.push(['AP 1-5 反套 2组（开688）', (688 - (q.AP2701.last - q.AP2705.last)) * 20]);
+  // PP 1-5 做窄 4 组（2@789 + 2@813，均价 801），做空价差（801 - 现价差）× 20 元/点
+  if (q.PP2701 && q.PP2705)
+    out.push(['PP 1-5 做窄 4组（均价801）', (801 - (q.PP2701.last - q.PP2705.last)) * 20]);
+  if (q.UR_C1740 && q.UR_C1800 && q.UR_C1740.bid)
+    out.push(['UR 牛市价差 2组', (mid(q.UR_C1740) - mid(q.UR_C1800) - 19.5) * 40]);
+  return out;
+}
+
+function summaryCard(q) {
+  const rows = pnlRows(q);
+  if (!rows.length) return '';
+  const total = rows.reduce((s, r) => s + r[1], 0);
+  return `<div class="card wide">
+    <div class="top">
+      <div><div class="name">组合浮动合计</div><div class="note">4 条持仓（TA-PX / PP / AP / UR）· 占用约 5.8 万（19%，组合单边口径）· 在跑风险约 1.5 万（TA-PX 至 620 线 9,272 + UR 780 + PP 至 850 线 980 + AP 至 830 线 2,840）· 11-24 LH 第2轮 @475 止损 −1,840 落袋不计入浮动</div></div>
+      <span class="badge ${cls(total) === 'up' ? '' : cls(total) === 'down' ? 'warn' : ''}">${total >= 0 ? '浮盈' : '浮亏'}</span>
+    </div>
+    <div class="val"><span class="big pnl ${cls(total)}">${money(total)}</span><span class="unit">元</span></div>
+    <div class="rows">${rows.map(r =>
+      `<div class="r"><span>${r[0]}</span><span class="${cls(r[1])}">${money(r[1])}</span></div>`).join('')}</div>
+  </div>`;
+}
+
+// ---------- 待触发候选 ----------
+function watchCard(q) {
+  const items = WATCH.filter(w => w.need.some(k => q[k] && q[k].last));
+  if (!items.length) return '';
+  const rows = items.map(w => {
+    const miss = w.need.some(k => !q[k] || !q[k].last);
+    if (miss)
+      return `<div class="r"><span>${w.name}</span><span class="flat">-- · 行情缺失</span></div>
+      <div style="font-size:11px;color:var(--hint);margin:0 0 6px">${w.note}</div>`;
+    const v = w.calc(q);
+    const dist = w.dir === 'up' ? w.lv - v : v - w.lv;
+    const fired = dist <= 0;
+    return `<div class="r"><span>${w.name}</span>
+      <span class="${fired ? 'up' : 'flat'}">${v.toFixed(0)} · ${fired ? '已触发' : '差 ' + dist.toFixed(0)}</span></div>
+      <div style="font-size:11px;color:var(--hint);margin:0 0 6px">${w.legs(q)} · ${w.note}</div>`;
+  }).join('');
+  return `<div class="card wide slim">
+    <div class="top"><div><div class="name">待触发候选</div><div class="note">只盯价，不建仓</div></div>
+      <span class="badge">${items.filter(w => w.need.every(k => q[k] && q[k].last) && (w.dir === 'up' ? w.lv - w.calc(q) : w.calc(q) - w.lv) <= 0).length} 个已触发</span></div>
+    <div class="rows">${rows}</div>
+  </div>`;
+}
+
+let inFlight = false;
+
+// 期权盘口缓存：东财偶发失败时复用最近一次成功数据（60 秒内）
+const OPT_KEYS = ['UR_C1740', 'UR_C1800'];
+let lastOpt = null, lastOptAt = 0;
+function cacheOpt(o) {
+  const opt = {};
+  let any = false;
+  for (const k of OPT_KEYS) if (o[k] && o[k].bid) { opt[k] = o[k]; any = true; }
+  if (any) { lastOpt = opt; lastOptAt = Date.now(); }
+}
+function fillOpt(q) {
+  if (q.UR_C1740 && q.UR_C1740.bid) { cacheOpt(q); return false; }
+  if (lastOpt && Date.now() - lastOptAt < 60000) { Object.assign(q, lastOpt); return true; }
+  return false;
+}
+
+async function loadQuotes() {
+  // 1) 东财直连（期货+期权）
+  try { const q = await emQuotes(); cacheOpt(q); return { q, src: '东财直连' }; } catch (e) {}
+  // 2) 新浪直连期货，再单独补抓东财期权
+  try {
+    const q = await sinaQuotes();
+    let src = '新浪直连';
+    try { const o = await emQuotes(); Object.assign(q, o); src = '新浪+东财期权'; } catch (e) {}
+    cacheOpt(q);
+    const usedCache = fillOpt(q);
+    if (usedCache && !/期权/.test(src)) src += '+期权缓存';
+    return { q, src };
+  } catch (e) {}
+  // 3) 服务器转发期货，同样补抓期权
+  try {
+    const q = await serverQuotes();
+    let src = '服务器转发';
+    try { const o = await emQuotes(); Object.assign(q, o); src = '服务器+东财期权'; } catch (e) {}
+    cacheOpt(q);
+    if (fillOpt(q) && !/期权/.test(src)) src += '+期权缓存';
+    return { q, src };
+  } catch (e) {}
+  return { q: null, src: '' };
+}
+
+async function tick() {
+  if (inFlight) return;
+  inFlight = true;
+  let q = null, src = '', errMsg = '';
+  const r = await loadQuotes();
+  q = r.q; src = r.src;
+  if (!q) errMsg = '三个数据源均失败';
+
+  if (!q) {
+    const el = document.getElementById('err');
+    el.textContent = '行情未取到（' + errMsg + '），稍后自动重试';
+    el.style.display = 'block';
+    document.getElementById('stamp').textContent = '未连接';
+    inFlight = false;
+    return;
+  }
+
+  const need = ['TA2701', 'PX2701'];
+  const miss = need.filter(k => !q[k] || !q[k].last);
+  if (miss.length) {
+    const el = document.getElementById('err');
+    el.textContent = '部分行情缺失：' + miss.join(', ');
+    el.style.display = 'block';
+    inFlight = false;
+  } else {
+    document.getElementById('grid').innerHTML =
+      summaryCard(q) +
+      CFG.map(c => card(c, q)).join('') +
+      (q.UR2701 ? urCard(q) : '') +
+      watchCard(q);
+    document.getElementById('err').style.display = 'none';
+  }
+
+  const t = new Date();
+  const p2 = n => String(n).padStart(2, '0');
+  document.getElementById('stamp').textContent =
+    p2(t.getHours()) + ':' + p2(t.getMinutes()) + ':' + p2(t.getSeconds()) + ' · ' + src;
+  inFlight = false;
+}
+
+tick();
+setInterval(tick, 3000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) tick(); });
+</script>
+</body>
+</html>

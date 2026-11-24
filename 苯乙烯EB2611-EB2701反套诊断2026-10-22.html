@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>苯乙烯 EB2611–EB2701 反套诊断（28手 / 成本价差 808）</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  background:#f4f6f9; color:#1a2332; line-height:1.75; font-size:15px;
+}
+.wrap { max-width:1080px; margin:0 auto; padding:0 0 60px; }
+
+/* header */
+.hero {
+  background:linear-gradient(135deg,#12305c 0%,#1f4e8c 55%,#2a6bb5 100%);
+  color:#fff; padding:44px 48px 38px; position:relative; overflow:hidden;
+}
+.hero::after {
+  content:''; position:absolute; right:-60px; top:-60px; width:300px; height:300px;
+  border-radius:50%; background:rgba(255,255,255,.05);
+}
+.hero .tag {
+  display:inline-block; font-size:12px; letter-spacing:2px; padding:4px 12px;
+  border:1px solid rgba(255,255,255,.4); border-radius:2px; margin-bottom:16px;
+}
+.hero h1 { font-size:26px; font-weight:700; letter-spacing:.5px; margin-bottom:10px; }
+.hero .sub { font-size:13.5px; color:rgba(255,255,255,.78); }
+.hero .verdict {
+  margin-top:22px; padding:14px 18px; background:rgba(255,255,255,.12);
+  border-left:3px solid #ffd166; border-radius:3px; font-size:14.5px;
+}
+
+/* sections */
+.sec { background:#fff; margin:20px 24px 0; padding:30px 36px; border-radius:6px; box-shadow:0 1px 3px rgba(20,40,70,.07); }
+.sec h2 {
+  font-size:17px; color:#12305c; font-weight:700; margin-bottom:18px;
+  padding-left:11px; border-left:4px solid #1f4e8c; line-height:1.3;
+}
+.sec h3 { font-size:14.5px; color:#1f4e8c; margin:22px 0 10px; font-weight:600; }
+.sec p { margin-bottom:12px; color:#33404f; }
+.sec p:last-child { margin-bottom:0; }
+
+/* KPI */
+.kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:6px; }
+.kpi { background:#f7f9fc; border:1px solid #e4ebf3; border-radius:5px; padding:16px 14px; text-align:center; }
+.kpi .lbl { font-size:12px; color:#6b7c92; margin-bottom:7px; letter-spacing:.3px; }
+.kpi .val { font-size:21px; font-weight:700; color:#12305c; font-variant-numeric:tabular-nums; }
+.kpi .val.neg { color:#c0392b; }
+.kpi .val.warn { color:#b7791f; }
+.kpi .note { font-size:11.5px; color:#8794a5; margin-top:5px; }
+
+/* table */
+table { width:100%; border-collapse:collapse; font-size:13.5px; margin:14px 0; }
+th {
+  background:#12305c; color:#fff; font-weight:500; padding:10px 11px;
+  text-align:left; font-size:12.5px; letter-spacing:.4px;
+}
+td { padding:9px 11px; border-bottom:1px solid #edf1f6; vertical-align:top; }
+tr:nth-child(even) td { background:#fafbfd; }
+tr.hl td { background:#fff8e8 !important; font-weight:600; }
+tr.now td { background:#fdecea !important; font-weight:600; color:#a93226; }
+td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; }
+.pos { color:#c0392b; font-weight:600; }
+.neg { color:#1e8449; font-weight:600; }
+
+/* chart */
+.chartbox { position:relative; height:300px; margin:18px 0 8px; }
+.cap { font-size:12px; color:#8794a5; text-align:center; margin-top:8px; }
+
+/* boxes */
+.box { border-radius:5px; padding:16px 20px; margin:16px 0; font-size:14px; }
+.box.warn { background:#fff8e8; border-left:3px solid #b7791f; }
+.box.danger { background:#fdecea; border-left:3px solid #c0392b; }
+.box.info { background:#eef4fb; border-left:3px solid #1f4e8c; }
+.box.ok { background:#eef8f2; border-left:3px solid #1e8449; }
+.box b { color:#12305c; }
+.box.danger b { color:#a93226; }
+
+ul.tight { margin:8px 0 8px 20px; }
+ul.tight li { margin-bottom:7px; color:#33404f; }
+
+.plan { border:1px solid #e4ebf3; border-radius:5px; padding:18px 22px; margin:14px 0; }
+.plan.rec { border:2px solid #1f4e8c; background:#f7f9fd; }
+.plan .ph { font-size:15px; font-weight:700; color:#12305c; margin-bottom:10px; }
+.plan .ph span { font-size:12px; font-weight:400; color:#6b7c92; margin-left:8px; }
+
+.foot { margin:24px 24px 0; padding:20px 36px; font-size:12px; color:#8794a5; line-height:1.9; }
+@media (max-width:760px){
+  .kpis{grid-template-columns:repeat(2,1fr);}
+  .hero{padding:32px 24px;} .sec{padding:24px 20px; margin:16px 12px 0;}
+  .foot{margin:18px 12px 0; padding:16px 20px;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hero">
+  <div class="tag">跨期套利持仓诊断</div>
+  <h1>苯乙烯 EB2611 – EB2701 反套</h1>
+  <div class="sub">28 手 ｜ 建仓价差 808 元/吨 ｜ 数据时点 2026-10-22 10:41（盘中实时）</div>
+  <div class="verdict">
+    当前价差 <b>1,115</b>，浮亏 <b>−42,980 元</b>（走扩 307 元/吨）。<br>
+    这不是"浮亏多少"的问题——<b>这个头寸从建仓起就站在结构的反面：空最强（低库存+挤仓）、多最弱（机构一致看空的远月）</b>，而唯一能让价差收敛的机制（交割）落在你的强平线之后。
+  </div>
+</div>
+
+<!-- 1 -->
+<div class="sec">
+  <h2>一、头寸现状</h2>
+  <table>
+    <tr><th>合约</th><th class="num">最新价</th><th class="num">昨结算</th><th class="num">涨跌</th><th class="num">持仓量</th><th class="num">今日区间</th></tr>
+    <tr><td><b>EB2611</b>（空 28 手）</td><td class="num">10,574</td><td class="num">10,315</td><td class="num pos">+2.51%</td><td class="num">256,915</td><td class="num">10,303 – 10,639</td></tr>
+    <tr><td><b>EB2701</b>（多 28 手）</td><td class="num">9,459</td><td class="num">9,376</td><td class="num pos">+0.89%</td><td class="num">63,423</td><td class="num">9,294 – 9,491</td></tr>
+    <tr class="now"><td><b>11 – 01 价差</b></td><td class="num">1,115</td><td class="num">939</td><td class="num">走扩 +176</td><td class="num">—</td><td class="num">—</td></tr>
+  </table>
+
+  <div class="kpis" style="margin-top:20px;">
+    <div class="kpi"><div class="lbl">浮动盈亏</div><div class="val neg">−42,980</div><div class="note">走扩 307 元/吨 × 140 吨</div></div>
+    <div class="kpi"><div class="lbl">今日盯市</div><div class="val neg">−24,640</div><div class="note">单日走扩 176 元/吨</div></div>
+    <div class="kpi"><div class="lbl">双边名义</div><div class="val">280.5 万</div><div class="note">140 吨 × 20,033 元</div></div>
+    <div class="kpi"><div class="lbl">浮亏 / 保证金</div><div class="val warn">−15.3%</div><div class="note">按 10% 计（28.0 万）</div></div>
+  </div>
+  <p style="font-size:12.5px;color:#8794a5;margin-top:14px;">
+    保证金区间：8% → 22.4 万（浮亏占 −19.2%）｜10% → 28.0 万（−15.3%）｜12% → 33.7 万（−12.8%）｜14% → 39.3 万（−11.0%）。期货公司实际加收后，请按你的结算单核对。
+  </p>
+</div>
+
+<!-- 2 -->
+<div class="sec">
+  <h2>二、今天发生了什么：近月再度跑赢，价差单日走扩 176</h2>
+  <p>昨夜苯乙烯是化工板块<b>唯一涨幅超 2%</b>的品种，今日日盘延续，盘中最高 10,639。反套的两条腿同时涨，但近月涨 2.51%、远月只涨 0.89%，价差被动走扩。</p>
+
+  <div class="chartbox"><canvas id="chartSpread"></canvas></div>
+  <div class="cap">价差水平对比｜合理 Carry 约 164 元/吨，你的成本 808 已高于 Carry 644 元，当前 1,115 高于 Carry 951 元</div>
+
+  <div class="box danger" style="margin-top:20px;">
+    <b>反套最怕的不是价格跌，是"近月更强"。</b>今天这个头寸同时承受了两件事：近月涨得更多（价差走扩 176），而你的空腿（2611）是主力合约、25.7 万手持仓还在被资金推动。
+  </div>
+</div>
+
+<!-- 3 -->
+<div class="sec">
+  <h2>三、这 1,115 元里装的是什么</h2>
+  <p>把价差拆开，你会看到问题的本质：</p>
+  <table>
+    <tr><th>构成</th><th class="num">数值</th><th>说明</th></tr>
+    <tr><td>合理 Carry（11月中 → 1月中，约 60 天）</td><td class="num">≈ 164</td><td>仓储 1.5 元/吨·天 × 60 = 90 ＋ 资金 4.5% × 60/365 = 74</td></tr>
+    <tr><td><b>超出 Carry 的现货紧张 + 挤仓溢价</b></td><td class="num" style="color:#c0392b;"><b>≈ 951</b></td><td>低库存 + 极低仓单 + 交割补空，属于"现实溢价"</td></tr>
+    <tr class="now"><td><b>11 – 01 价差合计</b></td><td class="num">1,115</td><td>—</td></tr>
+  </table>
+
+  <h3>那 951 元溢价的支撑，都是硬数据</h3>
+  <ul class="tight">
+    <li><b>苯乙烯华东主港库存 3.5 万吨</b>（10/21 卓创），商品量仅 <b>1.80 万吨</b>；华南 3.5 万吨（环比 −19.9%）</li>
+    <li><b>纯苯华东港库 3.8 万吨，同比 −56.8%</b>——这是整条链最硬的矛盾，10 月进口到货仍少，看不到累库契机</li>
+    <li><b>EB 仓单仅 394 手</b>（10/21 全部新增于厂库），对应几乎没有实盘压力</li>
+    <li>行业开工率 <b>63.46%</b>（−0.98pct）仍处低位，周产 31.83 万吨（−1.52%）</li>
+    <li><b>2611 仍贴水现货 691 元/吨</b>（江苏 11,150–11,380，对 11 合约升水 840–900）</li>
+  </ul>
+
+  <div class="box danger">
+    <b>关键推论：现货锚指向"价差继续走扩"，不是收敛。</b><br>
+    若 2611 完全向现货收敛（11,150）→ 价差 1,691，你的亏损将扩大到 <b>−12.4 万</b>；收敛到现货中值（11,265）→ 价差 1,806，亏损 <b>−14.0 万</b>。这不是预测，是告诉你这个方向的上限在哪里。
+  </div>
+</div>
+
+<!-- 4 -->
+<div class="sec">
+  <h2>四、三条结构性硬伤</h2>
+
+  <h3>硬伤一：你空的是最强的一段，多的是最弱的一段</h3>
+  <p>11–01 是当前全市场最深的 Back 之一。被空的那个（2611）是低库存、低仓单、交割补空的<b>强现实</b>；被多的那个（2701）是机构一致看空的<b>弱预期</b>：</p>
+  <ul class="tight">
+    <li><b>供应回归确定</b>：壳牌 70 万吨<b>下周重启</b>、天津大沽 50 万吨月底回归、部分一体化装置已因利润修复提负</li>
+    <li><b>需求进入淡季</b>：下游 3S 开工 46.0–48.8%，PS 仅 35.5%，ABS 55.2% 且亏损加剧，对高价原料普遍抵触</li>
+    <li><b>机构口径高度一致</b>：广发「远月谨慎偏空」、中信「震荡，关注 11 合约 10,200 支撑」、东吴「上涨持续性存疑」、南华/国投「近月震荡、远月偏空」</li>
+  </ul>
+  <p>反套在 Back 结构里的经典困境就是这句：<b>空最贵的，多最便宜的，而便宜的那个还在变得更便宜的理由里。</b></p>
+
+  <h3>硬伤二：唯一能让 951 元溢价消失的机制，你吃不到</h3>
+  <p>那 951 元的收敛路径只有一条——<b>11 月合约进交割月，向现货收敛或现货向期货回落</b>。但你是自然人客户，<b>10-30 收盘前必须平仓</b>。今天 10-22，剩余交易日只有 <b>7 个</b>（22、23、26、27、28、29、30）。</p>
+  <div class="box warn">
+    换句话说：<b>你持有一个需要 3 周才能兑现的逻辑，但只有 7 个交易日。</b>这和"抗一抗就回来了"是两回事——时间本身就是成本，而且是递减的。
+  </div>
+
+  <h3>硬伤三：挤仓弹性仍在，且今天正在发生</h3>
+  <p>EB2611 持仓 25.7 万手、今日成交 79 万手，仍是主力；仓单只有 394 手（占持仓 0.15%）。这种"大持仓 + 零仓单"的组合，在交割月前的补空阶段极易被拉升——今天 +2.51%、盘中振幅 336 元/吨就是例证。</p>
+</div>
+
+<!-- 5 -->
+<div class="sec">
+  <h2>五、赔率：向上的空间已经不属于你</h2>
+  <table>
+    <tr><th>价差</th><th class="num">你的盈亏</th><th>触发条件</th></tr>
+    <tr><td>600</td><td class="num pos">+29,120</td><td>需近月暴跌 500+ 且远月不动，7 天内概率极低</td></tr>
+    <tr><td>700</td><td class="num pos">+15,120</td><td>需回吐本轮全部涨幅并再跌</td></tr>
+    <tr class="hl"><td><b>808（你的成本）</b></td><td class="num">0</td><td>需收敛 307，即近月跌回 10,267</td></tr>
+    <tr><td>939（昨结算）</td><td class="num neg">−18,340</td><td>需收敛 176，回到昨天水平</td></tr>
+    <tr><td>1,024（昨收盘）</td><td class="num neg">−30,240</td><td>需收敛 91</td></tr>
+    <tr class="now"><td><b>1,115（当前）</b></td><td class="num">−42,980</td><td>—</td></tr>
+    <tr><td>1,200</td><td class="num neg">−54,880</td><td>2611 再涨 0.8% 即到</td></tr>
+    <tr><td>1,300</td><td class="num neg">−68,880</td><td>2611 涨到 10,759（距今日高点仅 120）</td></tr>
+    <tr><td>1,691（2611 追平现货低端）</td><td class="num neg">−123,620</td><td>交割月收敛的极端情形</td></tr>
+  </table>
+
+  <div class="chartbox"><canvas id="chartPL"></canvas></div>
+  <div class="cap">盈亏随价差变化｜140 吨规模，成本线 808</div>
+
+  <div class="box danger" style="margin-top:20px;">
+    <b>赔率已经明显不对称：</b>回到成本（−307 元走扩要收回）需要近月回吐今日全部涨幅并再跌，概率不高；而再走扩 85 元（到 1,200）只需要一次普通的上涨，亏损就扩大到 5.5 万。<br>
+    <b>更关键的是：</b>你现在的"回本"依赖一个已经在减弱的变量——近月强势。而今天的数据显示它不但没减弱，反而在加强。
+  </div>
+</div>
+
+<!-- 6 -->
+<div class="sec">
+  <h2>六、处置方案</h2>
+
+  <div class="plan rec">
+    <div class="ph">方案 A（推荐）：立即减半，余仓设死线 <span>降风险，保留反弹机会</span></div>
+    <p><b>现在平 14 手 EB2611 + 14 手 EB2701</b>，实现亏损约 <b>−21,490 元</b>。</p>
+    <p>剩余 14 手设两条硬线，任一触发即全平：</p>
+    <ul class="tight">
+      <li><b>价差 ≥ 1,200</b>（2611 到 10,659 或 2701 到 9,374）→ 全平，追加亏损约 −4,270</li>
+      <li><b>10-28 收盘</b>无条件全平，不留到 10-29、10-30 的集中平仓日</li>
+      <li>若价差回落到 <b>950 以下</b>，可把余仓也平掉（此时总亏损收窄到约 −1.7 万）</li>
+    </ul>
+    <p style="color:#6b7c92;font-size:13px;">理由：减半把"单日 −2.5 万"的风险敞口砍掉一半，同时不放弃一次近月回吐的可能。这是当前价位上最平衡的选择。</p>
+  </div>
+
+  <div class="plan">
+    <div class="ph">方案 B：全部平仓 <span>干净离场</span></div>
+    <p>立即平 28 手双边，实现亏损 <b>约 −42,980 元</b>（另加滑点与手续费，实兑约 −4.4 万）。</p>
+    <p>适合情形：你不打算再关注这个品种，或这笔仓位已占用过多保证金（按 10% 计 28 万，占浮亏 15%）。<b>好处是把"7 个交易日的未知"一次性切断。</b></p>
+    <p style="color:#6b7c92;font-size:13px;">如果你判断近月还会继续被挤（今天确实有这个迹象），这个方案会让你错过一次回吐——但也会让你避开 −12 万的极端尾部。</p>
+  </div>
+
+  <div class="plan">
+    <div class="ph">方案 C：全额持有 + 铁纪律 <span>只在一种前提下考虑</span></div>
+    <p>仅当你满足两个条件才选这个：①这笔亏损在你的总资金承受范围内；②你能严格执行下面的止损，不临场改主意。</p>
+    <ul class="tight">
+      <li><b>硬止损：价差 1,200</b>（对应再亏 1.2 万），无条件执行</li>
+      <li><b>时间止损：10-28 收盘</b>，无论盈亏全部平仓</li>
+      <li><b>止盈：价差回落到 900 以下</b>先平一半，回到 850 全平</li>
+    </ul>
+    <p style="color:#a93226;"><b>明确不建议：</b>在这个位置加仓摊低成本。1,115 不是"异常高"，它是"现实溢价"，加仓等于把同一个错误放大两倍。</p>
+  </div>
+</div>
+
+<!-- 7 -->
+<div class="sec">
+  <h2>七、接下来必须盯的四件事</h2>
+  <table>
+    <tr><th>变量</th><th>当前</th><th>怎么看</th></tr>
+    <tr><td>华东主港库存</td><td>3.5 万吨（商品量 1.80）</td><td>若下周继续去库 → 近月更强，价差还要扩；若开始累库 → 你的机会来了</td></tr>
+    <tr><td>壳牌 70 万吨重启</td><td>下周计划</td><td><b>最重要的利空兑现点</b>；若推迟，反套继续亏</td></tr>
+    <tr><td>EB2611 持仓量</td><td>25.7 万手</td><td>若快速降到 15 万手以下，说明多头撤退、挤仓逻辑瓦解</td></tr>
+    <tr><td>江苏现货升水</td><td>对 11 合约 +840~900</td><td>升水收敛到 +300 以内，才是反套真正的转机</td></tr>
+  </table>
+
+  <div class="box info">
+    <b>一个需要你知道的口径问题：</b>本报告价差用「盘中价 − 盘中价」，与你软件的"套利价差"应一致；但若跨日比较，请统一用<b>结算价</b>口径（昨结算价差 939），否则会因收盘/结算差异出现几十元的偏差。库存数据同日有两个口径（卓创 3.5 万吨 / 隆众 3.31 万吨，统计范围与日期不同），均指向历史低位，不影响定性判断。
+  </div>
+</div>
+
+<!-- 8 -->
+<div class="sec">
+  <h2>八、一句话总结</h2>
+  <div class="box ok">
+    <b>方向可能没错，位置和时间都错了。</b><br>
+    808 建仓时，价差已高出合理 Carry 644 元——你赌的是那部分"现货溢价"会消失。但它消失的唯一路径是交割，而你在 10-30 就必须离场。这不是判断问题，是<b>工具与逻辑不匹配</b>：想赚交割收敛的钱，需要能持有进交割月的账户，或者用 EB2612–2701 这种不受强平约束的组合去表达。
+  </div>
+</div>
+
+<div class="foot">
+  <b>数据来源</b>：新浪财经实时盘口（2026-10-22 10:41:40）、大连商品交易所延时行情（2026-10-22 05:06）、卓创资讯/隆众资讯库存数据（10/21）、广发期货与中信期货日报（10/22）、同花顺《金航能早评 1022》。<br>
+  <b>计算口径</b>：EB 合约乘数 5 吨/手；浮亏 =（成本价差 − 当前价差）× 手数 × 5；保证金按双边名义 × 比例估算，未含期货公司加收与交易所临时调整。<br>
+  <b>免责声明</b>：以上基于公开数据与量化测算，仅供参考，不构成投资建议。市场有风险，投资需谨慎。任何投资决策应结合个人风险承受能力、资金状况与投资目标独立判断，必要时咨询持牌专业机构。
+</div>
+
+</div>
+
+<script>
+const C = {navy:'#12305c', blue:'#1f4e8c', light:'#2a6bb5', red:'#c0392b', green:'#1e8449', gold:'#b7791f', grey:'#8794a5'};
+
+// 图1 价差水平对比
+new Chart(document.getElementById('chartSpread'), {
+  type: 'bar',
+  data: {
+    labels: ['合理Carry', '10-19结算', '你的成本', '昨结算', '昨收盘', '当前'],
+    datasets: [{
+      data: [164, 795, 808, 939, 1024, 1115],
+      backgroundColor: [C.grey, C.light, C.navy, '#5b8fc9', '#e8a33d', C.red],
+      borderRadius: 3,
+      barPercentage: 0.62
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: {display: false},
+      tooltip: {callbacks: {label: c => '价差 ' + c.parsed.y + ' 元/吨'}}
+    },
+    scales: {
+      y: {beginAtZero: true, title: {display: true, text: '11–01 价差（元/吨）', color: C.grey, font: {size: 12}},
+          grid: {color: '#eef1f5'}},
+      x: {grid: {display: false}, ticks: {color: '#5a6b80', font: {size: 12}}}
+    }
+  }
+});
+
+// 图2 盈亏敏感度
+const xs = [600, 700, 808, 900, 1000, 1115, 1200, 1300, 1500, 1691];
+const ys = xs.map(x => (808 - x) * 140);
+new Chart(document.getElementById('chartPL'), {
+  type: 'bar',
+  data: {
+    labels: xs.map(x => x.toLocaleString()),
+    datasets: [{
+      data: ys,
+      backgroundColor: ys.map(v => v >= 0 ? C.green : C.red),
+      borderRadius: 3,
+      barPercentage: 0.66
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: {display: false},
+      tooltip: {callbacks: {label: c => '盈亏 ' + c.parsed.y.toLocaleString() + ' 元'}}
+    },
+    scales: {
+      y: {title: {display: true, text: '盈亏（元 / 140 吨）', color: C.grey, font: {size: 12}},
+          grid: {color: '#eef1f5'}, ticks: {callback: v => (v/10000).toFixed(0) + '万'}},
+      x: {grid: {display: false}, title: {display: true, text: '11–01 价差（元/吨）', color: C.grey, font: {size: 12}}}
+    }
+  }
+});
+</script>
+</body>
+</html>

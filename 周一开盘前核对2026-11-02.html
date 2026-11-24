@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>周一开盘前核对 · 2026-11-02</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0 0 70px;
+    background: #f4f6f8; color: #1f2733;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.7; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 0 22px; }
+  header {
+    background: linear-gradient(135deg, #14243d 0%, #1d3a63 60%, #24507f 100%);
+    color: #fff; padding: 32px 0 28px; margin-bottom: 24px;
+  }
+  header .wrap { padding-top: 0; }
+  header h1 { font-size: 24px; margin: 0 0 8px; letter-spacing: .5px; }
+  header .sub { font-size: 13.5px; opacity: .82; }
+  header .tagline { margin-top: 13px; font-size: 13px; background: rgba(255,255,255,.10); display: inline-block; padding: 6px 13px; border-radius: 20px; }
+  h2 { font-size: 18px; margin: 32px 0 13px; padding-left: 11px; border-left: 4px solid #24507f; color: #14243d; }
+  p { margin: 9px 0; font-size: 14.5px; }
+  .cards { display: flex; gap: 13px; flex-wrap: wrap; margin: 18px 0 6px; }
+  .card {
+    flex: 1 1 220px; background: #fff; border-radius: 12px; padding: 15px 17px;
+    box-shadow: 0 2px 10px rgba(20,36,61,.07); border-top: 3px solid #24507f;
+  }
+  .card.warn { border-top-color: #d9822b; }
+  .card.danger { border-top-color: #c0392b; }
+  .card.good { border-top-color: #0a8f4d; }
+  .card .k { font-size: 12px; color: #6b7787; letter-spacing: .4px; margin-bottom: 6px; }
+  .card .v { font-size: 20px; font-weight: 700; color: #14243d; }
+  .card .d { font-size: 12.5px; color: #5a6675; margin-top: 7px; }
+  .panel { background: #fff; border-radius: 12px; padding: 17px 19px 13px; margin: 17px 0; box-shadow: 0 2px 10px rgba(20,36,61,.06); }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin: 6px 0 4px; }
+  th, td { padding: 9px 10px; text-align: left; border-bottom: 1px solid #eaeef2; vertical-align: top; }
+  th { background: #f0f4f8; color: #33445c; font-weight: 600; font-size: 12.6px; letter-spacing: .3px; }
+  tr:last-child td { border-bottom: none; }
+  td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .up { color: #d9342b; font-weight: 600; }
+  .down { color: #0a8f4d; font-weight: 600; }
+  .badge { display: inline-block; font-size: 11.5px; padding: 2px 8px; border-radius: 10px; background: #eef3f9; color: #24507f; margin-right: 4px; white-space: nowrap; }
+  .badge.hot { background: #fdeeea; color: #c0392b; }
+  .badge.calm { background: #eef6f0; color: #0a8f4d; }
+  .badge.hold { background: #f4f0e6; color: #8a6d1f; }
+  .note { background: #fff8ef; border-left: 4px solid #d9822b; border-radius: 0 10px 10px 0; padding: 12px 15px; margin: 15px 0; font-size: 13.8px; }
+  .note.red { background: #fdf1ef; border-left-color: #c0392b; }
+  .note.green { background: #f0f7f3; border-left-color: #0a8f4d; }
+  .note b { color: #14243d; }
+  ul { margin: 8px 0 8px 4px; padding-left: 20px; font-size: 14.2px; }
+  li { margin: 6px 0; }
+  .bar { position: relative; height: 26px; background: #eef1f5; border-radius: 6px; overflow: hidden; }
+  .bar .seg { position: absolute; top: 0; height: 100%; }
+  .axis { position: relative; height: 34px; font-size: 11.5px; color: #6b7787; }
+  .axis span { position: absolute; transform: translateX(-50%); top: 2px; white-space: nowrap; }
+  .axis i { position: absolute; top: -6px; height: 8px; width: 1px; background: #b9c2cd; }
+  .mark { position: absolute; top: -5px; width: 2px; height: 36px; background: #c0392b; }
+  .mark b { position: absolute; top: -19px; left: 50%; transform: translateX(-50%); font-size: 11px; color: #c0392b; white-space: nowrap; font-weight: 600; }
+  .mono { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12.5px; }
+  .fact { font-size: 12.8px; color: #4d5a68; }
+  .foot { font-size: 12px; color: #7b8795; margin-top: 26px; padding-top: 14px; border-top: 1px solid #e2e8ee; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>周一开盘前核对 · 2026-11-02</h1>
+    <div class="sub">数据截止：周五夜盘 23:00 收盘（部分品种至次日 02:30）。生成时间：11-01 18:45</div>
+    <div class="tagline">第一件事：SI 8,560 只差 15 点。第二件事：撤销 "3,650 买回 C3800" 那条规则。</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="cards">
+    <div class="card warn">
+      <div class="k">SI2701 现价</div>
+      <div class="v">8,575</div>
+      <div class="d">距止损线 8,560 仅 <b>15 点</b>；周五低点 8,565，<b>差 5 点</b>。期权报价取不到，见下方缺口说明。</div>
+    </div>
+    <div class="card good">
+      <div class="k">MA 组合浮盈亏</div>
+      <div class="v">+27 元</div>
+      <div class="d">卖 C3800 −627，卖 P3200×2 +654。组合在 3,500–3,800 之间几乎是一条横线。</div>
+    </div>
+    <div class="card">
+      <div class="k">MA2701 夜盘收</div>
+      <div class="v">3,613 <span class="up" style="font-size:14px">+4.33%</span></div>
+      <div class="d">夜盘振幅 124 点（3.6%），持仓 94.2 万（+6.1 万），成交 152 万手。</div>
+    </div>
+    <div class="card danger">
+      <div class="k">保证金占用（估）</div>
+      <div class="v">≈ 2.97 万</div>
+      <div class="d">MA 期权 8,809（实测）+ SI 期货 10,290 + SI 期权估 10,560。以你账户实收为准。</div>
+    </div>
+  </div>
+
+  <h2>一、持仓三个数字（已按同一价位重算）</h2>
+  <div class="panel">
+    <table>
+      <tr><th>持仓</th><th>建仓</th><th>当前值</th><th>浮盈亏</th><th>状态</th></tr>
+      <tr>
+        <td>SI2701 多 2 手</td><td class="num">8,675</td><td class="num">8,575</td>
+        <td class="num down">−1,000</td><td><span class="badge hot">距止损 15 点</span></td>
+      </tr>
+      <tr>
+        <td>SI 卖 C8800 × 2</td><td class="num">102 /吨（收 1,020）</td><td class="num">报价缺失</td>
+        <td class="num">无法核算</td><td><span class="badge hot">数据缺口</span></td>
+      </tr>
+      <tr>
+        <td>MA 卖 C3800 × 1</td><td class="num">113.5</td><td class="num">176.2</td>
+        <td class="num down">−627</td><td><span class="badge hold">持有吃 theta</span></td>
+      </tr>
+      <tr>
+        <td>MA 卖 P3200 × 2</td><td class="num">106.75</td><td class="num">74.1</td>
+        <td class="num up">+654</td><td><span class="badge calm">上涨中在赚钱</span></td>
+      </tr>
+      <tr>
+        <td>A 豆一 put 价差 2 组</td><td class="num">96.5</td><td class="num">—</td>
+        <td class="num down">−260（预估）</td><td><span class="badge">周一开盘平掉</span></td>
+      </tr>
+      <tr>
+        <td>（已平）C3750 × 2</td><td class="num">124.5 买回 177.5</td><td class="num">—</td>
+        <td class="num down">−1,060 已实现</td><td><span class="badge">已了结</span></td>
+      </tr>
+    </table>
+    <div class="note green">
+      <b>MA 组合是打平的，不是浮亏。</b>上周五我按 "C3800 −605、P3200 +5" 报过一次 −600，那个算法把 P3200 在 <span class="mono">MA=3,476</span> 时的报价（106）套到了 <span class="mono">MA=3,613</span> 上。同一价位重算后，P3200 只值 74.1，这条腿是赚 654 的。净 delta 只有 −0.1 元/点，这是一条接近中性的宽跨式。
+    </div>
+  </div>
+
+  <h2>二、MA：周一涨跌，你亏多少</h2>
+  <div class="panel">
+    <table>
+      <tr><th>MA 价格</th><th>涨跌</th><th>C3800</th><th>P3200</th><th>组合盈亏</th><th>较 3,613 变化</th></tr>
+      <tr><td class="num">3,300</td><td class="num down">−8.66%</td><td class="num">74</td><td class="num">166</td><td class="num down">−787</td><td class="num">−814</td></tr>
+      <tr><td class="num">3,400</td><td class="num down">−5.90%</td><td class="num">100</td><td class="num">130</td><td class="num down">−333</td><td class="num">−360</td></tr>
+      <tr><td class="num">3,500</td><td class="num down">−3.13%</td><td class="num">133</td><td class="num">101</td><td class="num">−66</td><td class="num">−93</td></tr>
+      <tr style="background:#f7fafd"><td class="num"><b>3,613</b></td><td class="num">0.00%</td><td class="num">176</td><td class="num">74</td><td class="num up"><b>+27</b></td><td class="num">0</td></tr>
+      <tr><td class="num">3,650</td><td class="num up">+1.02%</td><td class="num">192</td><td class="num">67</td><td class="num">+13</td><td class="num">−14</td></tr>
+      <tr><td class="num">3,700</td><td class="num up">+2.41%</td><td class="num">215</td><td class="num">58</td><td class="num">−40</td><td class="num">−67</td></tr>
+      <tr><td class="num">3,800</td><td class="num up">+5.18%</td><td class="num">266</td><td class="num">43</td><td class="num down">−250</td><td class="num">−277</td></tr>
+      <tr><td class="num">3,900</td><td class="num up">+7.94%</td><td class="num">322</td><td class="num">32</td><td class="num down">−588</td><td class="num">−615</td></tr>
+      <tr><td class="num">4,000</td><td class="num up">+10.71%</td><td class="num">384</td><td class="num">23</td><td class="num down">−1,037</td><td class="num">−1,064</td></tr>
+      <tr><td class="num">4,100</td><td class="num up">+13.48%</td><td class="num">451</td><td class="num">17</td><td class="num down">−1,582</td><td class="num">−1,609</td></tr>
+    </table>
+    <p class="fact">假设 IV 不变（C3800 用 50.84%，P3200 用 47.48%），剩 30 个交易日。若 IV 同步回落，卖方额外受益（组合 vega −120 元/pt）。日 theta 约 +58 元。</p>
+  </div>
+
+  <div class="note red">
+    <b>我要撤回一条上周给的规则："MA 跳空开在 3,650 以上，按开盘价直接买回 C3800。"</b>
+    按上面的表，MA 到 3,650 时组合只亏 <b>14 元</b>。这时候买回 C3800 要付 192，单腿实亏 −785，把一条中性结构改成"只剩 2 张裸卖 put"——下方反而没了 call 的缓冲。3,400 时那种结构会亏到 −333（含 call 的话），只剩 put 会更差。
+    <br><br>
+    <b>改后的规则：</b>真正的失效点是 P3200 的对冲价值衰减到不能为止损。P3200 在 MA=3,800 时值 43，在 3,900 时值 32——<b>3,850 以上，这道对冲才算真的没了</b>。所以处理 C3800 的触发线从 3,650/3,700 上移到 <b>3,850</b>，并且要看组合亏损（−400 左右）而不是单腿。
+  </div>
+
+  <h2>三、六条触发线离现价多远</h2>
+  <div class="panel">
+    <div class="bar">
+      <div class="seg" style="left:0%;width:100%;background:linear-gradient(90deg,#f6e6e3,#e8f0e9 45%,#e8f0e9 70%,#f6e6e3);"></div>
+      <div class="mark" style="left:50%"><b>现价 3,613</b></div>
+      <div class="mark" style="left:52.2%;background:#d9822b"><b>3,650</b></div>
+      <div class="mark" style="left:58.9%;background:#c0392b"><b>3,850</b></div>
+      <div class="mark" style="left:44.7%;background:#0a8f4d"><b>3,400</b></div>
+    </div>
+    <div class="axis">
+      <i style="left:8%"></i><span style="left:8%">3,450</span>
+      <i style="left:35%"></i><span style="left:35%">3,540</span>
+      <i style="left:50%"></i><span style="left:50%">3,613</span>
+      <i style="left:70%"></i><span style="left:70%">3,680</span>
+      <i style="left:92%"></i><span style="left:92%">3,750</span>
+    </div>
+    <table style="margin-top:14px">
+      <tr><th>标的</th><th>触发条件</th><th>触发价</th><th>现价</th><th>距离</th><th>动作</th></tr>
+      <tr>
+        <td><b>SI2701</b></td><td>跌破</td><td class="num">8,560</td><td class="num">8,575</td>
+        <td class="num down"><b>−15 点（−0.17%）</b></td>
+        <td>期货卖 1 手 + 买回 C8800 1 手，同步</td>
+      </tr>
+      <tr>
+        <td><b>JM2701</b></td><td>反抽到</td><td class="num">1,438</td><td class="num">1,408</td>
+        <td class="num up">+30 点（+2.13%）</td>
+        <td>空 1 手；止损 1,468；目标 1,340（赔率 3.27:1）</td>
+      </tr>
+      <tr>
+        <td><b>JM2701</b></td><td>跌破</td><td class="num">1,384</td><td class="num">1,408</td>
+        <td class="num down">−24 点（−1.70%）</td>
+        <td>破位后回抽 1,395–1,400 空，止损 1,412（赔率 4.76:1）</td>
+      </tr>
+      <tr>
+        <td><b>MA2701</b></td><td>站上</td><td class="num">3,850</td><td class="num">3,613</td>
+        <td class="num up">+237 点（+6.56%）</td>
+        <td>P3200 对冲失效，才考虑处理 C3800（见上节）</td>
+      </tr>
+      <tr>
+        <td><b>MA2701</b></td><td>跌破</td><td class="num">3,400</td><td class="num">3,613</td>
+        <td class="num down">−213 点（−5.90%）</td>
+        <td>买回 P3200 × 1，降低下方敞口</td>
+      </tr>
+      <tr>
+        <td><b>ZN2701</b></td><td>涨到</td><td class="num">25,970</td><td class="num">25,610</td>
+        <td class="num up">+360 点（+1.41%）</td>
+        <td>挂空 1 手；止损 26,180；目标 25,200（73% 概率被扫，只观察）</td>
+      </tr>
+    </table>
+    <p class="fact">ZN 周五夜盘又跌 1.18%（25,610），离挂空区反而远了 1.41%。这个价位更接近箱体中下部，追空赔率比上周更差。</p>
+  </div>
+
+  <h2>四、周末两条消息，方向相反</h2>
+  <div class="panel">
+    <table>
+      <tr><th>方向</th><th>消息</th><th>对我的持仓</th></tr>
+      <tr>
+        <td><span class="badge calm">缓和</span></td>
+        <td>伊朗外长阿拉格齐称美方重启谈判是"积极一步"，霍尔木兹重开方案执行期从 <b>7 天缩短到 2 天</b>；代表团已在多哈与卡塔尔调解方会谈。鲁比奥称特朗普更倾向外交解决。（华尔街见闻、金融界，2026-11-01）</td>
+        <td>油价回落 → 化工整体回吐 → <b>MA 低开，对卖 call 有利</b>；SI 受风险偏好回升支撑</td>
+      </tr>
+      <tr>
+        <td><span class="badge hot">升级</span></td>
+        <td>伊朗自 <b>11/1 起</b>对韩国 Sinokor 全部船队实施禁令（该公司占霍尔木兹 VLCC 通行量逾 50%）；革命卫队 10/30 宣布四艘"违规"油轮爆炸起火；美国警告海湾国家为 11/3 中期选举后的打击做准备。（网易/华尔街见闻、今日头条，2026-11-01）</td>
+        <td>供给端仍紧 → 油价可能反手跳涨 → <b>MA 高开风险未消除</b></td>
+      </tr>
+    </table>
+    <div class="note">
+      <b>不要因为"有和谈消息"就把 MA 的止损线往下压。</b>周五暗盘油价只跌 1%，说明市场没当真。真正的判定点在<b>周一 9:00 化工板块怎么开</b>：如果 SC、PP、L、EB 集体低开 2% 以上，MA 大概率跟跌，你的组合往下走；如果平开或高开，说明市场认供给端的账。
+    </div>
+  </div>
+
+  <h2>五、本周日历</h2>
+  <div class="panel">
+    <table>
+      <tr><th>日期</th><th>事件</th><th>影响</th></tr>
+      <tr><td>11/2（一）</td><td>开盘；A put 价差平仓</td><td>—</td></tr>
+      <tr><td><b>11/3（二）</b></td><td><b>美国中期选举</b></td><td>美方被曝计划选举后打击伊朗；商品波动放大，持仓过夜要有准备</td></tr>
+      <tr><td>11/6（五）</td><td>美国非农；SI2612 期权到期</td><td>非农影响加息定价；你持的是 SI2701 期权（12/07 到期），不受 11/6 影响</td></tr>
+      <tr><td>12/07（一）</td><td>SI2701 期权到期</td><td>剩 25 个交易日</td></tr>
+      <tr><td>12/11（五）</td><td>MA701 期权到期</td><td>剩 30 个交易日</td></tr>
+    </table>
+  </div>
+
+  <h2>六、开盘前你需要做的五件事</h2>
+  <div class="panel">
+    <ul>
+      <li><b>① 报一下 SI 卖 C8800 的现价。</b>这条我拿不到——hitick 不支持广期所期权（返回"failed to compute forward"），广期所官网接口返回 520，东财期权列表里没有 SI。没有这个数，我没法告诉你 8,560 触发时买回要花多少钱。</li>
+      <li><b>② 确认 SI 两条指令能同时发出。</b>期货卖 1 手和买回 C8800 必须同步，不能先做一边——8,560 是双重不利线，期货亏和卖 call 亏会一起扩大。</li>
+      <li><b>③ 把 MA 的止损单从 3,650/3,700 改到 3,850。</b>按第二节的表，3,650 时你只亏 14 元，那条线会在最不该动的时候让你动。</li>
+      <li><b>④ 核一下保证金够不够。</b>估算占用 2.97 万：MA 期权 8,809（hitick 实测 short_margin）+ SI 期货约 10,290 + SI 期权估 10,560。MA 若继续涨，卖 call 的保证金会往上加；SI 若跌破 8,560，卖 1 手期货还要再占约 5,100。</li>
+      <li><b>⑤ A 的 put 价差开盘就平</b>，认 −260。不要等，这个仓位已经没有继续持有的理由。</li>
+    </ul>
+  </div>
+
+  <h2>七、两条待开仓，条件不变但要知道现实概率</h2>
+  <div class="panel">
+    <table>
+      <tr><th>品种</th><th>入场</th><th>止损</th><th>目标</th><th>赔率</th><th>现实概率</th></tr>
+      <tr>
+        <td>JM2701 空（反抽）</td><td class="num">1,438</td><td class="num">1,468</td><td class="num">1,340</td>
+        <td class="num up">3.27 : 1</td>
+        <td>夜盘已反抽到 1,415.5，距 1,438 还差 22.5 点。20 日胜率 77%（13 次样本）</td>
+      </tr>
+      <tr>
+        <td>JM2701 空（破位）</td><td class="num">1,395–1,400</td><td class="num">1,412</td><td class="num">1,314</td>
+        <td class="num up">4.76 : 1</td>
+        <td>需先跌破 1,384（差 24 点），且持仓增到 44 万以上才确认</td>
+      </tr>
+      <tr>
+        <td>ZN2701 空</td><td class="num">25,970–26,070</td><td class="num">26,180</td><td class="num">25,200</td>
+        <td class="num up">3.8 : 1</td>
+        <td>20 日胜率仅 53%，止损被扫概率 73%。<b>只观察，不主动追</b></td>
+      </tr>
+      <tr>
+        <td>TA P6200 卖（未开）</td><td class="num">挂 bid 117.5</td><td class="num">—</td><td class="num">—</td>
+        <td class="num">—</td>
+        <td>TA 周五夜盘涨 3.02% 到 6,820，这个 put 已明显变便宜。<b>117.5 大概率挂不到，需要用新价重算</b></td>
+      </tr>
+    </table>
+  </div>
+
+  <h2>八、这份文档里哪些是事实，哪些是我的推断</h2>
+  <div class="panel">
+    <p><b>可验证事实</b>（均有来源或可复核的调用）：</p>
+    <ul style="font-size:13.5px">
+      <li>MA2701 夜盘收 3,613、涨 4.33%、高 3,615、低 3,491、持仓 941,749。来源：新浪财经 <span class="mono">nf_MA2701</span>，2026-11-01 18:40 调用。</li>
+      <li>C3800 在 MA=3,613 时 bid 170.5 / ask 177.5，theo 173.6，delta 0.418，theo_vol 50.84%；卖方保证金 2,663.35 元。来源：Orange Hitick <span class="mono">orange_vol_data / by_underlying MA701</span>，2026-11-01 18:30 调用。</li>
+      <li>MA701 期权到期日 2026-12-11，乘数 10；SI2701 期权到期日 2026-12-07，乘数 5。来源：同上 <span class="mono">orange_resolve_subject</span>，2026-11-01。</li>
+      <li>SI2701 收 8,575、低 8,565、跌 0.69%；JM2701 收 1,408、高 1,415.5、低 1,386；ZN2701 收 25,610、跌 1.18%；TA2701 收 6,820、涨 3.02%；SC2612 收 758.5、涨 4.25%。来源：新浪财经，2026-11-01 18:40 调用。</li>
+      <li>伊朗重开方案从 7 天缩短至 2 天、代表团赴多哈；伊朗对 Sinokor 禁令自 11/1 生效；革命卫队称 10/30 四艘油轮起火。来源：华尔街见闻（2026-11-01）、今日头条转鲁中晨报（2026-11-01）、金融界（2026-11-01）。</li>
+      <li>甲醇 2612 与 2701 合约保证金 9%、涨跌停板 8%（郑商函〔2026〕945 号，2026-10-26 结算时起）。</li>
+    </ul>
+    <p style="margin-top:14px"><b>我的推断</b>（不可当事实用）：</p>
+    <ul style="font-size:13.5px">
+      <li>第二节情景表用的是 BS 模型 + 当前隐含波动率不变。真实 Greeks 会随 IV 和时间变化，实际盈亏与表格会有差异。</li>
+      <li>P3200 在 3,613 时的 74.1 是我算出来的，市场上没有这个价位的报价可核。误差可能在 ±5 元/吨。</li>
+      <li>"3,850 是对冲失效点"是我按 P3200 价值衰减到 40 以下定的经验阈值，不是最优解。</li>
+      <li>"周一 MA 会怎么开"我不知道。周末两条消息方向相反，我不做方向判断。</li>
+    </ul>
+    <p style="margin-top:14px"><b>我不知道的：</b>SI 期权真实报价；A 豆一 put 价差的当前市值；TA P6200 的当前报价（郑商所期权链脚本对 TA 报错，未修好）；你账户实际保证金比例。</p>
+  </div>
+
+  <div class="foot">
+    本文档由 2026-11-01 18:45 的公开行情与期权链数据生成。所有价格均为周五夜盘收盘价，周一日盘可能跳空，届时需以开盘价重算。文中的触发价与动作是对既有计划的核对，不构成新的建仓建议。
+  </div>
+
+</div>
+</body>
+</html>
