@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>套利总览仪表盘</title>
+<style>
+  :root{
+    --bg:#f5f5f3; --card:#fff; --line:rgba(0,0,0,.10); --txt:#1a1a1a; --dim:#6b6b6b; --hint:#9a9a9a;
+    --up:#d63a3a; --down:#1a9e64; --warn:#c8871a; --stop:#c0392b; --acc:#2b6cb0;
+    --g1:#2b6cb0; --g2:#7c5cbf; --g3:#c8871a; --g4:#5b6b7a;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#141414; --card:#1d1d1d; --line:rgba(255,255,255,.12); --txt:#f0f0f0; --dim:#a5a5a5; --hint:#7a7a7a;
+      --up:#e8625f; --down:#3ec08a; --warn:#e0a53d; --stop:#e05a4c; --acc:#5b9bd5;
+      --g1:#5b9bd5; --g2:#9b7fe0; --g3:#e0a53d; --g4:#8b9aa8; }
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;background:var(--bg);color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial,sans-serif;
+    font-size:13.5px;line-height:1.5;padding:12px 12px 40px;padding-top:calc(12px + env(safe-area-inset-top));}
+  header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 2px 10px;flex-wrap:wrap}
+  h1{font-size:16px;font-weight:600;margin:0}
+  .tools{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--dim)}
+  select,button{font:inherit;font-size:12px;color:var(--txt);background:var(--card);border:0.5px solid var(--line);border-radius:7px;padding:4px 9px;cursor:pointer}
+  a.lnk{font-size:12px;color:var(--acc);text-decoration:none}
+  .stamp{font-size:11.5px;color:var(--hint);font-variant-numeric:tabular-nums;width:100%}
+  .err{background:var(--stop);color:#fff;padding:7px 11px;border-radius:8px;font-size:12px;margin-bottom:8px;display:none}
+  /* 总览条 */
+  .sum{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}
+  @media (max-width:640px){ .sum{grid-template-columns:repeat(3,1fr)} }
+  .stat{background:var(--card);border:0.5px solid var(--line);border-radius:10px;padding:9px 10px;position:relative}
+  .stat .k{font-size:10.5px;color:var(--hint);letter-spacing:.5px}
+  .stat .v{font-size:19px;font-weight:600;font-variant-numeric:tabular-nums;margin-top:2px}
+  .stat .s{font-size:10.5px;color:var(--dim);margin-top:1px}
+  .stat.alert{border:1.5px solid var(--stop)}
+  .stat.alert::after{content:'';position:absolute;top:8px;right:8px;width:7px;height:7px;border-radius:50%;background:var(--stop);animation:bl 1.1s infinite}
+  @keyframes bl{0%,100%{opacity:1}50%{opacity:.25}}
+  /* 分组 */
+  .grp{margin:16px 0 8px;display:flex;align-items:center;gap:8px}
+  .grp .bar{width:4px;height:16px;border-radius:2px}
+  .grp .t{font-size:13.5px;font-weight:600}
+  .grp .n{font-size:11px;color:var(--hint)}
+  .grid{display:grid;grid-template-columns:1fr;gap:9px}
+  @media (min-width:760px){ .grid{grid-template-columns:1fr 1fr} }
+  @media (min-width:1180px){ .grid{grid-template-columns:1fr 1fr 1fr} }
+  .card{background:var(--card);border:0.5px solid var(--line);border-radius:11px;padding:11px 12px;position:relative}
+  .card.warn{border-left:3px solid var(--warn)}
+  .card.stop{border-left:3px solid var(--stop)}
+  .nm{font-size:13px;font-weight:600;display:flex;align-items:baseline;justify-content:space-between;gap:6px}
+  .nm .dir{font-size:10.5px;color:var(--hint);font-weight:400;text-align:right}
+  .val{display:flex;align-items:baseline;gap:8px;margin:6px 0 2px}
+  .big{font-size:23px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.4px}
+  .unit{font-size:10.5px;color:var(--hint)}
+  .up{color:var(--up)} .down{color:var(--down)} .flat{color:var(--dim)}
+  .legs{font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums;margin-top:5px;line-height:1.65}
+  .legs b{font-weight:500;color:var(--txt)}
+  .lines{margin-top:7px;display:flex;flex-direction:column;gap:3px}
+  .ln{display:flex;align-items:center;gap:7px;font-size:11px;font-variant-numeric:tabular-nums}
+  .ln .lab{color:var(--dim);min-width:118px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ln .bar{flex:1;height:4px;border-radius:2px;background:var(--line);position:relative;overflow:visible}
+  .ln .bar i{position:absolute;top:-2.5px;width:2px;height:9px;border-radius:1px;background:var(--dim)}
+  .ln .d{min-width:52px;text-align:right;color:var(--dim)}
+  .ln.stop .lab,.ln.stop .d{color:var(--stop)} .ln.stop .bar i{background:var(--stop)}
+  .ln.target .lab,.ln.target .d{color:var(--down)} .ln.target .bar i{background:var(--down)}
+  .ln.near .bar i{background:var(--warn)} .ln.near .d{color:var(--warn);font-weight:600}
+  .ln.hit .bar i{background:var(--stop)} .ln.hit .d{color:#fff;background:var(--stop);border-radius:4px;padding:0 4px;font-weight:600}
+  details{margin-top:6px}
+  details summary{font-size:10.5px;color:var(--acc);cursor:pointer;user-select:none;list-style:none}
+  details summary::-webkit-details-marker{display:none}
+  details .note{font-size:11px;color:var(--hint);margin-top:5px;line-height:1.6;border-top:0.5px dashed var(--line);padding-top:6px}
+  details .note b{color:var(--warn);font-weight:500}
+  footer{margin:18px 2px 0;font-size:10.5px;color:var(--hint);line-height:1.8}
+</style>
+</head>
+<body>
+<header>
+  <h1>套利总览仪表盘</h1>
+  <div class="tools">
+    <a class="lnk" href="/watch.html">卡牌盯盘页 →</a>
+    <span>每3秒刷新</span>
+    <button id="pause">暂停</button>
+  </div>
+  <div class="stamp" id="stamp">初始化…</div>
+</header>
+<div class="err" id="err"></div>
+<div class="sum" id="sum"></div>
+<div id="body"></div>
+<footer>
+  数据源：新浪期货实时行情（经面板服务端转发）· 价差 = 腿A×系数A − 腿B×系数B · 涨红跌绿 ·
+  触发线距离条：越接近 0 越危险，红=穿越/贴线，黄=接近（±8 点内）· Δ仓=当日首次观测以来变化（夜盘归属下一交易日）· 无夜盘品种晚间为日盘定格值
+</footer>
+<script>
+const CARDS=[
+/* ═══ 持仓与结案 ═══ */
+{name:'【持仓】TA-PX 加工费(剩2组)',a:'TA2701',wa:1,b:'PX2701',wb:0.655,dir:'空 fee · 剩2组 · 死线620',
+ lv:'死线(收盘/夜盘即走):620\n时间线11-27收盘:600\n开仓fee:594.3',
+ note:'11-25 21:2x 平 4 组 @619（已实现 −8,892），剩 2 组。夜盘 fee 622.9 已站上 620 死线——TA701 OI 转增仓 +9.0k（空头回补反弹获新多头接力）。剩 2 组收盘 ≥620 即全平，夜盘已在线上建议直接走。作废线（珠海BP 2#复产+PX减仓）未成立也不再有持仓理由。',hot:1},
+{name:'【持仓】AP 1-5 反套(4组)',a:'AP2701',wa:1,b:'AP2705',wb:1,dir:'空01多05 · 20元/点 · 均价646',
+ lv:'止损(收盘全员):750\nT1(平2组):500\nT2(清仓):350\n4组均价:646',
+ note:'11-25 14:59 @604 加 2 组（A触发：620~630 三次受阻+收盘确认）。止损全员上移 750（11-23 高点 712 上方），四组总风险≈8,440=2.8 份预算。T1 500 平 2 组 → T2 350 清仓，中性 250~300。证伪线 720。⚠️无夜盘，明早 9:00 第一件事核跳空。',hot:1},
+{name:'【持仓】UR 牛市价差(2组)',a:'UR2701',wa:1,b:'',wb:1,dir:'买C1740卖C1800 · 拿到期',
+ lv:'12-04复核线:1740\n保本:1759.5',
+ note:'唯一硬线=12-04 收盘复核：UR<1740 全平 / ≥1740 拿到期（最后一周 theta 崩塌+到期流动性萎缩）。12-11 到期，无夜盘。'},
+{name:'【持仓】L-PP 重进观察',a:'L2701',wa:1,b:'PP2701',wb:1,dir:'多L空PP · 等回踩',
+ lv:'回踩区上沿:-750\n回踩区下沿:-765\n止损(收复):-800\n目标:-700',
+ note:'PP 1-5 已清仓（+1,610），PP01 空腿约束解除。触发：回踩 −750~−765 破位回踩确认 + PP 弱势 → 1 组；不回踩直接续走则放弃。'},
+{name:'【结案】PP 1-5 做窄 +1,610',a:'PP2701',wa:1,b:'PP2705',wb:1,dir:'空01多05 · 5元/点 · 已清仓',
+ lv:'清仓@742:+720\nT1@700:+890\n合计:+1,610',
+ note:'4 组开仓（2@789+2@813）→ T1 @700 平 2 组 +890 → 01 OI 两日回升+740 重估线上方 @742 清仓 +720。教训：01 OI 九连降后首增=离场信号；点值铁律 PP/L=5、AP/JD=10、LH=16、TA-PX=90。'},
+{name:'【结案·再入场】LH 01-03',a:'LH2701',wa:1,b:'LH2703',wb:1,dir:'空01多03 · 等双确认',
+ lv:'触发②双确认线:430\n止损:500\n现货开关:未亮',
+ note:'价差 430 踩触发②线，01 减仓下跌+03 增仓下跌=塌陷加速（单日 −95）。但现货开关未亮（全国均价 10.03 +0.22 续创新高）。执行：跌破 430 后不收复 460 + 现货首日回落，双确认才进 1 组（止损收盘 500）；或等 12-08 事件窗口。暗线：二育出栏窗口 12 月中下旬+冻品库容 31-32% 高位。无夜盘。'},
+/* ═══ 扳机与触发 ═══ */
+{name:'【扳机】MA 1-5 做窄',a:'MA2701',wa:1,b:'MA2705',wb:1,dir:'两路扳机 · 冷却期',
+ lv:'作废线:381\n扳机②破位:350\n扳机①止损:395',
+ note:'价差 375→391 续走阔（130日96分位），01 夜盘增仓 +4 万手上涨=走阔燃料；仓单 6,753→6,330 连续去化，挤仓式崩塌缺燃料。扳机①：回落 381 下方+反弹受阻收阴 → 1 组（止损收盘 ≥395）；扳机②：破位 350 顺势 1 组（崩塌剧本，止损收复 381）。01 单夜 +4 万手是双刃剑。规则 21 冷却期：触发只报不动。',hot:1},
+{name:'【扳机】OI 1-5 反套',a:'OI2701',wa:1,b:'OI2705',wb:1,dir:'崩塌中段 · 等反弹受阻',
+ lv:'入场区上沿:480\n入场区下沿:460\n止损(收复):500\nT1:400',
+ note:'11-24 收 472（130日新高）→ 435 单日崩 35。01 增仓下跌（20.1万→29.4万）+仓单 4,566 张未回升。崩塌中段不追。入场=反弹 460~480 受阻收阴 → 空 01 多 05（10元/点），止损收盘收复 500；T1 400/T2 350，中性 250~300。作废线=仓单连 2 周回升或 01 转减仓上涨。',hot:1},
+{name:'【扳机】AL 1-3 反套',a:'AL2701',wa:1,b:'AL2703',wb:1,dir:'塌后反弹 · 等受阻',
+ lv:'入场区上沿:800\n入场区下沿:750\n止损(收复):870\n塌陷低点:645',
+ note:'塌陷第一段完成（915→645 单日 −270），夜盘薄量反弹 645→725。01 OI 续降（25.5万→25.1万）=多头撤退未止。扳机：反弹进 750~800 受阻收阴 → 空 01 多 03（5元/点），止损收盘收复 870；备选=破 645 顺势（漩涡风险减半仓）。规则 21 冷却期。',hot:1},
+{name:'【触发】LC 单腿空',a:'LC2701',wa:1,b:'',wb:1,dir:'反弹受阻空 · 重设版',
+ lv:'触发区上沿:88500\n触发区下沿:86000\n止损:91500\n目标:78000',
+ note:'旧触发（反弹97k收阴）从未成立，LC 直落 93k→83k 错过 10%。教训：触发器须随结构重算。新触发：反弹 86,000~88,500（跳空区反压）受阻收阴+增仓 → 空 1 手；直接破 82,600 前低则放弃。1 元/点。'},
+{name:'【触发】RM 单腿空',a:'RM2701',wa:1,b:'',wb:1,dir:'反抽空',
+ lv:'触发区上沿:2290\n触发区下沿:2275\n止损:2345\n目标:2146',
+ note:'触发：反抽 2275-2290 且当日收阴+减仓才进；M2701 >3170 撤。现价追空赔率 0.83 已否决。'},
+{name:'【触发】CF 01-05（禁做中）',a:'CF2701',wa:1,b:'CF2705',wb:1,dir:'逼空尾部 · 禁做',
+ lv:'峰值:395\n新高:400',
+ note:'陈棉注销仓单仅剩 38 张 vs 01 持仓 60.5 万手，逼空尾部禁做。触发（同时满足）：仓单+有效预报连 2 日回升 且 收盘破 395。收敛催化=12 月新花注册上量。'},
+{name:'【触发】豆棕 Y-P',a:'Y2701',wa:1,b:'P2701',wb:1,dir:'开关未到',
+ lv:'现值:193\n存档:-125',
+ note:'z 需重估，先记录不行动。开关（同时满足）：z ≥1.5 且 棕油库存去化，才做多P空Y。'},
+{name:'【触发】PS 单腿多',a:'PS2701',wa:1,b:'',wb:1,dir:'等触发',
+ lv:'门槛:34500',
+ note:'触发：厂库连 2 周去化 + 站上 34,500 才做多。'},
+/* ═══ 极值监控 ═══ */
+{name:'【极值】EG 1-5',a:'EG2701',wa:1,b:'EG2705',wb:1,dir:'新高 · 增仓上涨',
+ lv:'夜盘:550\n日盘收:531\nμ:134',
+ note:'531→550 续新高。属性转变：减仓上涨（空头回补）→ 增仓上涨 +7.8k（新多头进场）——回踩 430~450 可能给不出来。增仓新高不追；01 转减仓或价差滞涨再评估。',hot:1},
+{name:'【极值】JM 1-5',a:'JM2701',wa:1,b:'JM2705',wb:1,dir:'128日 100%分位',
+ lv:'历史高:164\nμ:46',
+ note:'焦煤近月新高=低通关撑近月（与 J-JM 做阔放弃互证）。11-26 甘其毛都闭关 1 天，通关恢复情况是关键归因变量。'},
+{name:'【极值】RB 1-5',a:'RB2701',wa:1,b:'RB2705',wb:1,dir:'130日 100%分位',
+ lv:'历史高:44\nμ:-16',
+ note:'螺纹近月历史新高（冬季刚需+宏观近强远弱）。归因待查：冬储节奏/钢厂减产/仓单。区间窄注意滑点。'},
+{name:'【极值】HC 1-5',a:'HC2701',wa:1,b:'HC2705',wb:1,dir:'130日 100%分位',
+ lv:'历史高:-3\nμ:-17',
+ note:'与 RB 同一宏观结构，视为同一仓位不可重复计。σ=5 极窄，滑点敏感。'},
+/* ═══ 观察池 ═══ */
+{name:'【观察】J-JM（1.3系数）',a:'J2701',wa:1,b:'JM2701',wb:1.3,dir:'本轮作废 · 逐腿核算',
+ lv:'fee作废线:105',
+ note:'本轮做阔放弃（通关 ≥900 无法验证+11-26 闭关）。夜盘 fee 106.7 回升、JM 增仓续强=作废维持。口径：−ΔJ×100 + ΔJM×120。重新点亮=通关 ≥900 实证回升。'},
+{name:'【观察】M-RM 01',a:'M2701',wa:1,b:'RM2701',wb:1,dir:'观察池',
+ lv:'触发观察区:950~1000',
+ note:'全链 +9,530 已结案。触发线：950~1000 + 豆粕库存转升 → 反套。单日变动 >80 点拿来重做归因。'},
+{name:'【观察】SH 1-5',a:'SH2701',wa:1,b:'SH2705',wb:1,dir:'月差 · 挂触发',
+ lv:'触发区下沿:-160\n触发区上沿:-150\n止损:-180',
+ note:'回踩 −150~−160 不创新低 + 片碱库存去化/氧化铝开工维持 → 1 组收敛多 01 空 05（30元/点）。规则 15 教训在案：单腿脉冲极值会回吐。'},
+{name:'【观察】CU 01-03',a:'CU2701',wa:1,b:'CU2703',wb:1,dir:'结案留观',
+ lv:'平仓位:850',
+ note:'11-20 @850 平 +200 结案。01 增仓下跌续跌（夜盘 88,170 −1.77%）——崩后第一段不追单腿。'},
+{name:'【观察】JD 1-5',a:'JD2701',wa:1,b:'JD2705',wb:1,dir:'观察池',
+ lv:'现值:205',
+ note:'全链 +8,426 已结案；现值高于清仓位。无硬线，异常再议。'},
+{name:'【观察】FG 1-5',a:'FG2701',wa:1,b:'FG2705',wb:1,dir:'观察池',
+ lv:'现值:-38',
+ note:'11-18 @−42 平 2 组 +80。无硬线，异常再议。'},
+{name:'【观察】ZN 01-3',a:'ZN2701',wa:1,b:'ZN2703',wb:1,dir:'观察池',
+ lv:'观察区下沿:130\n观察区上沿:150',
+ note:'夜盘 150 已摸观察区上沿（弱触发记录）。如要做需先结构重评（止损取前高/前低+缓冲，规则 20）。'}
+];
+const GRP=[
+ {t:'持仓与结案',c:'--g1',m:['【持仓】','【结案】']},
+ {t:'扳机与触发',c:'--g2',m:['【扳机】','【触发】']},
+ {t:'极值监控',c:'--g3',m:['【极值】']},
+ {t:'观察池',c:'--g4',m:['【观察】']}
+];
+let base={}; try{base=JSON.parse(localStorage.getItem('spreadWatchBase_v1'))||{};}catch(e){base={};}
+let lastSpread={}, paused=false, timer=null;
+const $=id=>document.getElementById(id);
+
+function grpOf(n){for(const g of GRP)if(g.m.some(m=>n.startsWith(m)))return g;return GRP[3];}
+function parseLv(t){return (t||'').split('\n').map(s=>s.trim()).filter(Boolean).map(l=>{
+  const i=l.lastIndexOf(':'); if(i<0)return{label:l,v:NaN};
+  return{label:l.slice(0,i).trim(),v:parseFloat(l.slice(i+1).replace(/[^\d.\-]/g,''))};}).filter(x=>!isNaN(x.v));}
+function allCodes(){const s=new Set();CARDS.forEach(c=>[c.a,c.b].filter(Boolean).forEach(x=>s.add(x.toUpperCase())));return [...s];}
+function fmt(n,d){if(isNaN(n))return '—';
+  if(d!==undefined)return n.toFixed(d);
+  if(Number.isInteger(n))return String(n);
+  const dec=Math.abs(n)>=1000?0:(Math.abs(n)>=100?1:2);return n.toFixed(dec);}
+
+function render(Q,ts,src,missing){
+  $('stamp').textContent=`更新 ${new Date(ts||Date.now()).toLocaleTimeString('zh-CN',{hour12:false})} · 源 ${src||'—'} · ${CARDS.length} 张卡`;
+  if(missing&&missing.length){$('err').style.display='block';$('err').textContent='无行情合约：'+missing.join('、');}
+  else $('err').style.display='none';
+  let alerts=0;
+  const secHtml=GRP.map(g=>{
+    const list=CARDS.filter(c=>grpOf(c.name)===g);
+    const cards=list.map(c=>{
+      const A=Q[c.a.toUpperCase()], B=c.b?Q[c.b.toUpperCase()]:null;
+      const spread=(A?A.last*+c.wa:NaN)-(B?B.last*+c.wb:NaN);
+      const prev=lastSpread[c.name];
+      const dSpr=(prev!==undefined&&!isNaN(spread))?spread-prev:NaN;
+      lastSpread[c.name]=spread;
+      const lv=parseLv(c.lv).slice(0,4);
+      let cardCls='';
+      const rows=lv.map(L=>{
+        const dist=spread-L.v;
+        if(isNaN(dist))return '';
+        const near=Math.abs(dist)<(Math.abs(L.v)>500?2.5:1.2);
+        const isStop=/止损|作废|死线|警戒|风险|禁做/i.test(L.label);
+        const isTgt=/目标|T1|T2|止盈|清仓|门槛|入场区|触发区|回踩区|复核/i.test(L.label);
+        let cls='';
+        if(near){cls='hit';cardCls='stop';}
+        else if(Math.abs(dist)<8){cls='near';cardCls=cardCls||'warn';}
+        else if(isStop)cls='stop';
+        else if(isTgt)cls='target';
+        const span=Math.max(Math.abs(L.v)*0.06,10);
+        const pos=Math.max(0,Math.min(100,50+dist/span*50));
+        return `<div class="ln ${cls}"><span class="lab">${L.label} ${fmt(L.v)}</span>
+          <span class="bar"><i style="left:${pos}%"></i></span>
+          <span class="d">${dist>0?'+':''}${fmt(dist,Math.abs(dist)>=100?0:1)}</span></div>`;
+      }).join('');
+      if(cardCls==='stop')alerts++;
+      [A,B].forEach(q=>{if(q&&q.date&&q.oi){const k=q.name+q.date;if(!base[k])base[k]={oi:q.oi,p:q.last};}});
+      const dOi=q=>{if(!q||!q.date)return null;const b=base[q.name+q.date];return b?(q.oi-b.oi):null;};
+      const leg=tag=>{
+        const q=tag==='A'?A:B;
+        if(!q)return '';
+        const chg=q.preSettle?100*(q.last/q.preSettle-1):NaN;
+        const doi=dOi(q);
+        return `<b>${tag} ${q.name||''}</b> ${fmt(q.last)}（${!isNaN(chg)?(chg>0?'+':'')+chg.toFixed(2)+'%':'—'}）· 仓 ${fmt(q.oi,0)}${doi!==null?`（${doi>0?'+':''}${fmt(doi,0)}）`:''}`;
+      };
+      return `<div class="card ${cardCls}">
+        <div class="nm"><span>${c.name}</span><span class="dir">${c.dir||''}</span></div>
+        <div class="val"><span class="big ${!isNaN(dSpr)?(dSpr>0?'up':dSpr<0?'down':'flat'):''}">${isNaN(spread)?'—':fmt(spread)}</span>
+          <span class="unit">现价差${isNaN(dSpr)?'':`（${dSpr>0?'+':''}${fmt(dSpr)}）`}</span></div>
+        <div class="legs">${leg('A')}${B?`<br>${leg('B')}`:''}</div>
+        ${rows?`<div class="lines">${rows}</div>`:''}
+        <details><summary>备注 ▾</summary><div class="note">${c.note}</div></details>
+      </div>`;
+    }).join('');
+    return `<div class="grp"><span class="bar" style="background:var(${g.c})"></span><span class="t">${g.t}</span><span class="n">${list.length} 张</span></div>
+      <div class="grid">${cards}</div>`;
+  }).join('');
+  $('body').innerHTML=secHtml;
+  const holds=CARDS.filter(c=>c.name.startsWith('【持仓】')).length;
+  const done=CARDS.filter(c=>c.name.includes('【结案】')).length;
+  $('sum').innerHTML=`
+    <div class="stat"><div class="k">持仓</div><div class="v">${holds}</div><div class="s">TA-PX 2组 · AP 4组 · UR 2组</div></div>
+    <div class="stat${alerts>0?' alert':''}"><div class="k">告警卡</div><div class="v">${alerts}</div><div class="s">贴线/穿越</div></div>
+    <div class="stat"><div class="k">扳机待命</div><div class="v">${CARDS.filter(c=>c.name.startsWith('【扳机】')||c.name.startsWith('【触发】')).length}</div><div class="s">冷却期 21:39 起算</div></div>
+    <div class="stat"><div class="k">极值</div><div class="v">${CARDS.filter(c=>c.name.startsWith('【极值】')).length}</div><div class="s">100%分位品种</div></div>
+    <div class="stat"><div class="k">结案</div><div class="v">${done}</div><div class="s">PP +1,610 等</div></div>`;
+  try{localStorage.setItem('spreadWatchBase_v1',JSON.stringify(base));}catch(e){}
+}
+
+async function tick(){
+  try{
+    const r=await fetch('/api/q?codes='+allCodes().join(','));
+    const j=await r.json();
+    if(j.error)throw new Error(j.error);
+    render(j.q,j.ts,j.src,j.missing);
+  }catch(e){
+    $('err').style.display='block';$('err').textContent='行情获取失败：'+e.message;
+  }
+}
+$('pause').onclick=()=>{paused=!paused;$('pause').textContent=paused?'继续':'暂停';
+  if(paused)clearInterval(timer);else{tick();timer=setInterval(tick,3000);}};
+timer=setInterval(tick,3000);tick();
+</script>
+</body>
+</html>
